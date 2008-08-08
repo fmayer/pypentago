@@ -24,6 +24,10 @@ from pypentago.parser import Parser, State
 
 
 class InvalidPGN(Exception):
+    """ This exception is raised when a PGN passed to from_pgn
+    is not valid. This means that it is either too long, too
+    short or contains characters it may not 
+    """
     pass
 
 
