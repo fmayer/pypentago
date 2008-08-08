@@ -37,7 +37,7 @@ from pypentago import __version__, __authors__, __copyright__, __url__
 from pypentago import __artists__, __description__, __bugs__
 
 from pypentago.get_conf import get_conf_obj
-from pypentago.pgn import from_pgn, to_pgn, write_file
+from pypentago.pgn import from_pgn, to_pgn, write_file, InvalidPGN
 
 from pypentago.client import field
 from pypentago.client import connection
@@ -53,6 +53,10 @@ from pypentago.client.connection import runClient
 script_path = dirname(__file__)
 imgpath = join(script_path, '..', "img")
 log = logging.getLogger("pypentago.interface")
+
+
+class SquareNotEmpty(Exception):
+    pass
 
 
 class ChangePwdDialog(wx.Dialog):
@@ -136,6 +140,7 @@ class Square(wx.BitmapButton):
             self.game.set_stone_button = self
         else:
             self.update()
+            raise SquareNotEmpty
     
     def set_opponent_stone(self):
         if not self.value:
@@ -143,6 +148,7 @@ class Square(wx.BitmapButton):
             self.SetBitmapLabel(self.black)
         else:
             self.update()
+            raise SquareNotEmpty
     
     def update(self, evt=None):
         self.SetBitmapLabel(self.colours[self.value])
@@ -487,7 +493,7 @@ class MainFrame(wx.Frame):
         menu_bar = wx.MenuBar()
         
         operations_menu = wx.Menu()
-        self.open_game = operations_menu.Append(-1, "&Open Game")
+        self.open_game = operations_menu.Append(-1, "&Open Game\tCtrl-N")
         self.close_game = operations_menu.Append(-1, "&Close Game")
         self.create_account = operations_menu.Append(-1, "Create &Account")
         self.change_pwd = operations_menu.Append(-1, "Change &Password")
@@ -537,10 +543,18 @@ class MainFrame(wx.Frame):
         self.panel.game.save_replay()
     
     def on_apply_pgn(self, evt):
-        pgn_string = wx.GetTextFromUser("Please insert the PGN of the turn you"
-                                        " would like to apply", "Insert PGN")
-        turn = from_pgn(pgn_string)
-        self.panel.game.apply_own_turn(turn)
+        pgn_string = wx.GetTextFromUser("Please insert the PGN of the turn you "
+                                        "would like to apply", "Insert PGN")
+        try:
+            turn = from_pgn(pgn_string)
+        except InvalidPGN:
+            wx.MessageBox("Invalid PGN string provided.")
+        else:
+            try:
+                self.panel.game.apply_own_turn(turn)
+            except SquareNotEmpty:
+                wx.MessageBox("The square you are trying to set your stone on "
+                              "is not empty.")
     
     def on_undo(self, evt):
         self.panel.game.undo()

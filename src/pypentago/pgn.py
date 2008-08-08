@@ -19,29 +19,13 @@
 # Enables use of with statement that automatically closes a file after the code
 # is executed.
 from __future__ import with_statement
-import unittest
 
-def flatten(x):
-    """flatten(sequence) -> list
+from pypentago.parser import Parser, State
 
-    Returns a single, flat list which contains all elements retrieved
-    from the sequence and all recursively contained sub-sequences
-    (iterables).
 
-    Examples:
-    >>> [1, 2, [3,4], (5,6)]
-    [1, 2, [3, 4], (5, 6)]
-    >>> flatten([[[1,2,3], (42,None)], [4,5], [6], 7, MyVector(8,9,10)])
-    [1, 2, 3, 42, None, 4, 5, 6, 7, 8, 9, 10]"""
+class InvalidPGN(Exception):
+    pass
 
-    result = []
-    for el in x:
-        #if isinstance(el, (list, tuple)):
-        if hasattr(el, "__iter__") and not isinstance(el, basestring):
-            result.extend(flatten(el))
-        else:
-            result.append(el)
-    return result
 
 def to_pgn(field, row, column, rot_dir, rot_field):
     """ Convert field, row, column, rot_dir, rot_field to a PGN string """
@@ -51,15 +35,27 @@ def to_pgn(field, row, column, rot_dir, rot_field):
     rot_dir = rot_dir
     rot_field = chr(ord("A")+int(rot_field))
     return "".join([str(a) for a in (field, row, col, rot_dir, rot_field)])
+
+
 def from_pgn(pgn_string):
     """ Convert a PGN string to field, row, column, rot_dir, rot_field """
-    field, row, col, rot_dir, rot_field = list(pgn_string)
+    try:
+        field, row, col, rot_dir, rot_field = pgn_string
+    except ValueError:
+        raise InvalidPGN(pgn_string)
+    
     field = ord(field) -  ord("A")
     row = ord(row) - ord("a")
-    col = int(col)-1
+    col = int(col)- 1
     rot_dir = rot_dir
     rot_field = ord(rot_field) - ord("A")
+    if not (field < 4 and row < 3 and col < 3 and rot_dir in ("R", "L") 
+            and rot_field < 4):
+        # DEBUG PRINT
+        print field, row, col, rot_dir, rot_field
+        raise InvalidPGN
     return (field, row, col, rot_dir, rot_field)
+
 
 def get_game_pgn(turns):
     lines = []
@@ -75,13 +71,15 @@ def get_game_pgn(turns):
         else:
             lock = False
     return "\n".join(lines)
+
+
 def write_file(turns, file_name):
     """ Write the turns to file_name in PGN replay file format """
     lines = get_game_pgn(turns)
     with open(file_name, "w") as file_obj: 
         file_obj.write(lines)
                                          
-from parser import Parser, State
+
 class PentagoParser(Parser):
     def __init__(self):
         Parser.__init__(self)
@@ -92,6 +90,8 @@ class PentagoParser(Parser):
         self.multiline_mdata = State(self, "%", True, "%")
         
         self.state = self.default_state
+
+
 def parse_file(file_name):
     """ Return a list containing the turns described in a PNG file in the format
     (playerID, (field, row, col, rot_dir, rot_field)). The PNG file contains the
@@ -119,4 +119,3 @@ def parse_file(file_name):
         metadata[key] = value
 
     return [from_pgn(elem) for elem in pgn_strings if len(elem) == 5]
-
