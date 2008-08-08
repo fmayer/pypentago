@@ -35,7 +35,7 @@ setup(
     packages=['pypentago', 'pypentago.server', 'pypentago.server.db.', 
               'pypentago.client', 
               'pypentago.client.img', 'easy_twisted', 'pygrade'],
-    package_data = {'pypentago.client.img': ['*.png']},
+    package_data={'pypentago.client.img': ['*.png']},
     scripts=[ ],
     entry_points = {
         'console_scripts': [
@@ -53,6 +53,7 @@ setup(
 
     install_requires=[
         'twisted',
+	'simplejson',
         ],
 )
 
