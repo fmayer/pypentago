@@ -55,8 +55,6 @@ def from_pgn(pgn_string):
     rot_field = ord(rot_field) - ord("A")
     if not (field < 4 and row < 3 and col < 3 and rot_dir in ("R", "L") 
             and rot_field < 4):
-        # DEBUG PRINT
-        print field, row, col, rot_dir, rot_field
         raise InvalidPGN
     return (field, row, col, rot_dir, rot_field)
 
