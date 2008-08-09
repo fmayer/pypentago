@@ -70,7 +70,7 @@ class GameInfo:
         self.ranked = ranked
     
     def join(self):
-        self.conn.joinGame(self.id)
+        self.conn.join_game(self.id)
 
 
 class Conn(Connection):
@@ -236,7 +236,7 @@ class Conn(Connection):
                                             full, ranked, self))
         actions.emmit_action('gamelist', r_games)
 
-    def joinGame(self, id):
+    def join_game(self, id):
         self.send("JOINGAME", id)
         
     @expose('INGAME')

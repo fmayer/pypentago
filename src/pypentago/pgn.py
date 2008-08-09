@@ -42,7 +42,11 @@ def to_pgn(field, row, column, rot_dir, rot_field):
 
 
 def from_pgn(pgn_string):
-    """ Convert a PGN string to field, row, column, rot_dir, rot_field """
+    """ Convert a PGN string to (field, row, column, rot_dir, rot_field). 
+    
+    Raises InvalidPGN if supplied with an invalid PGN string. This could be a 
+    string that is too short, too long, or has characters in it that do not 
+    represent a location on the board. """
     try:
         field, row, col, rot_dir, rot_field = pgn_string
     except ValueError:

@@ -40,29 +40,53 @@ Value
 
 Terminology
 ===========
-emitter --------- function that uses "emit_action"
-registrar ------- function that uses "register_handler" or 
-                  "register_nostate_handler"
-handler --------- function that handles an action
-action ---------- event that the emitter wants a handler to handle
-state ----------- information the emitter needs to pass to the handler
-nostate handler - function that does not take state
++-----------------+------------------------------------------------------+
+| emitter         | function that uses "emit_action"                     |
++-----------------+------------------------------------------------------+
+| registrar       | function that uses "register_handler" or             |
+|                 | "register_nostate_handler"                           |
++-----------------+------------------------------------------------------+
+| handler         | function that handles an action                      |
++-----------------+------------------------------------------------------+
+| action          | event that the emitter wants a handler to handle     |
++-----------------+------------------------------------------------------+
+| state           | information the emitter needs to pass to the handler |
++-----------------+------------------------------------------------------+
+| nostate handler | function that does not take state                    |
++-----------------+------------------------------------------------------+
 
 Available actions
 =================
-registered       | state -> ID_REG/ID_NOT_REG/ID_DUP
-not_logged_in    | state -> None
-display_player   | state -> PlayerInfo object
-turn_recv        | state -> [quadrant, row, col, rot_dir, rot_field]
-in_game          | state -> None
-email_available  | state -> True/False
-name_available   | state -> True/False
-login            | state -> True/False
-game_over        | state -> ID_WIN/ID_DRAW/ID_LOST
-gamelist         | state -> [GameInfo, ...]
-start            | state -> True/False
-conn_lost        | state -> None
-conn_established | state -> Conn
++------------------+--------------------------------------------------+
+| Action           | State                                            |
++==================+==================================================+
+| registered       | state -> ID_REG/ID_NOT_REG/ID_DUP                |
++------------------+--------------------------------------------------+
+| not_logged_in    | state -> None                                    |
++------------------+--------------------------------------------------+
+| display_player   | state -> PlayerInfo object                       |
++------------------+--------------------------------------------------+
+| turn_recv        | state -> [quadrant, row, col, rot_dir, rot_field]|
++------------------+--------------------------------------------------+
+| in_game          | state -> None                                    |
++------------------+--------------------------------------------------+
+| email_available  | state -> True/False                              |
++------------------+--------------------------------------------------+
+| name_available   | state -> True/False                              |
++------------------+--------------------------------------------------+
+| login            | state -> True/False                              |
++------------------+--------------------------------------------------+
+| game_over        | state -> ID_WIN/ID_DRAW/ID_LOST                  |
++------------------+--------------------------------------------------+
+| gamelist         | state -> [GameInfo, ...]                         |
++------------------+--------------------------------------------------+
+| start            | state -> True/False                              |
++------------------+--------------------------------------------------+
+| conn_lost        | state -> None                                    |
++------------------+--------------------------------------------------+
+| conn_established | state -> Conn                                    |
++------------------+--------------------------------------------------+
+
 """
 # Keep above list synced with the actions that are available.
 
@@ -75,10 +99,12 @@ class StopHandling(Exception):
     successive handlers from being executed. """
     pass
 
+
 class InstanceDecorator:
     def __init__(self):
         for f_name, dec in self._decorators:
             setattr(self, f_name, dec(getattr(self, f_name)))
+
 
 class ActionHandler(InstanceDecorator):
     """ All classes using @register_method must be subclasses of this and invoke
@@ -88,6 +114,7 @@ class ActionHandler(InstanceDecorator):
     def __init__(self):
         self._actions = []
         InstanceDecorator.__init__(self)
+    
     def remove_actions(self):
         """ This deletes all actions that were associated with methods of the 
         class.
@@ -97,6 +124,7 @@ class ActionHandler(InstanceDecorator):
         """
         for action in self._actions:
             delete_action(action)
+    
     def remove_handlers(self):
         """ This deassociates all handlers of this class from the actions. 
         
@@ -107,12 +135,14 @@ class ActionHandler(InstanceDecorator):
                 if handler[0] is getattr(self, handler[0].__name__, False):
                     remove_handler(action, handler[0])
 
+
 def instancedecorator(decorator, lst):
     """ Run decorator when klass is being instantiated. """
     def decorate(f):
         lst.append((f.__name__, decorator))
         return f
     return decorate
+
 
 def register_handler(action, exc, *args, **kwargs):
     """ Register exc to the action action with additional paramenters to be 
@@ -122,6 +152,7 @@ def register_handler(action, exc, *args, **kwargs):
     action will execute them in order of registration. """
     actions[action].append((exc, args, kwargs, False))
 
+
 def register_nostate_handler(action, exc, *args, **kwargs):
     """ Register handler that does *NOT* take state as first argument. 
     
@@ -129,6 +160,7 @@ def register_nostate_handler(action, exc, *args, **kwargs):
     None as state. Useful for binding directly to framework functions. """
     actions[action].append((exc, args, kwargs, True))
     
+
 def remove_handler(action, exc):
     """ Remove the function exc from the list of hooks for action. """
     actions[action] = [x for x in actions[action] if not x[0] == exc] 
@@ -152,7 +184,8 @@ def emmit_action(action, state=None):
                 exc(state, *args, **kwargs)
         except StopHandling:
             break
-        
+
+
 def register(action):
     """ Associate decorated function with action """
     def decorate(f):
@@ -163,6 +196,7 @@ def register(action):
             f.im_self._actions.append(action)
         return f
     return decorate
+
 
 def register_method(action, lst):
     """ Associate action with method. lst has to be _decorators!
