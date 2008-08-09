@@ -46,6 +46,7 @@ ID_DUP = 0.5
 ID_REG = True
 ID_NOT_REG = False
 
+
 class InvalidIPException(Exception):
     pass
 
@@ -77,7 +78,7 @@ class Conn(Connection):
         log.info("Connection established")
         actions.emmit_action('conn_established', self)
         self.active = False
-        self.getGames()
+        self.get_games()
         
     @expose('PWDCHANGED')
     def passwd_changed(self, evt):
@@ -118,7 +119,7 @@ class Conn(Connection):
     
     @expose('SYNCGAMES')
     def sync_gamelist(self, evt):
-        self.getGames()
+        self.get_games()
     # LOGIN FUNCTIONS
     # -------------------------
     def login(self, name, passwd):
@@ -127,7 +128,7 @@ class Conn(Connection):
         self.passwd = passwd
     
     @expose('CHALLENGE')
-    def onChallenge(self, evt):
+    def on_challenge(self, evt):
         log.debug("Received Challenge")
         temp_login = evt.arg
         self.respond(temp_login)
@@ -140,54 +141,54 @@ class Conn(Connection):
         self.send("RESPONSE", send)
     
     @expose('LOGINS')
-    def loginSuccess(self, args):
+    def login_success(self, args):
         actions.emmit_action('login', True)
     
     @expose('LOGINF')
-    def loginFailure(self, args):
+    def login_failure(self, args):
         actions.emmit_action('login', False)
     # LOGIN FUNCTIONS END
     # -------------------------
     
     # USER WIZARD FUNCTIONS
     # -------------------------
-    def nameAvailability(self, name):
+    def name_availability(self, name):
         self.send("NAMEAVAIL", name)
         log.debug("Sent NAMEAVAIL")
     
-    def emailAvailability(self, email):
+    def email_availability(self, email):
         self.send("EMAILAVAIL", email)
         
         log.debug("Sent EMAILAVAIL")
         
     @expose('EMAILUNAVAIL')
-    def onEmailUnAvailable(self, evt):
+    def on_email_unavailable(self, evt):
         actions.emmit_action('email_available', False)
     
     @expose('EMAILAVAIL')
-    def onEmailAvailable(self, evt):
+    def on_email_available(self, evt):
         actions.emmit_action('email_available', True)
     
     @expose('NAMEUNAVAIL')
-    def onNameUnAvailable(self, evt):
+    def on_name_unavailable(self, evt):
         actions.emmit_action('name_available', False)
 
     @expose('NAMEAVAIL')
-    def onNameAvailable(self, evt):
+    def on_name_available(self, evt):
         actions.emmit_action('name_available', True)
     # USER WIZARD FUNCTIONS END
     # -------------------------
 
-    def closeGame(self):
+    def close_game(self):
         self.send("CLOSEGAME")
     
     @expose('GAMEFULL')
-    def onGameFull(self, evt):
+    def on_game_full(self, evt):
         pass
     
     @expose('NOSUCHGAME')
-    def noSuchGame(self, evt):
-        self.getGames() # To synchronize the gamelist again
+    def no_such_game(self, evt):
+        self.get_games() # To synchronize the gamelist again
     
     def onAny(self, evt):
         log.warn("Received unknown event\n"
@@ -196,34 +197,35 @@ class Conn(Connection):
                                          evt.arg_list
                                          )
                       )
-    def connectionLost(self, reason):
+    
+    def destruct(self, reason):
         log.warn("Connection to server lost")
     
     @expose('CONNLOST')
-    def onConnLost(self, evt):
+    def on_conn_lost(self, evt):
         actions.emmit_action('conn_lost', ID_CONN_LOST)
     
     @expose('WON')
-    def onWon(self, evt):
+    def on_won(self, evt):
         actions.emmit_action('game_over', ID_WIN)
     
     @expose('LOST')
-    def onLost(self, evt):
+    def on_lost(self, evt):
         actions.emmit_action('game_over', ID_LOST)
     
     @expose('JOINEDGAME')
     def joined(self, evt):
         pass
 
-    def hostGame(self, name, ranked=False):
+    def host_game(self, name, ranked=False):
         log.debug("HOSTGAME %s %s" % (name, ranked))
         self.send("HOSTGAME", (name, int(ranked)))
 
-    def getGames(self):
+    def get_games(self):
         self.send("GETGAMES")
     
     @expose('GAMES')
-    def onGames(self, evt):
+    def on_games(self, evt):
         games = evt.arg_list
         r_games = []
         for game in games:
@@ -238,22 +240,18 @@ class Conn(Connection):
         self.send("JOINGAME", id)
         
     @expose('INGAME')
-    def onInGame(self, evt):
+    def on_in_game(self, evt):
         log.warn("Already in a room")
         actions.emmit_action('in_game')
-
-    def onID(self, evt):
-        self.id = int(evt.arg)
-        tell_gui("ID %d" % self.id)
     
     @expose('START')
-    def onStart(self, evt):
+    def on_start(self, evt):
         log.info("Game started")
         self.active = False
         actions.emmit_action('start', False)
     
     @expose('NOTYOURTURN')
-    def onNotTurn(self, evt):
+    def on_not_turn(self, evt):
         log.warn("Not your turn!")
         if self.active:
             log.error("Client self.active wrong!")
@@ -262,35 +260,30 @@ class Conn(Connection):
             log.error("Server does not accept client turn although "
                       "self.active = True at the client")
     
-    def doTurn(self, field, row, position, rot_dir, rot_field):
+    def do_turn(self, field, row, position, rot_dir, rot_field):
         if self.active:
             self.send("DOTURN", (str(field), str(row), str(position), rot_dir, 
                                  rot_field))
             self.active = False
         
     @expose('YOURTURN')
-    def onTurn(self, evt):
+    def on_turn(self, evt):
         log.debug("Received TURN %s " % str(evt.arg_list))
-        field, row, position, rot_dir, rot_field = evt.arg_list
         actions.emmit_action('turn_recv', evt.arg_list)
         self.active = True
     
     @expose('BEGIN')
-    def onBegin(self, evt):
+    def on_begin(self, evt):
         log.debug("Received BEGIN")
         self.active = True
         actions.emmit_action('start', True)
-    
-    @expose('BYE')
-    def onBye(self, evt):
-        self.stop()
         
     @expose('REGISTERED')
     def registered(self, evt):
-        pass
+        actions.emmit_action('registered', ID_REG)
 
 
-def runClient(host, port):
+def run_client(host, port):
     from twisted.internet import reactor, protocol
     f = protocol.ClientFactory()
     f.protocol = Conn

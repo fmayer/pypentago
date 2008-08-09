@@ -298,11 +298,9 @@ class Conn(Connection):
         if self.opponent and isinstance(self.opponent, Conn):
             self.opponent = None
     
-    def connection_lost(self, reason):
+    def destruct(self, reason):
         """ Inform the opponent that your connection has been lost.
         Close the game the player was in if he was. """
-        self.factory.clients.remove(self)
-
         if self.opponent:
             self.opponent.send("CONNLOST")
         if self.game:
@@ -311,9 +309,7 @@ class Conn(Connection):
                 # for ranking in order to prevent disconnection if losing
                 self.game.report_game(self.opponent, self)
             self.game.close()
-    
-    connectionLost = connection_lost
-    
+        
     def send_opponent(self, keyword, args):
         """ Send to opponent """
         self.opponent.send(keyword, args)

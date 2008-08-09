@@ -41,32 +41,20 @@ class StatusBar(wx.StatusBar, actions.ActionHandler):
     @actions.register_method('turn_recv', _decorators)
     def SetGreen(self, state=None):
         self.log.debug("[SetGreen]")
-        self._icon.Destroy()
-        self._icon = wx.StaticBitmap(self, -1, wx.Bitmap(join(self.imgpath, 
-                                                        "status_green.png")))
-        self.PlaceIcon()
+        self.icon_file = "status_green.png"
 
     @actions.register_method('turn_sent', _decorators)
     def SetYellow(self, state=None):
         self.log.debug("[SetYellow]")
-        self._icon.Destroy()
-        self._icon = wx.StaticBitmap(self, -1, wx.Bitmap(join(self.imgpath, 
-                                                        "status_yellow.png")))
-        self.PlaceIcon()
+        self.icon_file = "status_yellow.png"
 
     def SetOrange(self):
         self.log.debug("[SetOrange]")
-        self._icon.Destroy()
-        self._icon = wx.StaticBitmap(self, -1, wx.Bitmap(join(self.imgpath, 
-                                                        "status_orange.png")))
-        self.PlaceIcon()
+        self.icon_file = "status_orange.png"
 
     def SetRed(self):
         self.log.debug("[SetRed]")
-        self._icon.Destroy()
-        self._icon = wx.StaticBitmap(self, -1, wx.Bitmap(join(self.imgpath, 
-                                                        "status_red.png")))
-        self.PlaceIcon()
+        self.icon_file = "status_red.png"
 
     def PlaceIcon(self):
         rect = self.GetFieldRect(1)

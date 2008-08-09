@@ -160,7 +160,7 @@ class UserName(TitledPage, actions.ActionHandler):
     def checkAvailability(self, evt):
         text_ctrl = evt.GetEventObject()
         name = text_ctrl.Value
-        self.Parent.conn.nameAvailability(name)
+        self.Parent.conn.name_availability(name)
     
     @actions.register_method('name_available', _decorators)
     def nameAvail(self, state):
@@ -257,7 +257,7 @@ class Email(TitledPage, actions.ActionHandler):
     def checkAvailability(self, evt):
         text_ctrl = evt.GetEventObject()
         name = text_ctrl.Value
-        self.Parent.conn.emailAvailability(name)
+        self.Parent.conn.email_availability(name)
     
     @actions.register_method('email_available', _decorators)
     def emailAvail(self, state):

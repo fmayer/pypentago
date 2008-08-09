@@ -16,7 +16,7 @@
 
 """ This module contains the Connection class which can be used by server and 
 client without modifications. It should be passed to server.startServer or to
-client.runClient as the prot attribute """
+client.run_client as the prot attribute """
 
 from functools import partial
 

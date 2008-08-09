@@ -47,7 +47,7 @@ from pypentago.client.interface.gamelist import ListGames
 from pypentago.client.interface.statusbar import StatusBar
 from pypentago.client.interface.user_wizard import run_wizard
 
-from pypentago.client.connection import runClient
+from pypentago.client.connection import run_client
 
 
 script_path = dirname(__file__)
@@ -307,7 +307,7 @@ class Game(wx.Panel, field.Game, actions.ActionHandler):
             turn = self.set_stone + (self.rot_dir, self.rot_field)
             
             self.turn_log.append(turn)  
-            self.conn.doTurn(*turn)
+            self.conn.do_turn(*turn)
             
             self.set_stone = False
             self.rot_dir = False
@@ -358,7 +358,7 @@ class MainPanel(wx.Panel, actions.ActionHandler):
         
         self.tabs = AuiNotebook(self)
         self.status_bar = parent.status_bar
-        runClient(server, port)
+        run_client(server, port)
         self.conn = False
         self.login = Login(self)
         self.tabs.AddPage(self.login, "Login")
@@ -563,7 +563,7 @@ class MainFrame(wx.Frame):
         run_wizard(self, self.panel.conn)
     
     def on_close_game(self, evt):
-        self.panel.conn.closeGame()
+        self.panel.conn.close_game()
     
     def on_bug_tracker(self, evt):
         browser_open(__bugs__)
@@ -573,7 +573,7 @@ class MainFrame(wx.Frame):
                                             "Require name")
         if new_game_name.ShowModal() == wx.ID_OK:
             log.debug(new_game_name.game_name.Value)
-            self.panel.conn.hostGame(new_game_name.game_name.Value, 
+            self.panel.conn.host_game(new_game_name.game_name.Value, 
                                      int(new_game_name.game_ranked.Value))
 
     def on_about(self, evt):
