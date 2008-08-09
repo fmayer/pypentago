@@ -40,6 +40,7 @@ log = logging.getLogger("pypentago.connection")
 ID_WIN = 1
 ID_DRAW = 0.5
 ID_LOST = 0
+ID_CONN_LOST = -1
 
 ID_DUP = 0.5
 ID_REG = True
@@ -66,6 +67,7 @@ class GameInfo:
         self.full = full
         self.conn = conn
         self.ranked = ranked
+    
     def join(self):
         self.conn.joinGame(self.id)
 
@@ -199,7 +201,7 @@ class Conn(Connection):
     
     @expose('CONNLOST')
     def onConnLost(self, evt):
-        actions.emmit_action('conn_lost')
+        actions.emmit_action('conn_lost', ID_CONN_LOST)
     
     @expose('WON')
     def onWon(self, evt):
