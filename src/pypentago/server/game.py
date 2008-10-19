@@ -175,8 +175,8 @@ class Game(object):
         loser_rating = loser_db.current_rating
 
         self.log.debug("Updating rating attributes for both players")
-        winner_db.current_rating, loser_db.current_rating = \
-              elo.get_new_rating(winner_rating, loser_rating)
+        winner_db.current_rating, loser_db.current_rating = (
+            elo.get_new_rating(winner_rating, loser_rating))
         self.log.debug("Updating database")
         winner.write_to_database()
         loser.write_to_database()

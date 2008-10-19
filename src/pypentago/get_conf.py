@@ -25,6 +25,8 @@ from os.path import join, dirname, abspath, expanduser, exists
 from os import environ, mkdir
 from os import name as os_name
 
+from functools import partial
+
 from ConfigParser import ConfigParser
 
 from pypentago import could_int
@@ -78,6 +80,7 @@ class ConfParser(ConfigParser, object):
              "{serverpath}": join(script_path, "server"),
              }
         self.expand = (("default", "logfile"), ("default", "pidfile"))
+    
     def get(self, section, option, replace={}):
         ret = super(ConfParser, self).get(section, option)
 
@@ -92,6 +95,14 @@ class ConfParser(ConfigParser, object):
         except AttributeError:
             pass
         return ret
+    
+    def __getitem__(self, item):
+        class Item:
+            def __init__(self, partial):
+                self.partial = partial
+            def __getitem__(self, item):
+                return self.partial(item)
+        return Item(partial(self.get, item))
 
 
 def get_app_data():
