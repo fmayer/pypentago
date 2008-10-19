@@ -19,11 +19,16 @@ Please only use this module to get config files, so it will be easier to
 manage the directories in which they may be. """
 
 from __future__ import with_statement
+
+
 from os.path import join, dirname, abspath, expanduser, exists
 from os import environ, mkdir
 from os import name as os_name
+
 from ConfigParser import ConfigParser
+
 from pypentago import could_int
+
 
 default_server_conf = \
 """[default]
@@ -87,12 +92,13 @@ class ConfParser(ConfigParser, object):
         except AttributeError:
             pass
         return ret
-    
+
+
 def get_app_data():
     """ Get the directory where the application data, such as config files or 
     logfiles, should be stored according to the Operating System used by the 
     user. If the Operating System is unknown it defaults to ~/.pypentago """
-    if environ.has_key('APPDATA'):
+    if 'APPDATA' in environ:
         # Most likely only Windows, but who knows?
         app_data = join(environ['APPDATA'], "pypentago")
     elif os_name == "posix":
@@ -111,6 +117,8 @@ def get_app_data():
         app_data = join("~", ".pypentago")
 
     return abspath(expanduser(app_data))
+
+
 app_data = get_app_data()
 
 
@@ -134,6 +142,8 @@ locations = [app_data,
              join(script_path, "server"),
              join(script_path, "server", "db")]
 endings = [".ini", ".cfg"]
+
+
 def get_conf(*file_names):
     """
     This function will return the full path of the first config file passed 
@@ -160,7 +170,6 @@ def get_conf_obj(*file_names):
     """ Returns ConfParser object for config file. Only this function should be 
     used to get ConfParser objects! """
     file_name = get_conf(*file_names)
-    from ConfigParser import ConfigParser
     conf = ConfParser(app_data, script_path)
     conf.read(file_name)
     return conf

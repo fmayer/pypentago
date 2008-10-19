@@ -28,7 +28,11 @@ from ConfigParser import ConfigParser, NoOptionError
 script_path = abspath(dirname(__file__))
 # Extend the PYTHONPATH so the place where the main module
 # is in is in it so we can directly import from there.
-sys.path.append(abspath(join(script_path, "..", "..")))
+sys.path.insert(0, abspath(join(script_path, "..", "..")))
+# Don't ask me!
+sys.path.remove('/home/name/projects/gna/pypentago/trunk/src')
+
+print sys.path
 
 # Imports that need PYTHONPATH set.
 from pypentago.except_hook import set_except_hook
@@ -36,6 +40,9 @@ from pypentago.time_zones import get_timezone
 from pypentago.get_conf import get_conf_obj, str_to_bool, app_data
 from pypentago.server.server import run_server
 from pypentago import __version__, verbosity_levels
+from pypentago.server import server
+
+
 
 set_except_hook()
 
@@ -73,6 +80,20 @@ except NoOptionError:
     def_pid = abspath(join(script_path, "pid"))
 pid_filename = abspath(def_pid)
 
+db_driver = config.get('database','dbdriver')
+db_host   = config.get('database','dbhost')
+db_port   = str(config.get('database','dbport'))
+db_user   = config.get('database','dbuser')
+db_name   = config.get('database','dbname')
+db_pass   = config.get('database','dbpass')
+if db_driver == 'sqlite':
+    # SQLite ignores anything but driver and db_name.
+    # If any other databases do this add to if clause above.
+    connect_string = '%s:///%s' % (db_driver, db_name)
+else:
+    connect_string = db_driver+"://"+db_user+":"+db_pass+"@"+\
+                   db_host+":"+db_port+"/"+db_name
+
 def main():
     logfile = expanduser(str(options.logfile))
     logfile = logfile.replace("{port}", str(options.port))
@@ -100,7 +121,7 @@ def main():
         pid_file = open(pid_filename, "w")
         pid_file.write(str(getpid()))
         pid_file.close()
-    run_server(options.port)
+    run_server(options.port, connect_string)
 
 
 if __name__ == "__main__":

@@ -52,14 +52,14 @@ class AvailabilityIcon(wx.StaticBitmap):
         self.red = True
     
     def Debug(self):
-        self.SetBitmap(wx.Bitmap(join(self.imgpath, "status_yellow.png")))
+        self.SetBitmap(wx.Bitmap(join(self.imgpath, "agt_action_success.png")))
     
     def SetGreen(self):
-        self.SetBitmap(wx.Bitmap(join(self.imgpath, "status_green.png")))
+        self.SetBitmap(wx.Bitmap(join(self.imgpath, "agt_action_success.png")))
         self.red = False
     
     def SetRed(self):
-        self.SetBitmap(wx.Bitmap(join(self.imgpath, "status_red.png")))
+        self.SetBitmap(wx.Bitmap(join(self.imgpath, "agt_action_fail.png")))
         self.red = True
 
 
@@ -98,13 +98,13 @@ class TitledPage(wiz.PyWizardPage):
     def GetNext(self):
         self.Parent.confirm.refresh()
         index = self.Parent.pages.index(self)
-        if not index == len(self.Parent.pages)-1:
+        if index != len(self.Parent.pages)-1:
             #self.Parent.pages[index + 1].refresh()
             return self.Parent.pages[index + 1]
         
     def GetPrev(self):
         index = self.Parent.pages.index(self)
-        if not index == 0:
+        if index != 0:
             #self.Parent.pages[index - 1].refresh()
             return self.Parent.pages[index - 1]
     
@@ -318,6 +318,13 @@ class Confirmation(TitledPage):
 
 #----------------------------------------------------------------------
 def run_wizard(parent=None, conn=None):
+    class Conn:
+        def __getattr__(self, x):
+            def foo(*args, **kwargs):
+                pass
+            return foo
+    if not conn:
+        conn = Conn()
     user_wizard = wiz.Wizard(parent, -1, "User creation wizard")
     user_wizard.conn = conn
     conn.wizard = user_wizard

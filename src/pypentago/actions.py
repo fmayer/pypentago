@@ -163,7 +163,7 @@ def register_nostate_handler(action, exc, *args, **kwargs):
 
 def remove_handler(action, exc):
     """ Remove the function exc from the list of hooks for action. """
-    actions[action] = [x for x in actions[action] if not x[0] == exc] 
+    actions[action] = [x for x in actions[action] if x[0] is not exc] 
     
 
 def delete_action(action):

@@ -42,16 +42,16 @@ class Event(object):
     
     def raise_event(self):
         """ Raise the event """
-        if self.parent.binds.has_key(self.keyword):
+        if self.keyword in self.parent.binds:
             bind_keyw = self.parent.binds[self.keyword]
-            bind_keyw["function"](self, *bind_keyw["args"], 
+            return bind_keyw["function"](self, *bind_keyw["args"], 
                                   **bind_keyw["kwargs"])
-        elif self.parent.binds.has_key(BIND_ANY):
+        elif BIND_ANY in self.parent.binds:
             bind_keyw = self.parent.binds[BIND_ANY]
-            bind_keyw["function"](self, *bind_keyw["args"], 
+            return bind_keyw["function"](self, *bind_keyw["args"], 
                                   **bind_keyw["kwargs"])
         elif hasattr(self.parent, 'onAny'):
-            self.parent.onAny(self)
+            return self.parent.onAny(self)
         else:
             raise NoBindAvailable("Keyword not bound, BIND_ANY not bound "
                                   "and onAny does not exist")

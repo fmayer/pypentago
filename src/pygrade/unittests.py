@@ -9,11 +9,10 @@ PASSES = 4000
 
 class ConversionTest(unittest.TestCase):
     def test_ecf_to_elo(self):
-        for elem in xrange(PASSES):
-            rand_ecf = random.randint(20, 400)
+        for rand_ecf in xrange(30, 500):
             elo_rating = ecf.ecf_to_elo(rand_ecf)
             self.assertEqual(rand_ecf, elo.elo_to_ecf(elo_rating))
-
+            
 
 class ECFKnownValues(unittest.TestCase): 
     def setUp(self):
@@ -29,6 +28,7 @@ class ECFKnownValues(unittest.TestCase):
         for key, value in self.known_values:
             self.assertEqual(ecf.get_new_grade(*key), value)
 
+            
 class ELOKnownValues(unittest.TestCase):
     def setUp(self):
         # WHEN ADDING DATA ALWAYS PROVIDE SOURCES

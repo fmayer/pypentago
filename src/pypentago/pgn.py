@@ -16,8 +16,6 @@
 
 """ Convert a move to a PGN string or convert a PGN string to a move list """
 
-# Enables use of with statement that automatically closes a file after the code
-# is executed.
 from __future__ import with_statement
 
 from pypentago.parser import Parser, State
@@ -69,7 +67,7 @@ def get_game_pgn(turns):
     lock = False
     for i, turn in enumerate(turns):
         if not lock:
-            if not i == max_elem:
+            if i != max_elem:
                 lines.append("%s\t%s" % (to_pgn(*turn), to_pgn(*turns[i+1])))
                 lock = True
             else:
@@ -116,7 +114,7 @@ def parse_file(file_name):
         split = line.split("\t")
         if split[0] == line:
             split = line.split(" ")
-            split = [elem for elem in split if not elem == ""]
+            split = [elem for elem in split if elem]
         pgn_strings.extend(split)
     
     metadata = {}

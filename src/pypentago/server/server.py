@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import with_statement
+
 import logging
 import re
 
@@ -25,7 +27,7 @@ from easy_twisted.server import startServer
 from pypentago import EMAIL_REGEX
 from pypentago.server.connection import Conn
 from pypentago.server.room import NoSuchRoom
-
+from pypentago.server import db
 
 class Factory(protocol.ServerFactory):
     def __init__(self):
@@ -41,9 +43,16 @@ class Factory(protocol.ServerFactory):
         raise NoSuchRoom
 
 
-def run_server(port=26500):
+def run_server(port=26500, connect_string='sqlite:///:memory:'):
     log = logging.getLogger("pypentago.server")
     factory = Factory()
+    db.connect(connect_string)
+    # Debugging!
+    with db.transaction() as session:
+        session.save(db.dbobjs.Player('name', 'foobar', 'Florian Mayer', 
+                                      'foo@bar.com'))
+    print db.players_by_login('name')
+    # End of debugging!
     log.info("Started server on port %d" % port)
     startServer(port, Conn, factory)
 

@@ -67,7 +67,7 @@ def update_grade(winner, loser, draw=False):
 
 if __name__ == "__main__":
     import sys
-    if not len(sys.argv) == 3:
+    if len(sys.argv) != 3:
         sys.exit(2)
     a, b = Player(int(sys.argv[1])), Player(int(sys.argv[2]))
     print "%s - %s" % get_new_grade(a, b)

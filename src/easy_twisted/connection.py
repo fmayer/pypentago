@@ -84,7 +84,7 @@ class Connection(LineOnlyReceiver):
         if income_data:
             keyword, data = loads(income_data)
             event = Event(self, keyword, data)
-            event.raise_event()
+            ret = event.raise_event()
     
     def onAny(self, evt):
         """ This method is called if BIND_ANY is not bound and an unknown 

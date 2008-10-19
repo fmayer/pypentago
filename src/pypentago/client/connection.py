@@ -114,7 +114,7 @@ class Conn(Connection):
     @expose('PROTVERSION')
     def protocol_version(self, evt):
         server_prot = int(evt.arg_list[0])
-        if not server_prot == PROTOCOL_VERSION:
+        if server_prot != PROTOCOL_VERSION:
             log.error("Server protocol does not match client protocol!")
     
     @expose('SYNCGAMES')

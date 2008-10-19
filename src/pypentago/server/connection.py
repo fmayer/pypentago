@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import with_statement
+
 import sys
 import logging
 
@@ -23,12 +25,10 @@ from random import randint, choice
     
 from pypentago import PROTOCOL_VERSION
 from pypentago.get_conf import get_conf_obj
-from pypentago.server.db.managers import player_manager, session_manager
-from pypentago.server.db.playermanager import DuplicateLoginError, NotInDbError
-from pypentago.server.db import player
+from pypentago.server import db
 from pypentago.server.mailing import Email
-from pypentago.server.game import Game
-from pypentago.server.room import NoSuchRoom
+from pypentago.core import Game, Player
+from pypentago.exceptions import NoSuchRoom, NotInDB
 
 from easy_twisted.server import Connection
 from easy_twisted.connection import expose
@@ -49,9 +49,8 @@ email_text = ("Dear %(real_name)s,\n"
 def get_rand_str():
     # Variable lenght of random string for improved security:
     lenght = randint(13, 18)
-    rand = [choice(ascii_letters) for elem in range(lenght)]
-    rand_str = "".join(rand)
-    return rand_str
+    return "".join((choice(ascii_letters) for elem in range(lenght)))
+
 
 class Conn(Connection):
     def init(self):
@@ -65,7 +64,6 @@ class Conn(Connection):
         self.game = None
         self.opponent = None
         self.active = False
-        self.p_manager = player_manager
 
     @expose('CHPWD')
     def change_passwd(self, evt):
@@ -75,8 +73,12 @@ class Conn(Connection):
         old_pwd, new_pwd = evt.arg_list
         if old_pwd == self.database_player.passwd_hash:
             self.database_player.passwd_hash = new_pwd
-            self.write_to_database()
-            self.send("PWDCHANGED")
+            try:
+                self.write_to_database()
+                self.send("PWDCHANGED")
+            except:
+                self.send("PWDNOTCHANGED")
+                raise
         else:
             self.send("WRONGPWD")
     
@@ -84,7 +86,11 @@ class Conn(Connection):
     def get_player(self, evt):
         """ Get profile information of a player """
         player_login = evt.arg
-        db_player = self.p_manager.get_player_by_login(player_login)
+        try:
+            db_player = db.players_by_login(player_login)[0]
+        except NotInDB:
+            self.send("NOTINDB")
+            return False
         arg_list = (db_player.player_name, db_player.real_name, 
                     db_player.current_rating, db_player.player_profile)
         self.send("PLAYER", arg_list)
@@ -98,7 +104,7 @@ class Conn(Connection):
     def protocol_version(self, evt):
         """ Compare server and client protocol version """
         server_prot = int(evt.arg_list[0])
-        if not server_prot == PROTOCOL_VERSION:
+        if server_prot != PROTOCOL_VERSION:
             self.log.error("Client protocol does not match client protocol!")
 
     @expose('INITLOGIN')
@@ -112,8 +118,11 @@ class Conn(Connection):
         self.log.debug("%s attempted to login" % self.temp_name)
         self.log.debug("Username clear of special char: %s" % \
                        (self.temp_name == self.temp_name.strip()))
-        self.database_player = self.p_manager.get_player_by_login(
-            self.temp_name)
+        try:
+            self.database_player = db.players_by_login(self.temp_name)[0]
+        except NotInDB:
+            self.send("LOGINF")
+            return False
         if not self.database_player:
             self.send("LOGINF")
             self.temp_login = False
@@ -145,12 +154,8 @@ class Conn(Connection):
         
     def write_to_database(self):
         """ Write changes to self.database_player to the database """
-        try:
-            # Update the current entry in the database
-            self.p_manager.update_player(self.database_player)
-        except NotInDbError:
-            # If login does not exist yet -> Save player
-            self.p_manager.save_player(self.database_player)
+        with db.transaction() as session:
+            session.save(self.database_player)
     
     @expose('ACTIVATE')
     def activate_user(self, evt):
@@ -172,20 +177,19 @@ class Conn(Connection):
     @expose('REGISTER')
     def register_user(self, evt):
         activ_code = get_rand_str()
-        if not self.p_manager:
-            self.log.error("No player manager present. Cannot register player!")
-            return False
         name, passwd, email, profile, real_name = evt.arg_list
-        if name == '':
+        if not name:
             self.send("INVALIDNAME")
             return False
-        if self.server.email_regex.match(email):
+        if (self.server.email_regex.match(email) and db.email_available(email)
+            and db.login_available(name)):
             new_player = player.Player(name, passwd, real_name, email,
                                    player_profile=profile)
             new_player.activated = False
             new_player.activation_code = activ_code
             try:
-                self.p_manager.save_player(new_player)
+                with db.transaction() as session:
+                    session.save_player(new_player)
                 self.send("REGISTERED")
                 ##self.send_activation_email(real_name, email)
             except DuplicateLoginError:
@@ -205,7 +209,7 @@ class Conn(Connection):
     def name_available(self, evt):
         self.log.debug("Received NAMEAVAIL")
         name = evt.arg
-        name_available = self.p_manager.login_available(name)
+        name_available = db.login_available(name)
         if name_available:
             self.send("NAMEAVAIL")
         else:
@@ -215,7 +219,7 @@ class Conn(Connection):
     def email_available(self, evt):
         self.log.debug("Received EMAILAVAIL")
         email = evt.arg
-        email_available = self.p_manager.email_available(email)
+        email_available = db.email_available(email)
         if email_available:
             self.send("EMAILAVAIL")
         else:
@@ -291,10 +295,10 @@ class Conn(Connection):
     @expose('LEAVEGAME')
     def leave_game(self, evt=None):
         """ Leave the game the player currently is in. Also closes that game """
-        if self.game and isinstance(self.game, Game):
+        if self.game is not None and isinstance(self.game, Game):
             self.game.players.remove(self)
             self.game.close()
-            self.game = False
+            self.game = None
         if self.opponent and isinstance(self.opponent, Conn):
             self.opponent = None
     
@@ -347,4 +351,3 @@ class Conn(Connection):
             if room.name == name:
                 return room
         raise NoSuchRoom
-        

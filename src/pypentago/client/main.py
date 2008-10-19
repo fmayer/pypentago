@@ -19,11 +19,13 @@
 """ Main module that sets up the logging, parses the command line switches and 
 starts up the interface. """
 
+import logging
+import sys
+
 from optparse import OptionParser
 from ConfigParser import ConfigParser
 from os.path import join, dirname, expanduser, abspath, exists
-import logging
-import sys
+
 
 # Sets the PYTHONPATH if this file is not on its own, meaning that the rest is 
 # in site-packages.
@@ -49,7 +51,6 @@ from pypentago.time_zones import get_timezone
 ##print "Importing pypentago"
 from pypentago import __version__, verbosity_levels
 ##print "Imported pypentago"
-
 config = get_conf_obj("client")
 
 def_logfile = config.get("default", "logfile")

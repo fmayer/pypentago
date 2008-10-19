@@ -23,9 +23,7 @@ from pygrade import elo
 from pypentago import pgn
 from pypentago.server import field
 
-from pypentago.server.db.gamehistory import GameHistory
-from pypentago.server.db.managers import game_history_manager
-
+from pypentago.server.db.dbobjs import GameHistory
 
 class Game(object):
     def __init__(self, player, name, ranked=False):
