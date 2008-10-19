@@ -29,10 +29,7 @@ script_path = abspath(dirname(__file__))
 # Extend the PYTHONPATH so the place where the main module
 # is in is in it so we can directly import from there.
 sys.path.insert(0, abspath(join(script_path, "..", "..")))
-# Don't ask me!
-sys.path.remove('/home/name/projects/gna/pypentago/trunk/src')
 
-print sys.path
 
 # Imports that need PYTHONPATH set.
 from pypentago.except_hook import set_except_hook

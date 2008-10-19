@@ -23,6 +23,7 @@ from pygrade import elo
 from pypentago import pgn
 from pypentago.server import field
 
+from pypentago.server import db
 from pypentago.server.db.dbobjs import GameHistory
 
 class Game(object):
@@ -156,14 +157,15 @@ class Game(object):
     def game_over(self, winner, loser):
         winner_db = winner.database_player
         loser_db = loser.database_player
-        game_history_manager.save_gamehistory(
-            GameHistory(winner_db.player_id, 
-                        loser_db.player_id,
-                        winner_db.current_rating,
-                        loser_db.current_rating,
-                        pgn.get_game_pgn(self.turn_log)
-                        )
-            )
+        with db.transaction() as session:
+            session.save(
+                GameHistory(winner_db.player_id, 
+                            loser_db.player_id,
+                            winner_db.current_rating,
+                            loser_db.current_rating,
+                            pgn.get_game_pgn(self.turn_log)
+                            )
+                )
 
     def report_game(self, winner, loser):
         winner_db = winner.database_player

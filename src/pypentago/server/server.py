@@ -47,12 +47,6 @@ def run_server(port=26500, connect_string='sqlite:///:memory:'):
     log = logging.getLogger("pypentago.server")
     factory = Factory()
     db.connect(connect_string)
-    # Debugging!
-    with db.transaction() as session:
-        session.save(db.dbobjs.Player('name', 'foobar', 'Florian Mayer', 
-                                      'foo@bar.com'))
-    print db.players_by_login('name')
-    # End of debugging!
     log.info("Started server on port %d" % port)
     startServer(port, Conn, factory)
 
