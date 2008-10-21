@@ -34,33 +34,34 @@ from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn,
 
 def has_won(line, check):
     """ Check whether line contains 5 stones of the same player. """
-    return list(line[0:5]) == list(check) or \
-           list(line[1:6]) == list(check)
+    if line < 5:
+        # Doesn't seem to be a full line
+        return False
+    return (list(line[0:5]) == list(check) or
+            list(line[1:6]) == list(check))
 
 
-def diagonal(inp, line, col):
-    """ Get diagonals in both directions downwards starting at (line, col) """
-    # This function is ugly. Nothing to see here. Go on!
-    a, b, c, d = [], [], [], []
-    # Get diagonal going down to the right
-    x = 0
-    while line+x < len(inp) and col+x < len(inp[0]):
-        a.append(inp[line+x][col+x])
-        x+=1
-    # Get diagonal going down to the left
-    x = 0
-    while x >= 0 and col-x >= 0:
-        b.append(inp[line-x][col-x])
-        x+=1
-    x = 0
-    while line+x < len(inp) and col-x >= 0:
-        c.append(inp[line+x][col-x])
-        x+=1
-    x = 0
-    while col+x < len(inp) and line-x >= 0:
-        d.append(inp[line-x][col+x])
-        x+=1
-    return [a] + [b] + [c] + [d]
+def diagonal(inp, row, col):
+    rows = len(inp)
+    # Assume all lines have the same length!
+    cols = len(inp[0])
+    
+    coords = []
+    # List containing starting position
+    coords.append([inp[row][col]])
+    x, y = row, col
+    while x+1 < rows and y-1 >= 0:
+        x, y = x+1, y-1
+        coords[-1].append(inp[x][y])
+
+    # List containing starting position
+    coords.append([inp[row][col]])
+    x, y = row, col
+    while x+1 < rows and y+1 < cols:
+        x, y = x+1, y+1
+        coords[-1].append(inp[x][y])
+    
+    return coords
     
     
 class Quadrant:
@@ -138,7 +139,7 @@ class Board:
             self[field][row][col] = player.uid
         else:
             raise SquareNotEmpty(
-                  "Cannot set stone at quadrant %s row %s col %s" % \
+                  "Cannot set stone at quadrant %s row %s col %s" %
                   (field, row, col))
     
     def get_row(self, row):
@@ -147,8 +148,8 @@ class Board:
         if row > 2:
             field = 2
             row = row - 3
-        return list(self[field][row]) + \
-               list(self[field+1][row])
+        return (list(self[field][row]) +
+                list(self[field+1][row]))
     
     def get_col(self, col):
         """ Get the col'th row starting from the left. """
@@ -235,11 +236,10 @@ class Game:
             other_player = pl[0]
             
             check = [player.uid]*5
-            for line in self.board.cols + self.board.rows:
+            for line in (self.board.cols + self.board.rows + 
+                         self.board.diagonals):
                 if has_won(line, check):
                     return player, other_player
-            if check in self.board.diagonals:
-                return player, other_player
         return False
     
     def add_player(self, player):
