@@ -26,7 +26,7 @@ def get_timezone():
         timezone_seconds = time.timezone
     timezone_hours = timezone_seconds / (60*60)
     return -timezone_hours # Fixes Python's weird behavoir of returning
-                            # a negative number althought the time deviation
+                            # a negative number although the time deviation
                             # is positive
 
 
@@ -36,7 +36,7 @@ def get_timezone_nodst():
     timezone_seconds = time.timezone
     timezone_hours = timezone_seconds / (60*60)
     return -timezone_hours # Fixes Python's weird behavoir of returning
-                            # a negative number althought the time deviation
+                            # a negative number although the time deviation
                             # is positive
 
 
