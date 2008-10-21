@@ -26,17 +26,12 @@ sys.path.append(abspath(join(script_path, ".."))) # Adjust to number
                                                    # file is in.
 # End of prefix for executable files.
 import unittest
-from random import choice, randint
-from pypentago.pgn import *
-from os import remove
+import tempfile
 
-def get_temp_filename():
-    """ Get a temp filename for the unittest """
-    import tempfile
-    temp_file = tempfile.NamedTemporaryFile()
-    temp_file_name = temp_file.name
-    temp_file.close()
-    return temp_file_name
+from os import remove
+from random import choice, randint
+
+from pypentago.pgn import *
 
 class CheckPGN(unittest.TestCase):
     """ Check the PGN functions """
@@ -46,6 +41,7 @@ class CheckPGN(unittest.TestCase):
             coords = (randint(0, 2), randint(0, 2), randint(0, 2), 
                       choice(("L", "R")), randint(0, 2))
             self.assertEqual(coords, from_pgn(to_pgn(*coords)))
+    
     def test_write_file(self):
         """ Check if writing and parsing of files is okay """
         for integer in xrange(1, 4000):
@@ -53,10 +49,12 @@ class CheckPGN(unittest.TestCase):
             for elem in xrange(randint(5, 10)):
                 coords.append((randint(0, 2), randint(0, 2), randint(0, 2), 
                               choice(("L", "R")), randint(0, 2)))
-            temp_file = get_temp_filename()
+            temp_file = tempfile.mktemp()
             write_file(coords, temp_file)
             check_coords = parse_file(temp_file)
             remove(temp_file)
             self.assertEqual(coords, check_coords)
+
+
 if __name__ == "__main__":
     unittest.main()
