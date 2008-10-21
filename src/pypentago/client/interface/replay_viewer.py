@@ -25,6 +25,7 @@ if __name__ == "__main__":
 
 import wx
 import wx.lib.buttonpanel as bp
+
 from pypentago.client.interface import SubBoard
 from pypentago.pgn import parse_file
 
@@ -40,12 +41,13 @@ class ReplayBoardPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
         self.games = []
-        for elem in range(4):
+        for elem in xrange(4):
             self.games.append(SubBoard(self, elem))
         sizer = wx.GridSizer(2, 2, 0, 0)
         for game in self.games:
             sizer.Add(game, 0, wx.ALL | wx.EXPAND, 5)
         self.SetSizer(sizer)
+
 
 class ReplayPanel(wx.Panel):
     """ The master panel """
@@ -70,6 +72,7 @@ class ReplayFrame(wx.Frame):
                           size=(760, 810))
         self.panel = ReplayPanel(self)
         self.make_menu()
+    
     def make_menu(self):
         """ Create the menu for the mainframe. Incorporate into 
         pypentago.client.interface.MainFrame once this module is done and 
@@ -93,12 +96,14 @@ class ReplayFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             self.panel.turns = parse_file(dlg.Path)
 
+
 def main():
     """ Function that is run when the file is executed on its own """
     app = wx.PySimpleApp()
     main_frame = ReplayFrame()
     main_frame.Show()
     app.MainLoop()
+
 
 if __name__ == "__main__":
     main()

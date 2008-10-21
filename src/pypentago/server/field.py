@@ -20,12 +20,8 @@
 """ This module contains the basic Pentago field with all the operations like 
 rotating, setting a stone and win detection. """
 
-class SquareNotEmpty(Exception):
-    pass
-class InvalidPlayerID(Exception):
-    pass
-
 import logging
+
 class Field(object):
     """
     The Basic pentago field
@@ -36,6 +32,7 @@ class Field(object):
             self.rotright(rot_field)
         else:
             self.rotleft(rot_field)
+    
     def __init__(self):
         # 0 is nothing, 1 black stone and 2 white stone
         #self.field = zeros((4, 3, 3))
@@ -46,6 +43,7 @@ class Field(object):
             self.field.append([])
             for e in range(3):
                 self.field[-1].append([0, 0, 0])
+    
     def clean(self):
         """
         Reset the field
@@ -56,6 +54,7 @@ class Field(object):
             self.field.append([])
             for e in range(3):
                 self.field[-1].append([0, 0, 0])
+    
     def rotleft(self, no):
         """
         Rotates the subboard no to the right
@@ -67,6 +66,7 @@ class Field(object):
                 newfield[i].append(self.field[no][k][i])
         newfield.reverse()
         self.field[no] = newfield
+    
     def rotright(self, no):
         """
         Rotates the subboard no to the right
@@ -97,13 +97,17 @@ class Field(object):
 
     def __repr__(self):
         return self.field
+    
     def get_rows(self):
         rows = [self.get_row(elem) for elem in range(6)]
         return rows
+    
     def get_cols(self):
         return zip(*self.get_rows())
+    
     def get_col(self, col):
         return self.get_cols()[col]
+    
     def __str__(self):
         string = ""
         rows = self.get_rows()
@@ -116,6 +120,7 @@ class Field(object):
                 string+="\n"
             
         return string
+    
     def get_row(self, rowNumber):
         if rowNumber < 3:
             fieldNumber = 0
@@ -125,6 +130,7 @@ class Field(object):
         row = list(self.field[fieldNumber][rowNumber]) + \
             list(self.field[fieldNumber+1][rowNumber])
         return row
+    
     def _checkRow(self, rowNumber, playerID):
         """
         Checks both possibilities of winning in one row.
@@ -138,6 +144,7 @@ class Field(object):
             return True
         else:
             return False
+        
     def _checkRows(self, player):
         """
         Checks all rows for a winning 5 in a row.
@@ -263,5 +270,6 @@ class Field(object):
             elif self._checkDiagonalLow(player):
                 return player
         return False
+    
     cols = property(get_cols)
     rows = property(get_rows)

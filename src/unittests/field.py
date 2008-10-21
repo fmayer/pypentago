@@ -27,15 +27,17 @@ sys.path.append(abspath(join(script_path, ".."))) # Adjust to number
                                                    # file is in.
 # End of prefix for executable files.
 
-
-from pypentago.server import field
 import unittest
+
 from copy import deepcopy
 from random import randint
 
+from pypentago.server import field
+from pypentago.exceptions import SquareNotEmpty
+
 class CheckServerField(unittest.TestCase):
     """ Check the pypentago.server.field.Field methods """
-    def testRotate(self):                    
+    def test_rotate(self):                    
         """ check if rotation methods are okay """
         for integer in xrange(1, 4000):
             old_field = field.Field()
@@ -46,16 +48,16 @@ class CheckServerField(unittest.TestCase):
             new_field.rotleft(rot_field)
             new_field.rotright(rot_field)
             self.assertEqual(str(old_field), str(new_field))
-    def testSetStoneException(self):
+    
+    def test_set_stone_exception(self):
         """ check if exception is raised when attempting to set a piece onto a 
         square where there already is one """
         for integer in xrange(1, 4000):
             old_field = field.Field()
             coords = [randint(0, 2), randint(0, 2), randint(0, 2)]
             old_field.set_stone(1, *coords)
-            args = [1]
-            args.extend(coords)
-            self.assertRaises(field.SquareNotEmpty, old_field.set_stone, 
+            args = [1] + coords
+            self.assertRaises(SquareNotEmpty, old_field.set_stone, 
                               *args)
 
 if __name__ == "__main__":

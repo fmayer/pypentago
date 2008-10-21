@@ -49,14 +49,12 @@ from pypentago.client.interface.user_wizard import run_wizard
 
 from pypentago.client.connection import run_client
 
+from pypentago.exceptions import SquareNotEmpty
+
 
 script_path = dirname(__file__)
 imgpath = join(script_path, '..', "img")
 log = logging.getLogger("pypentago.interface")
-
-
-class SquareNotEmpty(Exception):
-    pass
 
 
 class ChangePwdDialog(wx.Dialog):
