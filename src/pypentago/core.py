@@ -35,18 +35,18 @@ sys.path.insert(0, os.path.abspath(os.path.join(script_path, os.pardir)))
 from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn, 
                                   GameFull)
 
-def has_won(line, check):
+def has_won(row, check):
     """ Check whether line contains 5 stones of the same player. """
-    if line < 5:
+    if len(row) < 5:
         # Doesn't seem to be a full line
         return False
-    return (list(line[0:5]) == list(check) or
-            list(line[1:6]) == list(check))
+    return (list(row[0:5]) == list(check) or
+            list(row[1:6]) == list(check))
 
 
 def diagonal(inp, row, col):
     rows = len(inp)
-    # Assume all lines have the same length!
+    # Assume all rows have the same length!
     cols = len(inp[0])
     
     coords = []
