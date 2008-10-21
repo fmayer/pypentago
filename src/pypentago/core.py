@@ -15,11 +15,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-##########################################
-## TODO:                                 #
-## Communication between Game and Player #
-## Make sys.path modification redundant  #
-##########################################
+##########################################################
+## About this file                                      ##
+## ==================================================== ##
+## This file is ongoing work of reimplementing the core ##
+## of pypentago. It is currently not used at all, but   ##
+## will be integrated into the pypentago project.       ##
+## This will replace the pypentago.server.field module  ##
+##########################################################
 
 
 import sys
@@ -198,9 +201,10 @@ class Game:
         self.next_uid = 1
         self.players = players
         self.observers = []
-        for i, player in enumerate(players):
-            player.game = self
-            player.uid = i+1
+        if players is not None:
+            for i, player in enumerate(players):
+                player.game = self
+                player.uid = i+1
         self.last_set = None
     
     def rules(self, turn):
@@ -318,4 +322,4 @@ class TestGame(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()        
+    unittest.main()
