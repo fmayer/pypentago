@@ -18,9 +18,17 @@
 client without modifications. It should be passed to server.startServer or to
 client.run_client as the prot attribute """
 
+import sys
+
 from functools import partial
 
-from simplejson import dumps, loads
+if sys.version_info[:2] > (2, 5):
+    # In Python 2.6+, use built-in JSON support.
+    from json import dumps, loads
+else:
+    # Pre Python 2.6 we need simplejson installed.
+    from simplejson import dumps, loads
+
 from twisted.protocols.basic import LineOnlyReceiver
 
 from easy_twisted import register
