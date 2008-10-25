@@ -51,13 +51,13 @@ def format_timezone(timezone_hours, utc="UTC"):
 def get_timezone_nodst_string(utc="UTC"):
     """ Get the string for the current timezone. For instance 
     UTC+1. Does not take DST into account """
-    return format_timezone(get_timezone())
+    return format_timezone(get_timezone(), utc)
 
 
 def get_timezone_string(utc="UTC"):
     """ Get the string for the current timezone. For instance 
     UTC+1. Takes DST into account """
-    return format_timezone(get_timezone_nodst())
+    return format_timezone(get_timezone_nodst(), utc)
 
 
 if __name__ == "__main__":
