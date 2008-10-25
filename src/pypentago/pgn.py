@@ -88,10 +88,17 @@ class PentagoParser(Parser):
     def __init__(self):
         Parser.__init__(self)
         
-        self.text = State(self)
-        self.metadata = State(self, "@")
-        self.comment = State(self, "#", until_eol=True)
-        self.multiline_mdata = State(self, "%", True, "%")
+        self.text = State()
+        self.add_state(self.text)
+        
+        self.metadata = State("@")
+        self.add_state(self.metadata)
+        
+        self.comment = State("#", until_eol=True)
+        self.add_state(self.comment)
+        
+        self.multiline_mdata = State("%", True, "%")
+        self.add_state(self.multiline_mdata)
         
         self.state = self.default_state
 
