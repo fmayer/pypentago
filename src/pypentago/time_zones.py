@@ -17,6 +17,7 @@
 """ Return timezone information """
 
 import time
+
 def get_timezone():
     """ Return the time current deviation from UTC in hours.
     Takes DST into account """
@@ -25,9 +26,9 @@ def get_timezone():
     else:
         timezone_seconds = time.timezone
     timezone_hours = timezone_seconds / (60*60)
-    return -timezone_hours # Fixes Python's weird behavoir of returning
-                            # a negative number although the time deviation
-                            # is positive
+    # Fix Python's weird behavoir of returning a negative number 
+    # although the time deviation is positive
+    return -timezone_hours
 
 
 def get_timezone_nodst():
@@ -35,37 +36,28 @@ def get_timezone_nodst():
     Does not take DST into account """
     timezone_seconds = time.timezone
     timezone_hours = timezone_seconds / (60*60)
-    return -timezone_hours # Fixes Python's weird behavoir of returning
-                            # a negative number although the time deviation
-                            # is positive
+    # Fix Python's weird behavoir of returning a negative number 
+    # although the time deviation is positive
+    return -timezone_hours
 
+def format_timezone(timezone_hours, utc="UTC"):
+    """ Format time deviation in the form UTC+3 or UTC-3 """
+    if timezone_hours == 0:
+        return utc
+    else:
+        return "%s%+g" % (utc, timezone_hours)
+                            
 
 def get_timezone_nodst_string(utc="UTC"):
     """ Get the string for the current timezone. For instance 
     UTC+1. Does not take DST into account """
-    UTC = utc
-    timezone_hours = get_timezone_nodst()
-    if timezone_hours < 0:
-        string = "%s-%s" % (UTC, -timezone_hours)
-    elif timezone_hours == 0:
-        string = "%s" % UTC
-    elif timezone_hours > 0:
-        string = "%s+%s" % (UTC, timezone_hours)
-    return string
+    return format_timezone(get_timezone())
 
 
 def get_timezone_string(utc="UTC"):
     """ Get the string for the current timezone. For instance 
     UTC+1. Takes DST into account """
-    UTC = utc
-    timezone_hours = get_timezone()
-    if timezone_hours < 0:
-        string = "%s-%s" % (UTC, -timezone_hours)
-    elif timezone_hours == 0:
-        string = "%s" % UTC
-    elif timezone_hours > 0:
-        string = "%s+%s" % (UTC, timezone_hours)
-    return string
+    return format_timezone(get_timezone_nodst())
 
 
 if __name__ == "__main__":

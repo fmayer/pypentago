@@ -17,7 +17,7 @@
 import re
 import logging
 
-from wx import PyValidator, EVT_CHAR, Bell
+from wx import PyValidator
 from pypentago import EMAIL_REGEX
 
 
@@ -63,8 +63,4 @@ class ValidateEmail(Validator):
         self.log.debug("In ValidateEmail.Validate")
         tc = self.GetWindow()
         val = tc.GetValue()
-        if self.email.match(val):
-            self.log.debug("email address %s matches the email regex" % val) 
-            return True
-        self.log.debug("email address %s does not match the email regex" % val)
-        return False
+        return self.email.match(val)

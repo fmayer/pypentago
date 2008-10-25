@@ -31,14 +31,13 @@ def run_client(prot, host, port, parent=None):
     f.parent = parent
     reactor.connectTCP(host, port, f)
 
-def init_wx_reactor(app_class):
+def init_wx_reactor(app):
     """ This initialises the wxreactor that allows you to use Twisted and wx 
     at the same time although both are not thread safe. Please only pass the 
     class of the wx.App rather than the instance. Returns an instance of that 
     app class, you will have to call the MainLoop manually. """
     from twisted.internet import wxreactor
     wxreactor.install()
-    app = app_class()
     from twisted.internet import reactor
     reactor.registerWxApp(app)
     reactor.run()

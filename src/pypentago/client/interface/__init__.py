@@ -32,7 +32,7 @@ from wx.lib.buttons import GenBitmapButton
 from wx.lib.mixins.listctrl import ColumnSorterMixin
 from wx.lib.wordwrap import wordwrap
 
-from pypentago import client, actions
+from pypentago import client, actions, IMGPATH
 from pypentago import __version__, __authors__, __copyright__, __url__
 from pypentago import __artists__, __description__, __bugs__
 

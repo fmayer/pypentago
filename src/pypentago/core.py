@@ -201,7 +201,7 @@ class Game:
         to this instance. """
         self.board = Board()
         self.next_uid = 1
-        self.players = players
+        self.players = list(players) if players is not None else None
         self.observers = []
         if players is not None:
             for i, player in enumerate(players):
@@ -237,7 +237,7 @@ class Game:
         """ Either return False if no-one has won or a tuple (winner, loser). 
         """
         for player in self.players:
-            pl = list(self.players[:])
+            pl = self.players[:]
             pl.remove(player)
             other_player = pl[0]
             
@@ -286,9 +286,11 @@ class Player:
 import unittest
 
 class TestGame(unittest.TestCase):
+    def setUp(self):
+        self.game = Game((Player(), Player()))
+    
     def test_win_dia(self):
-        game = Game((Player(), Player()))
-        board = game.board
+        board = self.game.board
         # Construct winning situation.
         board[0][0][0] = 2
         board[0][1][1] = 2
@@ -297,13 +299,12 @@ class TestGame(unittest.TestCase):
         board[3][1][1] = 2
 
         # See whether the winner has been found.
-        winner = game.get_winner()
+        winner = self.game.get_winner()
         self.assertNotEqual(winner, False)
         self.assertEqual(winner[0].uid, 2)
 
     def test_win_dia_sec(self):
-        game = Game((Player(), Player()))
-        board = game.board
+        board = self.game.board
         # Construct winning situation.
         board[0][0][1] = 2
         board[0][1][2] = 2
@@ -312,15 +313,14 @@ class TestGame(unittest.TestCase):
         board[3][1][2] = 2
 
         # See whether the winner has been found.
-        winner = game.get_winner()
+        winner = self.game.get_winner()
         self.assertNotEqual(winner, False)
         self.assertEqual(winner[0].uid, 2)
 
     def test_square_not_empty(self):
-        game = Game((Player(), Player()))
-        game.apply_turn(game.players[0], (0, 0, 0, "R", 1))
-        self.assertRaises(SquareNotEmpty, game.apply_turn, 
-                          game.players[1], (0, 0, 0, "R", 1))
+        self.game.apply_turn(self.game.players[0], (0, 0, 0, "R", 1))
+        self.assertRaises(SquareNotEmpty, self.game.apply_turn, 
+                          self.game.players[1], (0, 0, 0, "R", 1))
 
 
 if __name__ == "__main__":
