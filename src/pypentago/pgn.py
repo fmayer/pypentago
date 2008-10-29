@@ -66,14 +66,14 @@ def get_game_pgn(turns):
     max_elem = len(turns)-1
     lock = False
     for i, turn in enumerate(turns):
-        if not lock:
-            if i != max_elem:
-                lines.append("%s\t%s" % (to_pgn(*turn), to_pgn(*turns[i+1])))
-                lock = True
-            else:
-                lines.append(to_pgn(*turn))
-        else:
+        if lock:
             lock = False
+            continue
+        if i != max_elem:
+            lines.append("%s\t%s" % (to_pgn(*turn), to_pgn(*turns[i+1])))
+            lock = True
+        else:
+            lines.append(to_pgn(*turn))
     return "\n".join(lines)
 
 
