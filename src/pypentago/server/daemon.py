@@ -80,7 +80,7 @@ def daemonize(redirect=True, umask=None, cwd=None):
 
 
 if __name__ == '__main__':
-    # Testing function. 
+    # Testing function.
     import time
     import tempfile
     output = tempfile.NamedTemporaryFile(mode='w', prefix="test", 
@@ -97,6 +97,6 @@ if __name__ == '__main__':
         output.write('Counting: %d\n' % count)
         output.flush()
         time.sleep(1)
-    # Sleep 10 seconds so the file doesn't get deleted.
+    # Sleep 10 seconds so the file doesn't get deleted too early.
     time.sleep(10)
     output.close()
