@@ -31,11 +31,13 @@ from os.path import join, dirname, expanduser, abspath, exists
 # in site-packages.
 script_path = abspath(dirname(__file__))
 if exists(join(script_path, "connection.py")):
-    sys.path.append(abspath(join(script_path, "..", "..")))
+    sys.path.insert(0, abspath(join(script_path, "..", "..")))
 
 # Imports that need PYTHONPATH set.
 # Commented out code was to check which module initalised the reactor and may 
 #   be used for similar purpose later.
+import pypentago
+print "This is pypentago from %s" % pypentago.__file__
 ##print "Importing check_modules"
 from pypentago.client.check_modules import check_modules
 ##print "Importing except_hook"

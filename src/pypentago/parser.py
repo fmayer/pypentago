@@ -1,10 +1,12 @@
+from collections import deque
+
 class State(object):
     def __init__(self, state_char=None, multiline=False, 
                  exit_char=False, until_eol=False):
         self.state_char = state_char
         self.parsed = ['']
         self.multiline = multiline
-        self.exit_char = exit_char
+        self.exit_char = exit_char or state_char
         self.until_eol = until_eol
     
     def parse(self, char):
@@ -26,6 +28,7 @@ class Parser(object):
     def __init__(self):
         self.states = {}
         self.parse_state_char = False
+        self.state_stack = deque()
     
     def add_state(self, state):
         if state.state_char is None:
@@ -38,7 +41,7 @@ class Parser(object):
             return self.states[char]
         else:
             return False
-    
+
     def parse_line(self, line):
         for char in line:
             if not self.state.until_eol:

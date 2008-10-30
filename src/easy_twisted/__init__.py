@@ -25,23 +25,3 @@ __copyright__ = "(c) 2008 Florian Mayer"
 __license__   = "GNU General Public License version 3"
 __description__ = ("easy_twisted is a framework that helps using Twisted "
                    "easily")
-
-def register(keyword, method=True, binds=None):
-    """ Insert function decorated with this to the dictionary binds using 
-    the key keyword. 
-    
-    Only decorate methods of the Connection class. If you decorate a function, 
-    pass method=False to the decorator or it will not work as intended! """
-    def decorate(f):
-        if keyword in binds:
-            warnings.warn('Overriding bind %s!' % keyword)
-        if method:
-            x = f.__name__
-        else:
-            x = f
-        binds[keyword] = {}
-        binds[keyword]['function'] = x
-        binds[keyword]['args'] = []
-        binds[keyword]['kwargs'] = {}
-        return f
-    return decorate

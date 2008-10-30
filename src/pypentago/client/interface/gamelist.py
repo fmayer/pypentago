@@ -17,7 +17,9 @@
 import wx
 import wx.gizmos as gizmos
 
-from pypentago import actions
+import actions
+
+from pypentago.client import context
 
 
 class ListGames(wx.Panel, actions.ActionHandler):
@@ -27,7 +29,7 @@ class ListGames(wx.Panel, actions.ActionHandler):
     ID_GAMEID = 3
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
-        actions.ActionHandler.__init__(self)
+        actions.ActionHandler.__init__(self, context.gui)
         self.Bind(wx.EVT_SIZE, self.OnSize)
 
         self.tree = gizmos.TreeListCtrl(self, -1, style=wx.TR_DEFAULT_STYLE | 
@@ -75,7 +77,7 @@ class ListGames(wx.Panel, actions.ActionHandler):
 
     def showProfile(self, login):
         self.parent.conn.get_player(self.right_click_username)
-    @actions.register_method('gamelist', _decorators)
+    @context.register_method('gamelist', _decorators)
     def refreshGames(self, games):
         self.tree.DeleteAllItems()
         self.games = []

@@ -20,7 +20,7 @@ client.run_client as the prot attribute """
 
 import sys
 
-from functools import partial
+import actions
 
 if sys.version_info[:2] > (2, 5):
     # In Python 2.6+, use built-in JSON support.
@@ -31,15 +31,13 @@ else:
 
 from twisted.protocols.basic import LineOnlyReceiver
 
-from easy_twisted import register
 from easy_twisted.evt import Event, BIND_ANY
 
 
-binds = {}
-expose = partial(register, binds=binds)
+expose = actions.register_method
 
 
-class Connection(LineOnlyReceiver):
+class Connection(actions.ActionHandler, LineOnlyReceiver):
     delimiter = "\3"
     """ The Connection class. Please do not overwrite anything unless you 
     really know what you are doing or otherwise stated """
@@ -60,29 +58,6 @@ class Connection(LineOnlyReceiver):
     def __init__(self):
         self.binds = {}
         self.debug = False
-        
-        # This is where the magic happens!
-        # Get bound methods corresponding to strings the decorator stored.
-        # This must be done because the decorator gets the unbound method.
-        for elem in binds:
-            if not callable(binds[elem]['function']):
-                # This is called for things decorated with method=True. This 
-                # only works when the decorated methods are methods of the 
-                # Connection class, otherwise this will fail. See 
-                # easy_twisted.register docstring.
-                self.binds[elem] = {}
-                self.binds[elem]['function'] = getattr(self, 
-                                                binds[elem]['function'])
-                self.binds[elem]['args'] = []
-                self.binds[elem]['kwargs'] = {}
-            else:
-                # This is called for things decorated with method=False.
-                # We will not need to get a bound method, as everything bound 
-                # this ways should be functions.
-                self.binds[elem] = binds[elem]
-                self.binds[elem]['args'] = []
-                self.binds[elem]['kwargs'] = {}
-
         self.construct()
 
     def lineReceived(self, income_data):
@@ -105,9 +80,7 @@ class Connection(LineOnlyReceiver):
         attribute being the event """
         if not callable(function):
             raise TypeError("Function has to be callable")
-        #TODO: partial
-        self.binds[keyword] = {"function": function, "args": args, 
-                               "kwargs": kwargs}
+        self.context.register_handler(keyword, function, *args, **kwargs)
     
     def connectionMade(self):
         """ Internal function that appends this connection to the client list 
@@ -119,7 +92,7 @@ class Connection(LineOnlyReceiver):
         """ Internal function deleting the connection from the client list when 
         the connection is lost """
         self.factory.clients.remove(self)
-        self.destruct()
+        self.destruct(reason)
     
     def send(self, keyword, data=None):
         """ Send keyword to the other side. If data is passed, it can be 

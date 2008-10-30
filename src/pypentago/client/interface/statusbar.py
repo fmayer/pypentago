@@ -17,8 +17,10 @@
 import logging
 import wx
 
+import actions
+
 from os.path import join
-from pypentago import actions
+from pypentago.client import context
 
 
 # TODO: Find out how to make the field for the icon just as big as needed
@@ -26,7 +28,7 @@ class StatusBar(wx.StatusBar, actions.ActionHandler):
     _decorators = []
     def __init__(self, parent, imgpath):
         wx.StatusBar.__init__(self, parent)
-        actions.ActionHandler.__init__(self)
+        actions.ActionHandler.__init__(self, context.gui)
         self.log = logging.getLogger("pypentago.interface.statusbar")
         self.imgpath = imgpath
         self.SetFieldsCount(2)
@@ -38,12 +40,12 @@ class StatusBar(wx.StatusBar, actions.ActionHandler):
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.PlaceIcon()
     
-    @actions.register_method('turn_recv', _decorators)
+    @context.register_method('turn_recv', _decorators)
     def SetGreen(self, state=None):
         self.log.debug("[SetGreen]")
         self.icon_file = "status_green.png"
 
-    @actions.register_method('turn_sent', _decorators)
+    @context.register_method('turn_sent', _decorators)
     def SetYellow(self, state=None):
         self.log.debug("[SetYellow]")
         self.icon_file = "status_yellow.png"

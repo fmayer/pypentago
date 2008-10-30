@@ -19,12 +19,13 @@ import logging
 
 import wx
 import wx.wizard as wiz
+import actions
 
 from os.path import dirname, join
 from hashlib import sha1 as sha
 
 from pypentago.client.interface.validators import ValidateEmail, ValidateName
-from pypentago import actions
+from pypentago.client import context
 
 script_path = dirname(__file__)
 imgpath = join(script_path, "..", "img")
@@ -131,10 +132,9 @@ class Introduction(TitledPage):
         
 #----------------------------------------------------------------------
 class UserName(TitledPage, actions.ActionHandler):
-    _decorators = []
     def __init__(self, parent):
         TitledPage.__init__(self, parent, "User Name")
-        actions.ActionHandler.__init__(self)
+        actions.ActionHandler.__init__(self, context.gui)
         
         self.SetName("User Name")
         self.confirm_name = "Name"
@@ -162,7 +162,7 @@ class UserName(TitledPage, actions.ActionHandler):
         name = text_ctrl.Value
         self.Parent.conn.name_availability(name)
     
-    @actions.register_method('name_available', _decorators)
+    @context.register_method('name_available')
     def nameAvail(self, state):
         if state:
             self.nameAvailable()
@@ -232,7 +232,7 @@ class Email(TitledPage, actions.ActionHandler):
     _decorators = []
     def __init__(self, parent):
         TitledPage.__init__(self, parent, "Email Address")
-        actions.ActionHandler.__init__(self)
+        actions.ActionHandler.__init__(self, context.gui)
         self.SetName("Email Address")
         self.confirm_name = "Email"
         self.AddContent(
@@ -259,7 +259,7 @@ class Email(TitledPage, actions.ActionHandler):
         name = text_ctrl.Value
         self.Parent.conn.email_availability(name)
     
-    @actions.register_method('email_available', _decorators)
+    @context.register_method('email_available')
     def emailAvail(self, state):
         if state:
             self.emailAvailable()

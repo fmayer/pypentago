@@ -53,7 +53,7 @@ def diagonal(inp, row, col):
     
     coords = []
     # List containing starting position
-    coords.append([inp[row][col]])
+    coords = [[inp[row][col]]]
     x, y = row, col
     while x+1 < rows and y-1 >= 0:
         x, y = x+1, y-1
@@ -212,13 +212,13 @@ class Game:
     def rules(self, turn):
         """ Checks that need to be done before player can set the stone. """
         field, row, col, rot_dir, rot_field = turn
-        if not row in xrange(3):
+        if 0 <= row <= 2:
             raise InvalidTurn
-        if not col in xrange(3):
+        if 0 <= col <= 2:
             raise InvalidTurn
         if not rot_dir in ("L", "R"):
             raise InvalidTurn
-        if not rot_field in xrange(4):
+        if 0 <= rot_field <= 3:
             raise InvalidTurn
         
     def apply_turn(self, player, turn):

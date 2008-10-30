@@ -19,6 +19,7 @@
 
 from sha import sha
 from functools import partial
+
 import sys
 import logging
 
@@ -28,8 +29,10 @@ if __name__ == '__main__':
     from os.path import dirname, join
     sys.path.append(join(dirname(__file__), '..', '..'))
 
+import actions
+
 from pypentago import PROTOCOL_VERSION, could_int, int_all
-from pypentago import actions
+from pypentago.client import context
 
 from easy_twisted.connection import expose
 from easy_twisted import evt
@@ -74,9 +77,14 @@ class GameInfo:
 
 
 class Conn(Connection):
+    def __init__(self):
+        Connection.__init__(self)
+        self.context = actions.Context()
+        actions.ActionHandler.__init__(self, self.context)
+    
     def init(self):
         log.info("Connection established")
-        actions.emmit_action('conn_established', self)
+        context.emmit_action('conn_established', self)
         self.active = False
         self.get_games()
         
@@ -98,15 +106,15 @@ class Conn(Connection):
     def recv_player(self, evt):
         (player_name, real_name, current_rating, player_profile) = evt.arg_list
         player = Player(player_name, real_name, current_rating, player_profile)
-        actions.emmit_action('display_player', player)
+        context.emmit_action('display_player', player)
     
     @expose('DUPNAME')
     def dup_name(self, evt):
-        actions.emmit_action('registered', ID_DUP)
+        context.emmit_action('registered', ID_DUP)
     
     @expose('NOTLOGGEDIN')
     def not_logged_in(self, evt):
-        actions.emmit_action('not_logged_in')
+        context.emmit_action('not_logged_in')
     
     def request_protocol_version(self, evt):
         self.send("PROTVERSION", PROTOCOL_VERSION)
@@ -142,11 +150,11 @@ class Conn(Connection):
     
     @expose('LOGINS')
     def login_success(self, args):
-        actions.emmit_action('login', True)
+        context.emmit_action('login', True)
     
     @expose('LOGINF')
     def login_failure(self, args):
-        actions.emmit_action('login', False)
+        context.emmit_action('login', False)
     # LOGIN FUNCTIONS END
     # -------------------------
     
@@ -163,19 +171,19 @@ class Conn(Connection):
         
     @expose('EMAILUNAVAIL')
     def on_email_unavailable(self, evt):
-        actions.emmit_action('email_available', False)
+        context.emmit_action('email_available', False)
     
     @expose('EMAILAVAIL')
     def on_email_available(self, evt):
-        actions.emmit_action('email_available', True)
+        context.emmit_action('email_available', True)
     
     @expose('NAMEUNAVAIL')
     def on_name_unavailable(self, evt):
-        actions.emmit_action('name_available', False)
+        context.emmit_action('name_available', False)
 
     @expose('NAMEAVAIL')
     def on_name_available(self, evt):
-        actions.emmit_action('name_available', True)
+        context.emmit_action('name_available', True)
     # USER WIZARD FUNCTIONS END
     # -------------------------
 
@@ -203,15 +211,15 @@ class Conn(Connection):
     
     @expose('CONNLOST')
     def on_conn_lost(self, evt):
-        actions.emmit_action('conn_lost', ID_CONN_LOST)
+        context.emmit_action('conn_lost', ID_CONN_LOST)
     
     @expose('WON')
     def on_won(self, evt):
-        actions.emmit_action('game_over', ID_WIN)
+        context.emmit_action('game_over', ID_WIN)
     
     @expose('LOST')
     def on_lost(self, evt):
-        actions.emmit_action('game_over', ID_LOST)
+        context.emmit_action('game_over', ID_LOST)
     
     @expose('JOINEDGAME')
     def joined(self, evt):
@@ -234,7 +242,7 @@ class Conn(Connection):
                 if name.strip() != "":
                     r_games.append(GameInfo(str(id), name, player, str(score), 
                                             full, ranked, self))
-        actions.emmit_action('gamelist', r_games)
+        context.emmit_action('gamelist', r_games)
 
     def join_game(self, id):
         self.send("JOINGAME", id)
@@ -242,13 +250,13 @@ class Conn(Connection):
     @expose('INGAME')
     def on_in_game(self, evt):
         log.warn("Already in a room")
-        actions.emmit_action('in_game')
+        context.emmit_action('in_game')
     
     @expose('START')
     def on_start(self, evt):
         log.info("Game started")
         self.active = False
-        actions.emmit_action('start', False)
+        context.emmit_action('start', False)
     
     @expose('NOTYOURTURN')
     def on_not_turn(self, evt):
@@ -269,18 +277,18 @@ class Conn(Connection):
     @expose('YOURTURN')
     def on_turn(self, evt):
         log.debug("Received TURN %s " % str(evt.arg_list))
-        actions.emmit_action('turn_recv', evt.arg_list)
+        context.emmit_action('turn_recv', evt.arg_list)
         self.active = True
     
     @expose('BEGIN')
     def on_begin(self, evt):
         log.debug("Received BEGIN")
         self.active = True
-        actions.emmit_action('start', True)
+        context.emmit_action('start', True)
         
     @expose('REGISTERED')
     def registered(self, evt):
-        actions.emmit_action('registered', ID_REG)
+        context.emmit_action('registered', ID_REG)
 
 
 def run_client(host, port):

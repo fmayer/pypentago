@@ -23,6 +23,7 @@ if __name__ == '__main__':
     print "Please run main.py to run the program"
     sys.exit(2)
 
+import actions
 
 from os.path import dirname, join
 from webbrowser import open as browser_open
@@ -32,7 +33,7 @@ from wx.lib.buttons import GenBitmapButton
 from wx.lib.mixins.listctrl import ColumnSorterMixin
 from wx.lib.wordwrap import wordwrap
 
-from pypentago import client, actions, IMGPATH
+from pypentago import client
 from pypentago import __version__, __authors__, __copyright__, __url__
 from pypentago import __artists__, __description__, __bugs__
 
@@ -41,6 +42,7 @@ from pypentago.pgn import from_pgn, to_pgn, write_file, InvalidPGN
 
 from pypentago.client import field
 from pypentago.client import connection
+from pypentago.client import context
 
 from pypentago.client.interface.display_player import DisplayPlayerFrame
 from pypentago.client.interface.gamelist import ListGames
@@ -49,12 +51,14 @@ from pypentago.client.interface.user_wizard import run_wizard
 
 from pypentago.client.connection import run_client
 
-from pypentago.exceptions import SquareNotEmpty
-
 
 script_path = dirname(__file__)
 imgpath = join(script_path, '..', "img")
 log = logging.getLogger("pypentago.interface")
+
+
+class SquareNotEmpty(Exception):
+    pass
 
 
 class ChangePwdDialog(wx.Dialog):
@@ -154,6 +158,9 @@ class Square(wx.BitmapButton):
     def set_value(self, value):
         self.value = value
         self.update()
+    
+    def __repr__(self):
+        return "<Stone %s on quadrant %s>" % (self.stone, self.game.no)
 
 
 class SubBoard(wx.Panel, field.SubBoard):
@@ -177,13 +184,9 @@ class SubBoard(wx.Panel, field.SubBoard):
         
         for row in self.grid:
             for square in row:
-                square_sizer.Add(square, pos = square.stone)
+                square_sizer.Add(square, pos=square.stone)
         
         rot_left, rot_right = self.create_rot_buttons()
-        
-        box = wx.StaticBox(self)
-        statboxsizer = wx.StaticBoxSizer(box)
-        statboxsizer.Add(square_sizer)#, 0, wx.ALL | wx.EXPAND, 5)
         
         # Rotate 90 degrees to the right
         right = (True, )
@@ -210,13 +213,14 @@ class SubBoard(wx.Panel, field.SubBoard):
             if not rot is None:
                 for elem in rot:
                     img = img.Rotate90(elem)
-            widgets.append(wx.BitmapButton(self, -1, img.ConvertToBitmap()))
-        widgets.append(statboxsizer)
-            
+            widget = wx.BitmapButton(self, -1, img.ConvertToBitmap())
+            widgets.append(widget)
+        widgets.append(square_sizer)
+                
         for widget, pos in zip(widgets, widget_pos):
-            self.main_sizer.Add(widget, pos, flag = wx.ALL | wx.EXPAND)
-        
-        self.rot_left_button, self.rot_right_button, statboxsizer = widgets
+            self.main_sizer.Add(widget, pos, flag=wx.EXPAND)
+
+        self.rot_left_button, self.rot_right_button, square_sizer = widgets
         
         self.rot_left_button.Bind(wx.EVT_BUTTON, self.rotleft)
         self.rot_right_button.Bind(wx.EVT_BUTTON, self.rotright)
@@ -224,11 +228,8 @@ class SubBoard(wx.Panel, field.SubBoard):
         self.SetSizer(self.main_sizer)
 
     def create_grid(self):
-        self.grid = []
-        for row in range(3):
-            self.grid.append([])
-            for col in range(3):
-                self.grid[-1].append(Square(self, (row, col)))
+        self.grid = [[Square(self, (row, col)) for col in xrange(3)]
+                     for row in xrange(3)]
 
 
 class Welcome(wx.Panel):
@@ -245,22 +246,24 @@ class Game(wx.Panel, field.Game, actions.ActionHandler):
     _decorators = []
     def __init__(self, parent, conn=False):
         wx.Panel.__init__(self, parent)
-        actions.ActionHandler.__init__(self)
+        actions.ActionHandler.__init__(self, context.gui)
         
         self.parent = parent
-        self.games = []
         self.set_stone = False        
         self.rot_dir = False
         self.rot_field = False
         self.conn = conn
         self.set_stone_button = False
         self.turn_log = []
-        for elem in range(4):
-            self.games.append(SubBoard(self, elem))
-        sizer = wx.GridSizer(2, 2, 0, 0)
+        self.games = [SubBoard(self, elem) for elem in range(4)]
+        main_sizer = wx.BoxSizer()
+        
+        game_sizer = wx.GridSizer(2, 2, 0, 0)
         for game in self.games:
-            sizer.Add(game, 0, wx.ALL | wx.EXPAND, 5)
-        self.SetSizer(sizer)
+            game_sizer.Add(game, 0, wx.ALL, 5)
+        main_sizer.Add(game_sizer, 0, wx.ALIGN_CENTER | 
+                       wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+        self.SetSizer(main_sizer)
     
     def undo(self, evt=None):
         log.debug("Attempting undo")
@@ -352,7 +355,7 @@ class MainPanel(wx.Panel, actions.ActionHandler):
     _decorators = []
     def __init__(self, parent, server, port):
         wx.Panel.__init__(self, parent, -1)
-        actions.ActionHandler.__init__(self)
+        actions.ActionHandler.__init__(self, context.gui)
         
         self.tabs = AuiNotebook(self)
         self.status_bar = parent.status_bar
@@ -365,7 +368,9 @@ class MainPanel(wx.Panel, actions.ActionHandler):
         sizer = wx.BoxSizer()
         sizer.Add(self.tabs, 1, wx.EXPAND)
         self.SetSizer(sizer)
-
+        # DEBUG
+        self.tabs.AddPage(Game(self), "Debug Game")
+        
     @actions.register_method('conn_established', _decorators)
     def connection_established(self, state):
         self.conn = state
@@ -392,6 +397,7 @@ class MainPanel(wx.Panel, actions.ActionHandler):
         if logged_in:
             log.info("Logged in")
             self.tabs.RemovePage(self.tabs.GetPageIndex(self.login))
+            self.Parent.join_game.Enable(True)
         else:
             self.login.text.Label = "Error logging in"
             self.login.text.CentreOnParent(wx.HORIZONTAL)
@@ -496,6 +502,7 @@ class MainFrame(wx.Frame):
         self.create_account = operations_menu.Append(-1, "Create &Account")
         self.change_pwd = operations_menu.Append(-1, "Change &Password")
         wx_menu_exit = operations_menu.Append(-1, "E&xit Application")
+        self.join_game = operations_menu.Append(-1, "&Join Game\tCtrl-J")
 
         help_menu = wx.Menu()
         about = help_menu.Append(-1, "&About")
@@ -512,13 +519,15 @@ class MainFrame(wx.Frame):
         self.undo.Enable(False)
         self.apply_pgn.Enable(False)
         self.save_replay.Enable(False)
-        
+        self.join_game.Enable(False)
+                
         menu_bar.Append(operations_menu, "&Operations")
         menu_bar.Append(game_menu, "&Game")
         menu_bar.Append(help_menu, "&Help")
         
         self.SetMenuBar(menu_bar)
         
+        self.Bind(wx.EVT_MENU, self.join_game_name, self.join_game)
         self.Bind(wx.EVT_MENU, self.on_open_game, self.open_game)
         self.Bind(wx.EVT_MENU, self.on_close_game, self.close_game)
         self.Bind(wx.EVT_MENU, self.on_change_passwd, self.change_pwd)
@@ -529,6 +538,12 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_undo, self.undo)
         self.Bind(wx.EVT_MENU, self.on_apply_pgn, self.apply_pgn)
         self.Bind(wx.EVT_MENU, self.on_save_replay, self.save_replay)
+    
+    def join_game_name(self, evt):
+        game_name = wx.TextEntryDialog(self, "Enter name of the game you want"
+                                       "to join", "Input required")
+        if game_name.ShowModal() == wx.ID_OK:
+            actions.emmit_action('join_game_name', game_name.Value)
     
     def on_change_passwd(self, evt):
         dlg = ChangePwdDialog(self, "Require password")
