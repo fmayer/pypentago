@@ -114,7 +114,7 @@ def main():
     if options.daemon:
         import daemon
         from os import getpid
-        daemon.daemonize(True)
+        daemon.daemonize(True, cwd='/')
         pid_file = open(pid_filename, "w")
         pid_file.write(str(getpid()))
         pid_file.close()
