@@ -58,6 +58,8 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
     def __init__(self):
         self.binds = {}
         self.debug = False
+        self.context = actions.Context()
+        actions.ActionHandler.__init__(self, self.context)
         self.construct()
 
     def lineReceived(self, income_data):

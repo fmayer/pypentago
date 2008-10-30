@@ -77,11 +77,6 @@ class GameInfo:
 
 
 class Conn(Connection):
-    def __init__(self):
-        Connection.__init__(self)
-        self.context = actions.Context()
-        actions.ActionHandler.__init__(self, self.context)
-    
     def init(self):
         log.info("Connection established")
         context.emmit_action('conn_established', self)

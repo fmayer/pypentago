@@ -56,10 +56,6 @@ def get_rand_str():
 
 
 class Conn(Connection):
-    def construct(self):
-        self.context = actions.Context()
-        actions.ActionHandler.__init__(self, self.context)
-    
     def init(self):
         self.log = logging.getLogger("pypentago.connection")
         self.log.info("Got connection from %s" % self.transport.getPeer().host)
@@ -190,8 +186,8 @@ class Conn(Connection):
             return False
         if (self.server.email_regex.match(email) and db.email_available(email)
             and db.login_available(name)):
-            new_player = player.Player(name, passwd, real_name, email,
-                                   player_profile=profile)
+            new_player = Player(name, passwd, real_name, email,
+                                player_profile=profile)
             new_player.activated = False
             new_player.activation_code = activ_code
             try:

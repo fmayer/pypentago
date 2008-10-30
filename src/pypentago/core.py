@@ -51,7 +51,6 @@ def diagonal(inp, row, col):
     # Assume all rows have the same length!
     cols = len(inp[0])
     
-    coords = []
     # List containing starting position
     coords = [[inp[row][col]]]
     x, y = row, col
@@ -69,7 +68,7 @@ def diagonal(inp, row, col):
     return coords
     
     
-class Quadrant:
+class Quadrant(object):
     def __init__(self, uid):
         self.uid = uid
         self.field = [
@@ -83,21 +82,16 @@ class Quadrant:
     
     def rotleft(self):
         """ Rotate quadrant to the left. """
-        newfield = []
-        for i in xrange(3):
-            newfield.append([])
-            for k in xrange(3):
-                newfield[i].append(self.field[k][i])
-        self.field = list(reversed(newfield))
+        newfield = [[self.field[k][i] for k in xrange(3)] for i in xrange(3)]
+        # Reverse newfield.
+        self.field = newfield[::-1]
     
     def rotright(self):
         """ Rotate quadrant to the right. """
-        newfield = []
-        for i in xrange(3):
-            newfield.append([])
-            for k in xrange(3):
-                newfield[i].append(self.field[2-k][2-i])
-        self.field = list(reversed(newfield))
+        newfield = [[self.field[2-k][2-i] for k in xrange(3)]
+                    for i in xrange(3)]
+        # Reverse newfield.
+        self.field = newfield[::-1]
 
     def __getitem__(self, i):
         return self.field[i]
@@ -106,7 +100,7 @@ class Quadrant:
         self.field[i] = value
 
 
-class Board:
+class Board(object):
     """ The main pypentago board. 
     
     You can get the quadrants of it by getting items of the class. For instance
@@ -195,7 +189,7 @@ class Board:
         return string
 
 
-class Game:
+class Game(object):
     def __init__(self, players=None):
         """ If players are passed it automatically sets their game attribute 
         to this instance. """
@@ -212,13 +206,13 @@ class Game:
     def rules(self, turn):
         """ Checks that need to be done before player can set the stone. """
         field, row, col, rot_dir, rot_field = turn
-        if 0 <= row <= 2:
+        if not 0 <= row <= 2:
             raise InvalidTurn
-        if 0 <= col <= 2:
+        if not 0 <= col <= 2:
             raise InvalidTurn
         if not rot_dir in ("L", "R"):
             raise InvalidTurn
-        if 0 <= rot_field <= 3:
+        if not 0 <= rot_field <= 3:
             raise InvalidTurn
         
     def apply_turn(self, player, turn):
@@ -264,7 +258,7 @@ class Game:
         self.last_set = random.choice(self.players)
 
         
-class Player:
+class Player(object):
     """ The Player is the one that is interacting with the Game. """
     def __init__(self, game=None, uid=None):
         self.game = game

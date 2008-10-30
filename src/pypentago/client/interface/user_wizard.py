@@ -332,10 +332,10 @@ def run_wizard(parent=None, conn=None):
              Password(user_wizard),  Email(user_wizard), 
              RealName(user_wizard), 
              Profile(user_wizard), Confirmation(user_wizard)]
+    user_wizard.pages = pages
     user_wizard.confirm = pages[-1]
     user_wizard.user_name = pages[1]
     user_wizard.email = pages[3]
-    user_wizard.pages = pages
 
     user_wizard.FitToPage(pages[0])
     wx.FindWindowById(wx.ID_FORWARD).Enable(True)
