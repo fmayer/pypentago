@@ -127,6 +127,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.rot_overlay = False
         self.overlay_opacity = self.INIT_OPACITY
         self.fade_timer = QtCore.QTimer(self)
+        self.add_cw = self.add_ccw = 0
 
     def paintEvent(self, event):
         s_mode = QtCore.Qt.SmoothTransformation                
@@ -179,8 +180,10 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             cw_y = h / 2.0 - rot_cw.height() / 2.0
             ccw_y = h / 2.0 - rot_ccw.height() / 2.0
             
-            paint.setOpacity(self.overlay_opacity)
+            paint.setOpacity(self.overlay_opacity + self.add_cw)
             paint.drawPixmap(0, cw_y, rot_cw)
+            if self.add_cw or self.add_ccw:
+                paint.setOpacity(self.overlay_opacity + self.add_ccw)
             paint.drawPixmap(w / 2.0, ccw_y, rot_ccw)
             paint.setOpacity(1)
 
@@ -250,6 +253,19 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.fade_timer.stop()
         self.overlay_opacity = self.INIT_OPACITY
         self.repaint()
+    
+    def mouseMoveEvent(self, event):
+        if not self.rot_overlay:
+            return
+        x, y = event.x(), event.y()
+        if x < self.width() / 2.0:
+            self.add_cw = 0.3
+            self.add_ccw = 0
+            self.repaint()
+        else:
+            self.add_ccw = 0.3
+            self.add_cw = 0
+            self.repaint()
     
     def set_stone(self, row, col, player_id):
         self.field[row][col] = player_id
