@@ -19,13 +19,67 @@
 
 
 import sys
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore, QtSvg
 
 from pypentago import core
 
 
 def get_coord(size, x):
     return int(x / size)
+
+
+
+class SVGFakeImage:
+    def __init__(self, img):
+        self.render = QtSvg.QSvgRenderer(img)
+        self.cache = None
+    
+    def scaledToHeight(self, heigth, mode=None):
+        if self.cache is not None and self.cache.height() == height:
+            return self.cache
+        viewbox = self.render.viewBox()
+        h = viewbox.height()
+        w = viewbox.width()
+        
+        ratio = w / float(h)
+        
+        new_h = heigth
+        new_w = heigth * ratio
+        
+        img = QtGui.QPixmap(new_h, new_w)
+        img.fill(QtCore.Qt.transparent)
+        
+        paint = QtGui.QPainter(img)
+        
+        self.render.render(paint)
+        
+        paint.end()
+        self.cache = img
+        return img
+
+    def scaledToWidth(self, width, mode=None):
+        if self.cache is not None and self.cache.width() == width:
+            return self.cache
+        viewbox = self.render.viewBox()
+        h = viewbox.height()
+        w = viewbox.width()
+        
+        ratio = h / float(w)
+        
+        new_w = width
+        new_h = width * ratio
+        
+        img = QtGui.QPixmap(new_h, new_w)
+        img.fill(QtCore.Qt.transparent)
+        
+        paint = QtGui.QPainter(img)
+        
+        self.render.render(paint)
+        
+        paint.end()
+        self.cache = img
+        return img
+
 
 
 class Quadrant(QtGui.QLabel, core.Quadrant):
@@ -48,14 +102,15 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.bg_image = QtGui.QImage('bg.png')
 
         # Clockwise rotation image overlay.
-        self.rot_cw = QtGui.QImage(
-            'pypentago/client/img/rot_right.png'
+        self.rot_cw = SVGFakeImage(
+            'pypentago/client/img/rot_cw.svg'
         )
 
         # Counter-clockwise rotation image overlay.
-        self.rot_ccw = QtGui.QImage(
-            'pypentago/client/img/rot_left.png'
+        self.rot_ccw = SVGFakeImage(
+            'pypentago/client/img/rot_ccw.svg'
         )
+        
 
         self.img = [
             QtGui.QImage(
@@ -74,15 +129,19 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.fade_timer = QtCore.QTimer(self)
 
     def paintEvent(self, event):
-        paint = QtGui.QPainter()
-        paint.begin(self)
+        s_mode = QtCore.Qt.SmoothTransformation                
 
         h = self.height()
         w = self.width()
         min_size = min([h, w])
         
+        rot_cw = self.rot_cw.scaledToWidth(w / 2.0, s_mode)
+        rot_ccw = self.rot_ccw.scaledToWidth(w / 2.0, s_mode)
+        
+        paint = QtGui.QPainter()
+        paint.begin(self)
+        
         # We might want to change that for performance reasons later on.        
-        s_mode = QtCore.Qt.SmoothTransformation                
         
         # Resize the background image.
         bg = self.bg_image.scaledToHeight(min_size, s_mode)
@@ -119,9 +178,10 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             rot_ccw = self.rot_ccw.scaledToWidth(w / 2.0, s_mode)
             cw_y = h / 2.0 - rot_cw.height() / 2.0
             ccw_y = h / 2.0 - rot_ccw.height() / 2.0
+            
             paint.setOpacity(self.overlay_opacity)
-            paint.drawImage(0, cw_y, rot_cw)
-            paint.drawImage(w / 2.0, ccw_y, rot_ccw)
+            paint.drawPixmap(0, cw_y, rot_cw)
+            paint.drawPixmap(w / 2.0, ccw_y, rot_ccw)
             paint.setOpacity(1)
 
         # This was a triumph!
@@ -132,6 +192,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             self.rotright()
         else:
             self.rotleft()
+        
         self.prnt.may_rot = False
         self.rot_overlay = False
         self.fade_timer.stop()
