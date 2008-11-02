@@ -68,15 +68,9 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
 
         self.rot_overlay = False
 
-        self.zero_x = 0
-        self.zero_y = 0
-
     def paintEvent(self, event):
         paint = QtGui.QPainter()
         paint.begin(self)
-
-        zero_x = self.zero_x
-        zero_y = self.zero_y
 
         h = self.height()
         w = self.width()
@@ -88,14 +82,14 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         # Resize the background image.
         bg = self.bg_image.scaledToHeight(min_size, s_mode)
 
-        paint.drawImage(zero_x, zero_y, bg)
+        paint.drawImage(0, 0, bg)
 
         # The size of one stone is a fourth of either the height or the
         # width of the quadrant, depending which of them is smaller.
-        w_size = int(min_size / 4.0)
+        w_size = min_size / 4.0
         # The space a stone has got is a third of the total space
         # available.
-        size = int(min_size / 3.0)
+        size = min_size / 3.0
         # What we need to add to compensate for the difference of the img
         # and the total size.
         d_size = (size - w_size) / 2.0
@@ -103,13 +97,17 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         # We're assuming to work with squared images!
         imgs = [img.scaledToHeight(w_size, s_mode) for img in self.img]
 
-        # Yes yes, I know!
-        r = xrange
-        for y_c, y_p, row in zip(r(3), r(zero_y, 3 * size, size), self.field):
-            for x_c, x_p, col in zip(r(3), r(zero_x, 3 * size, size), row):
+        y_c = y_p = 0
+        for row in self.field:
+            x_c = x_p = 0
+            for col in row:
                 stone_value = self.field[y_c][x_c]
                 paint.drawImage(x_p+d_size, y_p+d_size, imgs[stone_value])
-
+                x_c += 1
+                x_p += size
+            y_c += 1
+            y_p += size
+        
         if self.rot_overlay:
             # Display rotation overlay.
             rot_cw = self.rot_cw.scaledToWidth(w / 2.0, s_mode)
