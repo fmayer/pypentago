@@ -86,6 +86,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
     INIT_OPACITY = 0.1
     OPACITY_CHANGE = 0.05
     MAX_OPACITY = 0.7
+    HOVER = 0.15
     def __init__(self, parent, uid):
         QtGui.QLabel.__init__(self, parent)
         core.Quadrant.__init__(self, uid)
@@ -259,11 +260,11 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             return
         x, y = event.x(), event.y()
         if x < self.width() / 2.0:
-            self.add_cw = 0.3
+            self.add_cw = self.HOVER
             self.add_ccw = 0
             self.repaint()
         else:
-            self.add_ccw = 0.3
+            self.add_ccw = self.HOVER
             self.add_cw = 0
             self.repaint()
     
