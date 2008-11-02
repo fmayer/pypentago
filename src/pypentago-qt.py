@@ -25,11 +25,7 @@ from pypentago import core
 
 
 def get_coord(size, x):
-    i = 1
-    while True:
-        if x < i * size:
-            return i-1
-        i+=1
+    return int(x / size)
 
 
 class Quadrant(QtGui.QLabel, core.Quadrant):
@@ -138,6 +134,8 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         print "Clockwise: %s" % clockwise
 
     def mousePressEvent(self, event):
+        if self.prnt.may_rot and not self.rot_overlay:
+            return
         x, y = event.x(), event.y()
         w = self.width()
         h = self.height()
@@ -171,6 +169,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
     def set_stone(self, row, col, player_id):
         self.field[row][col] = player_id
         self.prnt.may_rot = True
+        self.rot_overlay = True
         self.repaint()
 
 
