@@ -28,7 +28,6 @@ def get_coord(size, x):
     return int(x / size)
 
 
-
 class SVGFakeImage:
     def __init__(self, img):
         self.render = QtSvg.QSvgRenderer(img)
@@ -87,6 +86,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
     OPACITY_CHANGE = 0.05
     MAX_OPACITY = 0.7
     HOVER = 0.15
+    PREVIEW_OPACITY = 0.3
     def __init__(self, parent, uid):
         QtGui.QLabel.__init__(self, parent)
         core.Quadrant.__init__(self, uid)
@@ -129,6 +129,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.overlay_opacity = self.INIT_OPACITY
         self.fade_timer = QtCore.QTimer(self)
         self.add_cw = self.add_ccw = 0
+        self.preview_stone = None
 
     def paintEvent(self, event):
         s_mode = QtCore.Qt.SmoothTransformation                
@@ -174,6 +175,12 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             y_c += 1
             y_p += size
         
+        if self.preview_stone is not None:
+            x_c, y_c = self.preview_stone
+            x_p, y_p = x_c * size, y_c * size
+            paint.setOpacity(self.PREVIEW_OPACITY)
+            paint.drawImage(x_p+d_size, y_p+d_size, imgs[1])
+            
         if self.rot_overlay:
             # Display rotation overlay.
             rot_cw = self.rot_cw.scaledToWidth(w / 2.0, s_mode)
@@ -253,10 +260,16 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.rot_overlay = False
         self.fade_timer.stop()
         self.overlay_opacity = self.INIT_OPACITY
+        self.preview_stone = None
         self.repaint()
     
     def mouseMoveEvent(self, event):
         if not self.rot_overlay:
+            x, y = event.x(), event.y()
+            size = min([self.height(), self.width()]) / 3.0
+            x, y = get_coord(size, x), get_coord(size, y)
+            self.preview_stone = x, y
+            self.repaint()
             return
         x, y = event.x(), event.y()
         if x < self.width() / 2.0:
