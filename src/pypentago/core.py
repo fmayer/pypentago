@@ -190,10 +190,10 @@ class Board(object):
 
 
 class Game(object):
-    def __init__(self, players=None):
+    def __init__(self, players=None, board=None):
         """ If players are passed it automatically sets their game attribute 
         to this instance. """
-        self.board = Board()
+        self.board = board or Board()
         self.next_uid = 1
         self.players = list(players) if players is not None else None
         self.observers = []

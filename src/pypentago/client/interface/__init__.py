@@ -261,8 +261,7 @@ class Game(wx.Panel, field.Game, actions.ActionHandler):
         game_sizer = wx.GridSizer(2, 2, 0, 0)
         for game in self.games:
             game_sizer.Add(game, 0, wx.ALL, 5)
-        main_sizer.Add(game_sizer, 0, wx.ALIGN_CENTER | 
-                       wx.ALIGN_CENTER_VERTICAL | wx.ALL)
+        main_sizer.Add(game_sizer, 0, wx.ALIGN_CENTER | wx.ALL)
         self.SetSizer(main_sizer)
     
     def undo(self, evt=None):
