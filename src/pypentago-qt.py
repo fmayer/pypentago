@@ -84,21 +84,22 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
 
         h = self.height()
         w = self.width()
+        min_size = min([h, w])
         
         # We might want to change that for performance reasons later on.        
         s_mode = QtCore.Qt.SmoothTransformation                
         
         # Resize the background image.
-        bg = self.bg_image.scaledToHeight(min([h, w]), s_mode)
+        bg = self.bg_image.scaledToHeight(min_size, s_mode)
 
         paint.drawImage(zero_x, zero_y, bg)
 
         # The size of one stone is a fourth of either the height or the
         # width of the quadrant, depending which of them is smaller.
-        w_size = int(min([h, w]) / 4.0)
+        w_size = int(min_size / 4.0)
         # The space a stone has got is a third of the total space
         # available.
-        size = int(min([h, w]) / 3.0)
+        size = int(min_size / 3.0)
         # What we need to add to compensate for the difference of the img
         # and the total size.
         d_size = (size - w_size) / 2.0
