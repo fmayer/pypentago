@@ -17,6 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# TODO:
+# Notificate about position(position flash)
+# Visualize rotate(arrows popup + one flash)
+
 
 import sys
 from PyQt4 import QtGui, QtCore, QtSvg
@@ -86,7 +90,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
     OPACITY_CHANGE = 0.05
     MAX_OPACITY = 0.7
     HOVER = 0.15
-    PREVIEW_OPACITY = 0.3
+    PREVIEW_OPACITY = 0.4
     def __init__(self, parent, uid):
         QtGui.QLabel.__init__(self, parent)
         core.Quadrant.__init__(self, uid)
@@ -128,8 +132,11 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.rot_overlay = False
         self.overlay_opacity = self.INIT_OPACITY
         self.fade_timer = QtCore.QTimer(self)
+        self.blink_timer = QtCore.QTimer(self)
         self.add_cw = self.add_ccw = 0
         self.preview_stone = None
+        self.user_control = True
+        self.blink = []
 
     def paintEvent(self, event):
         s_mode = QtCore.Qt.SmoothTransformation                
@@ -225,6 +232,43 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             self.fade_timer.connect(self.fade_timer, QtCore.SIGNAL('timeout()'),
                                     self, QtCore.SLOT('fade_in()'))
             self.fade_timer.start(100)
+    
+    @QtCore.pyqtSignature('')
+    def blink_rot(self, what=None):
+        # [var_name, min, max, step, add_]
+        if what is not None:
+            self.blink.append(what)
+        
+        for i, (name, min_, max_, step, add_) in enumerate(self.blink):
+            if getattr(self, name) <= min_:
+                self.blink[i][-1] = True
+                add_ = True
+            elif getattr(self, name) >= max_:
+                self.blink[i][-1] = False
+                add_ = False
+            if add_:
+                setattr(self, name, getattr(self, name) + step)
+            else:
+                setattr(self, name, getattr(self, name) - step)
+
+        self.repaint()
+        
+        if not self.blink_timer.isActive():
+            self.blink_timer = QtCore.QTimer(self)
+            self.blink_timer.connect(self.blink_timer, 
+                                     QtCore.SIGNAL('timeout()'),
+                                     self, QtCore.SLOT('blink_rot()'))
+            self.blink_timer.start(100)
+            
+    def show_rot(self, clockwise):
+        self.user_control = False
+        if clockwise:
+            name = 'add_cw'
+        else:
+            name = 'add_cww'
+        
+        self.blink_rot([name, 0, 0.3, 0.04, True])
+        self.fade_in()
         
     def mousePressEvent(self, event):
         if self.prnt.may_rot and not self.rot_overlay:
@@ -270,6 +314,8 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             x, y = get_coord(size, x), get_coord(size, y)
             self.preview_stone = x, y
             self.repaint()
+            return
+        if not self.user_control:
             return
         x, y = event.x(), event.y()
         if x < self.width() / 2.0:
