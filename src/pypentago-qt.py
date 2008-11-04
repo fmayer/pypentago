@@ -32,6 +32,58 @@ def get_coord(size, x):
     return int(x / size)
 
 
+class Overlay(QtCore.QObject):
+    INIT_OPACITY = 0.1
+    OPACITY_CHANGE = 0.05
+    MAX_OPACITY = 0.6
+    HOVER = 0.25
+    def __init__(self, repaint):
+        QtCore.QObject.__init__(self)
+        self.value = self.INIT_OPACITY
+        self.repaint = repaint
+        self.shown = False
+        self.add_cw = 0
+        self.add_ccw = 0
+        
+        self.timer = QtCore.QTimer()
+        self.timer.connect(self.timer, 
+                           QtCore.SIGNAL('timeout()'),
+                           self, QtCore.SLOT('tick()')
+                           )
+    
+    def show(self):
+        self.shown = True
+        self.timer.start(100)
+        
+    def hide(self):
+        self.value = self.INIT_OPACITY
+        self.shown = False
+        self.timer.stop()
+    
+    @QtCore.pyqtSignature('')
+    def tick(self):
+        if self.value >= self.MAX_OPACITY:
+            self.timer.stop()
+        else:
+            self.value += self.OPACITY_CHANGE
+        self.repaint()
+    
+    def __nonzero__(self):
+        return self.shown
+    
+    def highlight_cw(self):
+        self.add_cw = self.HOVER
+        self.add_ccw = 0
+    
+    def highlight_ccw(self):
+        self.add_ccw = self.HOVER
+        self.add_cw = 0    
+    
+    @property
+    def opacity(self):
+        return self.value + self.add_cw, self.value + self.add_ccw
+
+
 class SVGFakeImage:
     def __init__(self, img):
         self.render = QtSvg.QSvgRenderer(img)
@@ -86,10 +138,6 @@ class SVGFakeImage:
 
 
 class Quadrant(QtGui.QLabel, core.Quadrant):
-    INIT_OPACITY = 0.1
-    OPACITY_CHANGE = 0.05
-    MAX_OPACITY = 0.7
-    HOVER = 0.15
     PREVIEW_OPACITY = 0.4
     def __init__(self, parent, uid):
         QtGui.QLabel.__init__(self, parent)
@@ -128,12 +176,10 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
                 'pypentago/client/img/ball-black.png'
                 ),
         ]
+        
+        self.overlay = Overlay(self.repaint)
 
-        self.rot_overlay = False
-        self.overlay_opacity = self.INIT_OPACITY
-        self.fade_timer = QtCore.QTimer(self)
         self.blink_timer = QtCore.QTimer(self)
-        self.add_cw = self.add_ccw = 0
         self.preview_stone = None
         self.user_control = True
         self.blink = []
@@ -188,17 +234,19 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             paint.setOpacity(self.PREVIEW_OPACITY)
             paint.drawImage(x_p+d_size, y_p+d_size, imgs[1])
             
-        if self.rot_overlay:
+        if self.overlay:
             # Display rotation overlay.
             rot_cw = self.rot_cw.scaledToWidth(w / 2.0, s_mode)
             rot_ccw = self.rot_ccw.scaledToWidth(w / 2.0, s_mode)
             cw_y = h / 2.0 - rot_cw.height() / 2.0
             ccw_y = h / 2.0 - rot_ccw.height() / 2.0
             
-            paint.setOpacity(self.overlay_opacity + self.add_cw)
+            cw_o, ccw_o = self.overlay.opacity
+            
+            paint.setOpacity(cw_o)
             paint.drawPixmap(0, cw_y, rot_cw)
-            if self.add_cw or self.add_ccw:
-                paint.setOpacity(self.overlay_opacity + self.add_ccw)
+            if ccw_o != cw_o:
+                paint.setOpacity(ccw_o)
             paint.drawPixmap(w / 2.0, ccw_y, rot_ccw)
             paint.setOpacity(1)
 
@@ -212,26 +260,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             self.rotleft()
         
         self.prnt.may_rot = False
-        self.rot_overlay = False
-        self.fade_timer.stop()
-        # TODO: Write me!
-        # This should animate the rotation.. If we manage to.
-        print "Clockwise: %s" % clockwise
-
-    @QtCore.pyqtSignature('')
-    def fade_in(self):
-        self.rot_overlay = True
-        if self.overlay_opacity >= self.MAX_OPACITY:
-            if self.fade_timer.isActive():
-                self.fade_timer.stop()
-        else:
-            self.overlay_opacity += self.OPACITY_CHANGE
-            self.repaint()
-        if not self.fade_timer.isActive():
-            self.fade_timer = QtCore.QTimer(self)
-            self.fade_timer.connect(self.fade_timer, QtCore.SIGNAL('timeout()'),
-                                    self, QtCore.SLOT('fade_in()'))
-            self.fade_timer.start(100)
+        self.overlay.hide()
     
     @QtCore.pyqtSignature('')
     def blink_rot(self, what=None):
@@ -271,13 +300,15 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.fade_in()
         
     def mousePressEvent(self, event):
-        if self.prnt.may_rot and not self.rot_overlay:
+        if self.prnt.may_rot and not self.overlay:
+            # This shouldn't actually be happening. Just in case it is.
             return
+        
         x, y = event.x(), event.y()
         w = self.width()
         h = self.height()
         
-        if self.rot_overlay:
+        if self.overlay:
             if x < w / 2.0:
                 # Clockwise
                 self.rotate(True)
@@ -285,30 +316,30 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
                 # Counter-clockwise
                 self.rotate(False)
             self.repaint()
-            return
-        
-        size = min([h, w]) / 3.0
-        x, y = get_coord(size, x), get_coord(size, y)
-        # try:
-        #     self.game.set_stone(self.uid, y, x)
-        # except (InvalidTurn, SquareNotEmpty):
-        #     pass # Do something!
-        self.set_stone(y, x, 1)
+            # Update outdated position of preview stone.
+            self.mouseMoveEvent(event)
+        else:
+            # No overlay. Player wants to set a stone.
+            size = min([h, w]) / 3.0
+            x, y = get_coord(size, x), get_coord(size, y)
+            # try:
+            #     self.game.set_stone(self.uid, y, x)
+            # except (InvalidTurn, SquareNotEmpty):
+            #     pass # Do something!
+            self.set_stone(y, x, 1)
         
     def enterEvent(self, event):
         if self.prnt.may_rot:
-            self.fade_in()
+            self.overlay.show()
         self.repaint()
     
     def leaveEvent(self, event):
-        self.rot_overlay = False
-        self.fade_timer.stop()
-        self.overlay_opacity = self.INIT_OPACITY
+        self.overlay.hide()
         self.preview_stone = None
         self.repaint()
     
     def mouseMoveEvent(self, event):
-        if not self.rot_overlay:
+        if not self.overlay:
             x, y = event.x(), event.y()
             size = min([self.height(), self.width()]) / 3.0
             x, y = get_coord(size, x), get_coord(size, y)
@@ -317,20 +348,18 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             return
         if not self.user_control:
             return
-        x, y = event.x(), event.y()
+        
+        x = event.x()
         if x < self.width() / 2.0:
-            self.add_cw = self.HOVER
-            self.add_ccw = 0
-            self.repaint()
+            self.overlay.highlight_cw()
         else:
-            self.add_ccw = self.HOVER
-            self.add_cw = 0
-            self.repaint()
+            self.overlay.highlight_ccw()
+        self.repaint()
     
     def set_stone(self, row, col, player_id):
         self.field[row][col] = player_id
         self.prnt.may_rot = True
-        self.fade_in()
+        self.overlay.show()
         self.repaint()
 
 
