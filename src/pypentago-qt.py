@@ -366,7 +366,6 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
 
 class Board(QtGui.QWidget):
     def __init__(self, parent=None):
-        # FIXME: Prevent quadrants from spreading out!
         QtGui.QWidget.__init__(self, parent)
         self.may_rot = False
         self.quadrants = [Quadrant(self, i) for i in xrange(4)]
