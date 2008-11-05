@@ -147,7 +147,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         
         # If we use this in combination with spacers, we get a fixed-size
         # board, but the alignment problems will be gone.
-        self.setMinimumSize(160, 160)
+        # self.setMinimumSize(160, 160)
         self.setMouseTracking(True)
         
         # FIXME: Use real background image!
@@ -183,7 +183,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.preview_stone = None
         self.user_control = True
         self.blink = []
-
+    
     def paintEvent(self, event):
         s_mode = QtCore.Qt.SmoothTransformation                
 
@@ -233,6 +233,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             x_p, y_p = x_c * size, y_c * size
             paint.setOpacity(self.PREVIEW_OPACITY)
             paint.drawImage(x_p+d_size, y_p+d_size, imgs[1])
+            paint.setOpacity(1)
             
         if self.overlay:
             # Display rotation overlay.
@@ -369,38 +370,25 @@ class Board(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.may_rot = False
         self.quadrants = [Quadrant(self, i) for i in xrange(4)]
-
-        # Possible fix for spreading out. Limits board to fixed-size.
-        hbox = QtGui.QHBoxLayout()
-        vbox = QtGui.QVBoxLayout()
-        # ---
-
-        grid = QtGui.QGridLayout()
-        grid.setSpacing(0)
-
-        grid.addWidget(self.quadrants[0], 0, 0)
-        grid.addWidget(self.quadrants[1], 0, 1)
-        grid.addWidget(self.quadrants[2], 1, 0)
-        grid.addWidget(self.quadrants[3], 1, 1)
-
-        # Fix
-        hbox.addLayout(grid)
-        hbox.addStretch(0)
-
-        vbox.addLayout(hbox)
-        vbox.addStretch(0)
-        self.setLayout(vbox)
-        # --
-
-        ##self.setLayout(grid)
-
+    
+    def paintEvent(self, event):
+        size = min([self.height(), self.width()]) / 2.0
+        
+        for quad in self.quadrants:
+            quad.resize(size, size)
+        
+        self.quadrants[0].move(0, 0)
+        self.quadrants[1].move(0, size)
+        self.quadrants[2].move(size, 0)
+        self.quadrants[3].move(size, size)     
+        
 
 class Game(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.board = Board(self)
         hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(self.board, 0)
+        hbox.addWidget(self.board, 40)
         
         self.player_list = QtGui.QListWidget()
         self.player_list.addItem("name")
@@ -417,7 +405,7 @@ class Game(QtGui.QWidget):
         sidebar.addWidget(self.chat, 40)
         sidebar.addWidget(self.chat_entry)
         
-        hbox.addLayout(sidebar, 20)
+        hbox.addLayout(sidebar, 25)
         #hbox.addSpacing(1)
         self.setLayout(hbox)
 
