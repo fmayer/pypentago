@@ -23,6 +23,8 @@
 
 
 import sys
+import warnings
+
 from PyQt4 import QtGui, QtCore, QtSvg
 
 from pypentago import core
@@ -145,9 +147,6 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         
         self.prnt = parent
         
-        # If we use this in combination with spacers, we get a fixed-size
-        # board, but the alignment problems will be gone.
-        # self.setMinimumSize(160, 160)
         self.setMouseTracking(True)
         
         # FIXME: Use real background image!
@@ -303,6 +302,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
     def mousePressEvent(self, event):
         if self.prnt.may_rot and not self.overlay:
             # This shouldn't actually be happening. Just in case it is.
+            warnings.warn('may_rot == True and mousePressEvent but no overlay')
             return
         
         x, y = event.x(), event.y()
