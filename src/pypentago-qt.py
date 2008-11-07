@@ -250,7 +250,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         # This was a triumph!
         paint.end()
 
-    def rotate(self, clockwise=True):
+    def rotate(self, clockwise):
         if clockwise:
             self.rotright()
         else:
