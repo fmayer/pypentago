@@ -18,10 +18,15 @@
 pypentago such as version, protocol version or the regex the email 
 addresses have to match. """
 
+import os
+
+from string import ascii_letters
+from random import randint, choice
+
 __version__ = "svn"
-__authors__ = [ "Florian Mayer <flormayer@aim.com>", "J. Kovacs", 
-                "Abishek Goda", "Hardik Metha", 
+__authors__ = [ "Florian Mayer <flormayer@aim.com>", 
                 u'Mathias "DarkKiller" K\xe6rlev']
+__retired__ = ["J. Kovacs", "Abishek Goda", "Hardik Metha", ]
 __artists__ = ["Kenichi \"XenoSilence\" Lei", ]
 __url__ = "https://gna.org/projects/pypentago/"
 __copyright__ = "(c) 2008 Florian Mayer"
@@ -44,10 +49,13 @@ verbosity_levels = {
     2: 10,  # -vv
 }
 
-from os.path import dirname, join
+data = {}
 
-script_path = dirname(__file__)
-IMGPATH = join(script_path, "client", "img")
+script_path = os.path.dirname(__file__)
+IMGPATH = os.path.join(script_path, 'data')
+
+for file_ in os.listdir(IMGPATH):
+    data[file_] = os.path.abspath(os.path.join(IMGPATH, file_))
 
 # -----------------------------------------------------------------------------
 # BASIC FUNCTIONS NEEDED IN MANY MODULES FOLLOW
@@ -68,8 +76,6 @@ def get_rand_str(min_length=13, max_length=18):
     
     Get a random string with minimum length of min_length and maximum length 
     of max_length """
-    from string import ascii_letters
-    from random import randint, choice
     # Variable lenght of random string for improved security:
     lenght = randint(min_length, max_length)
     rand = [choice(ascii_letters) for elem in range(lenght)]
@@ -104,7 +110,6 @@ def flatten(x):
 
     result = []
     for el in x:
-        #if isinstance(el, (list, tuple)):
         if hasattr(el, "__iter__") and not isinstance(el, basestring):
             result.extend(flatten(el))
         else:

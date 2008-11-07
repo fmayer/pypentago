@@ -26,6 +26,8 @@ import sys
 import warnings
 import time
 
+import pypentago
+
 from PyQt4 import QtGui, QtCore, QtSvg
 
 from pypentago import core
@@ -152,28 +154,30 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         
         # FIXME: Use real background image!
         # See http://www.bruylandt.com/pentago/pentago_17301026704340286.jpg
-        self.bg_image = QtGui.QImage('bg.png')
+        self.bg_image = QtGui.QImage(
+            pypentago.data['quad_bg.png']
+        )
 
         # Clockwise rotation image overlay.
         self.rot_cw = SVGFakeImage(
-            'pypentago/client/img/rot_cw.svg'
+            pypentago.data['rot_cw.svg']
         )
 
         # Counter-clockwise rotation image overlay.
         self.rot_ccw = SVGFakeImage(
-            'pypentago/client/img/rot_ccw.svg'
+            pypentago.data['rot_ccw.svg']
         )
         
 
         self.img = [
             QtGui.QImage(
-                'pypentago/client/img/empty.png'
+                pypentago.data['empty.png']
                 ),
             QtGui.QImage(
-                'pypentago/client/img/ball-white.png'
+                pypentago.data['ball-white.png']
                 ),
             QtGui.QImage(
-                'pypentago/client/img/ball-black.png'
+                pypentago.data['ball-black.png']
                 ),
         ]
         
