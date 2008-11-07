@@ -416,7 +416,7 @@ class Board(QtGui.QWidget):
         self.may_rot = False
         self.quadrants = [Quadrant(self, i) for i in xrange(4)]
         # Demonstration:
-        self.quadrants[0].show_turn(0, 1, True, 2)
+        ## self.quadrants[0].show_turn(0, 1, True, 2)
     
     def paintEvent(self, event):
         size = min([self.height(), self.width()]) / 2.0

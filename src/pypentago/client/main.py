@@ -73,7 +73,6 @@ verbosity = verbosity_levels[options.verbose]
 def main():
     pypentago.init_logging(options.logfile, verbosity)
     log = logging.getLogger("pypentago.client")
-    log.info("Cake!")
     interface.main()
 
 if __name__ == "__main__":
