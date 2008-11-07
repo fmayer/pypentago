@@ -185,6 +185,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.blink = []
     
     def paintEvent(self, event):
+        # We might want to change that for performance reasons later on.        
         s_mode = QtCore.Qt.SmoothTransformation                
 
         h = self.height()
@@ -196,8 +197,6 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         
         paint = QtGui.QPainter()
         paint.begin(self)
-        
-        # We might want to change that for performance reasons later on.        
         
         # Resize the background image.
         bg = self.bg_image.scaledToHeight(min_size, s_mode)
