@@ -24,6 +24,7 @@
 
 import sys
 import warnings
+import datetime
 
 from PyQt4 import QtGui, QtCore, QtSvg
 
@@ -394,10 +395,14 @@ class Game(QtGui.QWidget):
         self.player_list.addItem("segfaulthunter")
         
         self.chat = QtGui.QListWidget()
-        self.chat.addItem("<name> Hello!")
-        self.chat.addItem("<segfaulthunter> Hello you!")
+        self.add_msg('name', 'Hello!')
+        self.add_msg('segfaulthunter', 'Hello you!')
         
         self.chat_entry = QtGui.QLineEdit()
+        self.chat_entry.connect(self.chat_entry, 
+                                QtCore.SIGNAL('returnPressed()'),
+                                self,
+                                QtCore.SLOT('send_msg()'))
         
         sidebar = QtGui.QVBoxLayout()
         sidebar.addWidget(self.player_list, 20)
@@ -407,6 +412,23 @@ class Game(QtGui.QWidget):
         hbox.addLayout(sidebar, 25)
         #hbox.addSpacing(1)
         self.setLayout(hbox)
+    
+    @QtCore.pyqtSignature('')
+    def send_msg(self):
+        self.add_msg('name', self.chat_entry.text())
+        self.chat_entry.clear()
+        # TODO: Send to opponent.
+    
+    def add_msg(self, author, msg, utc_time=None):
+        format = "[%(time)s] <%(author)s> %(msg)s"
+        if utc_time is None:
+            d_time = datetime.datetime.now()
+        else:
+            # TODO: Convert utc timestamp to local time.
+            pass
+        time_ = str(d_time.time())[:5]
+        self.chat.addItem(format % dict(time=time_, author=author, msg=msg))
+        self.chat.scrollToBottom()
 
 
 class MainWindow(QtGui.QWidget):
