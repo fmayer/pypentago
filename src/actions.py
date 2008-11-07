@@ -1,3 +1,5 @@
+# -*- coding: us-ascii -*-
+
 # actions - Handle actions by defining handlers
 # Copyright (C) 2008 Florian Mayer
 

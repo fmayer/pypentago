@@ -32,8 +32,11 @@ import random
 script_path = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(script_path, os.pardir)))
 
+import depr
+
 from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn, 
                                   GameFull)
+
 
 def has_won(line, check):
     """ Check whether line contains 5 stones of the same player. """
@@ -80,18 +83,32 @@ class Quadrant(object):
     def __repr__(self):
         return "<Quadrant(%s)>" % self.field
     
-    def rotleft(self):
-        """ Rotate quadrant to the left. """
+    def rotate_ccw(self):
+        """ Rotate quadrant clockwise. """
         newfield = [[self.field[k][i] for k in xrange(3)] for i in xrange(3)]
         # Reverse newfield.
         self.field = newfield[::-1]
     
-    def rotright(self):
-        """ Rotate quadrant to the right. """
+    def rotate_cw(self):
+        """ Rotate quadrant counter-clockwise. """
         newfield = [[self.field[2-k][2-i] for k in xrange(3)]
                     for i in xrange(3)]
         # Reverse newfield.
         self.field = newfield[::-1]
+    
+    @depr.deprecated_alias(rotate_ccw)
+    def rotleft(*args, **kwargs):
+        pass
+    
+    @depr.deprecated_alias(rotate_cw)
+    def rotright(*args, **kwargs):
+        pass
+        
+    def rotate(self, clockwise):
+        if clockwise:
+            self.rotate_cw()
+        else:
+            self.rotate_ccw()
 
     def __getitem__(self, i):
         return self.field[i]

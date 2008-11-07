@@ -251,10 +251,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         paint.end()
 
     def rotate(self, clockwise):
-        if clockwise:
-            self.rotright()
-        else:
-            self.rotleft()
+        core.Quadrant.rotate(self, clockwise)
         
         self.prnt.may_rot = False
         self.overlay.hide()
