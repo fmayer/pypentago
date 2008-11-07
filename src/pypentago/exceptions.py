@@ -38,5 +38,6 @@ class NotInDB(Exception):
     """ Searched item doesn't exist in the database. """
     pass
 
+
 class InvalidPlayerID(Exception):
     pass

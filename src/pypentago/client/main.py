@@ -21,6 +21,7 @@ starts up the interface. """
 
 import logging
 import sys
+import time
 
 from optparse import OptionParser
 from ConfigParser import ConfigParser
@@ -33,26 +34,13 @@ script_path = abspath(dirname(__file__))
 if exists(join(script_path, "connection.py")):
     sys.path.insert(0, abspath(join(script_path, "..", "..")))
 
-# Imports that need PYTHONPATH set.
-# Commented out code was to check which module initalised the reactor and may 
-#   be used for similar purpose later.
 import pypentago
-print "This is pypentago from %s" % pypentago.__file__
-##print "Importing check_modules"
-from pypentago.client.check_modules import check_modules
-##print "Importing except_hook"
+
 from pypentago.except_hook import set_except_hook
-##print "Importing time_zones"
-from pypentago.time_zones import get_timezone
-##print "Importing get_conf"
 from pypentago.get_conf import get_conf_obj, str_to_bool
-##print "Importing client"
 from pypentago.client import interface
-##print "Importing time_zones"
-from pypentago.time_zones import get_timezone
-##print "Importing pypentago"
 from pypentago import __version__, verbosity_levels
-##print "Imported pypentago"
+
 config = get_conf_obj("client")
 
 def_logfile = config.get("default", "logfile")
@@ -83,24 +71,10 @@ options, args = parser.parse_args()
 verbosity = verbosity_levels[options.verbose]
     
 def main():
-    logfile = options.logfile
-    if not logfile:
-        logfile = join(script_path, "client.log")
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(name)s %(levelname)s %(message)s',
-                        filename=logfile)
-    # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(verbosity)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
+    pypentago.init_logging(options.logfile, verbosity)
     log = logging.getLogger("pypentago.client")
-    log.info("Current deviation from UTC is %dh" % get_timezone())
-    interface.main(options.server, options.port)
+    log.info("Cake!")
+    interface.main()
 
 if __name__ == "__main__":
     main()

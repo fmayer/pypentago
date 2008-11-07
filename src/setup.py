@@ -33,9 +33,9 @@ setup(
     license='GPL',
     zip_safe = False,
     packages=['pypentago', 'pypentago.server', 'pypentago.server.db.', 
-              'pypentago.client', 
-              'pypentago.client.img', 'easy_twisted', 'pygrade'],
-    package_data={'pypentago.client.img': ['*.png']},
+              'pypentago.client',  'easy_twisted', 'pygrade', 'actions', 
+              'depr', 'pypentago.client.interface'],
+    package_data={'pypentago.data': ['*.png', "*.svg"]},
     scripts=[ ],
     entry_points = {
         'console_scripts': [

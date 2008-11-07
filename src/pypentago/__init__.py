@@ -19,6 +19,9 @@ pypentago such as version, protocol version or the regex the email
 addresses have to match. """
 
 import os
+import time
+import logging
+import logging.handlers
 
 from string import ascii_letters
 from random import randint, choice
@@ -57,6 +60,33 @@ IMGPATH = os.path.join(script_path, 'data')
 for file_ in os.listdir(IMGPATH):
     data[file_] = os.path.abspath(os.path.join(IMGPATH, file_))
 
+def init_logging(log_file, cnsl_verbosity):
+    file_formatter = logging.Formatter(
+        '%(asctime)s %(name)s %(levelname)s %(message)s'
+    )
+    # Use UTC for files.
+    file_formatter.converter = time.gmtime
+    
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(file_formatter)
+    file_handler.setLevel(0)
+    
+    cnsl_formatter = logging.Formatter(
+        '%(name)-12s: %(levelname)-8s %(message)s'
+    )
+    # Use local time for output.
+    cnsl_formatter.converter = time.localtime
+    
+    cnsl_handler = logging.StreamHandler()
+    cnsl_handler.setFormatter(cnsl_formatter)
+    cnsl_handler.setLevel(cnsl_verbosity)
+    
+    # add the handler to the root logger
+    logging.getLogger().addHandler(cnsl_handler)
+    logging.getLogger().addHandler(file_handler)
+    logging.getLogger().setLevel(0)
+
+
 # -----------------------------------------------------------------------------
 # BASIC FUNCTIONS NEEDED IN MANY MODULES FOLLOW
 # -----------------------------------------------------------------------------
@@ -71,6 +101,7 @@ def could_int(string):
     except ValueError:
         return False
 
+
 def get_rand_str(min_length=13, max_length=18):
     """ get_rand_str(min_length=13, max_length=18) -> str 
     
@@ -81,6 +112,7 @@ def get_rand_str(min_length=13, max_length=18):
     rand = [choice(ascii_letters) for elem in range(lenght)]
     rand_str = "".join(rand)
     return rand_str
+
 
 def int_all(lst):
     """ int_all(sequence) -> sequence
@@ -94,6 +126,7 @@ def int_all(lst):
         else:
             ret.append(elem)
     return ret
+
 
 def flatten(x):
     """flatten(sequence) -> list

@@ -15,6 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+
+
 def except_hook(exctype, value, tceback):
     log = logging.getLogger("pypentago.exception")
     from traceback import format_exception
@@ -22,6 +24,8 @@ def except_hook(exctype, value, tceback):
     # asd
     log.critical("Caught exception:\n"+''.join(format_exception(
         exctype, value, tceback)))
+
+
 def set_except_hook():
     import sys
     sys.excepthook = except_hook

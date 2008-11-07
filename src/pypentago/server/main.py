@@ -30,10 +30,9 @@ script_path = abspath(dirname(__file__))
 # is in is in it so we can directly import from there.
 sys.path.insert(0, abspath(join(script_path, "..", "..")))
 
-
+import pypentago
 # Imports that need PYTHONPATH set.
 from pypentago.except_hook import set_except_hook
-from pypentago.time_zones import get_timezone
 from pypentago.get_conf import get_conf_obj, str_to_bool, app_data
 from pypentago.server.server import run_server
 from pypentago import __version__, verbosity_levels
@@ -96,20 +95,8 @@ def main():
     logfile = logfile.replace("{port}", str(options.port))
     if not logfile:
         logfile = join(script_path, "server.log")
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(name)s %(levelname)s %(message)s',
-                        filename=logfile)
-    # define a Handler which writes INFO messages or higher to the sys.stderr
-    console = logging.StreamHandler()
-    console.setLevel(verbosity)
-    # set a format which is simpler for console use
-    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-    # tell the handler to use this format
-    console.setFormatter(formatter)
-    # add the handler to the root logger
-    logging.getLogger('').addHandler(console)
+    pypentago.init_logging(logfile, verbosity)
     log = logging.getLogger("pypentago.server")
-    log.info("Current deviation from UTC is %dh" % get_timezone())
 
     if options.daemon:
         import daemon
