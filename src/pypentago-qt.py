@@ -191,10 +191,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         h = self.height()
         w = self.width()
         min_size = min([h, w])
-        
-        rot_cw = self.rot_cw.scaledToWidth(w / 2.0, s_mode)
-        rot_ccw = self.rot_ccw.scaledToWidth(w / 2.0, s_mode)
-        
+
         paint = QtGui.QPainter()
         paint.begin(self)
         
