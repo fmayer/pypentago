@@ -24,7 +24,7 @@
 
 import sys
 import warnings
-import datetime
+import time
 
 from PyQt4 import QtGui, QtCore, QtSvg
 
@@ -422,11 +422,8 @@ class Game(QtGui.QWidget):
     def add_msg(self, author, msg, utc_time=None):
         format = "[%(time)s] <%(author)s> %(msg)s"
         if utc_time is None:
-            d_time = datetime.datetime.now()
-        else:
-            # TODO: Convert utc timestamp to local time.
-            pass
-        time_ = str(d_time.time())[:5]
+            utc_time = time.time()
+        time_ = time.strftime('%H:%M', time.localtime(utc_time))
         self.chat.addItem(format % dict(time=time_, author=author, msg=msg))
         self.chat.scrollToBottom()
 
