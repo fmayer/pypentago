@@ -84,13 +84,13 @@ class Quadrant(object):
         return "<Quadrant(%s)>" % self.field
     
     def rotate_ccw(self):
-        """ Rotate quadrant clockwise. """
+        """ Rotate quadrant counter-clockwise. """
         newfield = [[self.field[k][i] for k in xrange(3)] for i in xrange(3)]
         # Reverse newfield.
         self.field = newfield[::-1]
     
     def rotate_cw(self):
-        """ Rotate quadrant counter-clockwise. """
+        """ Rotate quadrant clockwise. """
         newfield = [[self.field[2-k][2-i] for k in xrange(3)]
                     for i in xrange(3)]
         # Reverse newfield.
