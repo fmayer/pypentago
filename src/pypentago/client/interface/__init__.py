@@ -433,6 +433,9 @@ class MainWindow(QtGui.QWidget):
         hbox.addWidget(game)
         self.setLayout(hbox)
         self.setWindowTitle("Python Pentago")
+        self.setWindowIcon(
+            QtGui.QIcon(pypentago.data['icon.png'])
+        )
 
 
 def main(connection=None):
