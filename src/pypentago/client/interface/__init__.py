@@ -31,10 +31,53 @@ import pypentago
 from PyQt4 import QtGui, QtCore, QtSvg
 
 from pypentago import core
+from pypentago.client.interface.blinker import Blinker
 
 
 def get_coord(size, x):
     return int(x / size)
+
+
+class OverlayBlink(Blinker):
+    def __init__(self, overlay, repaint, callafter=None):
+        Blinker.__init__(self, 0, 0.3, 0.05, callback=repaint)
+        self.overlay = overlay
+        self.overlay.value = self.overlay.MAX_OPACITY
+        self.callafter = callafter
+    
+    def run(self, msec=None, callafter=None):
+        # Show overlay without fading in.
+        self.overlay.shown = True
+        Blinker.run(self, msec, callafter)
+    
+    def on_stop(self):
+        # Hide overlay without stopping timer that wasn't started.
+        self.overlay.value = self.overlay.INIT_OPACITY
+        self.overlay.shown = False
+        self.value = self.init
+        self.callback()
+        if self.callafter is not None:
+            self.callafter()
+    
+    def __nonzero__(self):
+        return self.timer.isActive()
+
+
+class StoneBlink(Blinker):
+    def __init__(self, repaint, callafter=None):
+        Blinker.__init__(self, 0, 0.3, 0.05, callback=repaint)
+        self.coord = None
+        self.callafter = callafter
+
+    def on_stop(self):
+        self.value = self.init
+        self.coord = None
+        self.callback()
+        if self.callafter is not None:
+            self.callafter()
+    
+    def __nonzero__(self):
+        return self.coord is not None and self.timer.isActive()
 
 
 class Overlay(QtCore.QObject):
@@ -185,8 +228,11 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
 
         self.blink_timer = QtCore.QTimer(self)
         self.preview_stone = None
-        self.user_control = True
-        self.blink = []
+        self.blink_cw = OverlayBlink(self.overlay, self.repaint)
+        self.blink_ccw = OverlayBlink(self.overlay, self.repaint)
+        self.blink_stone = StoneBlink(self.repaint)
+        self.block_user_control = [self.blink_ccw, self.blink_cw,
+                                   self.blink_stone]
     
     def paintEvent(self, event):
         # We might want to change that for performance reasons later on.        
@@ -216,13 +262,22 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         # Scale all of the images to one fourth of the space we've got.
         # We're assuming to work with squared images!
         imgs = [img.scaledToHeight(w_size, s_mode) for img in self.img]
-
+        
+        if self.blink_stone:
+            b_col, b_row = self.blink_stone.coord
+        else:
+            b_col, b_row = None, None
+        
         y_c = y_p = 0
         for row in self.field:
             x_c = x_p = 0
             for col in row:
+                if x_c == b_col and y_c == b_row:
+                    paint.setOpacity(self.blink_stone.value)
                 stone_value = self.field[y_c][x_c]
                 paint.drawImage(x_p+d_size, y_p+d_size, imgs[stone_value])
+                if x_c == b_col and y_c == b_row:
+                    paint.setOpacity(1)
                 x_c += 1
                 x_p += size
             y_c += 1
@@ -230,10 +285,11 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         
         if self.preview_stone is not None:
             x_c, y_c = self.preview_stone
-            x_p, y_p = x_c * size, y_c * size
-            paint.setOpacity(self.PREVIEW_OPACITY)
-            paint.drawImage(x_p+d_size, y_p+d_size, imgs[1])
-            paint.setOpacity(1)
+            if not self.field[y_c][x_c]:
+                x_p, y_p = x_c * size, y_c * size
+                paint.setOpacity(self.PREVIEW_OPACITY)
+                paint.drawImage(x_p+d_size, y_p+d_size, imgs[1])
+                paint.setOpacity(1)
             
         if self.overlay:
             # Display rotation overlay.
@@ -244,10 +300,10 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             
             cw_o, ccw_o = self.overlay.opacity
             
-            paint.setOpacity(cw_o)
+            paint.setOpacity(cw_o + self.blink_cw.value)
             paint.drawPixmap(0, cw_y, rot_cw)
-            if ccw_o != cw_o:
-                paint.setOpacity(ccw_o)
+            if ccw_o != cw_o or self.blink_ccw or self.blink_cw:
+                paint.setOpacity(ccw_o + self.blink_ccw.value)
             paint.drawPixmap(w / 2.0, ccw_y, rot_ccw)
             paint.setOpacity(1)
 
@@ -259,45 +315,22 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         
         self.prnt.may_rot = False
         self.overlay.hide()
-    
-    @QtCore.pyqtSignature('')
-    def blink_rot(self, what=None):
-        # [var_name, min, max, step, add_]
-        if what is not None:
-            self.blink.append(what)
-        
-        for i, (name, min_, max_, step, add_) in enumerate(self.blink):
-            if getattr(self, name) <= min_:
-                self.blink[i][-1] = True
-                add_ = True
-            elif getattr(self, name) >= max_:
-                self.blink[i][-1] = False
-                add_ = False
-            if add_:
-                setattr(self, name, getattr(self, name) + step)
-            else:
-                setattr(self, name, getattr(self, name) - step)
-
         self.repaint()
-        
-        if not self.blink_timer.isActive():
-            self.blink_timer = QtCore.QTimer(self)
-            self.blink_timer.connect(self.blink_timer, 
-                                     QtCore.SIGNAL('timeout()'),
-                                     self, QtCore.SLOT('blink_rot()'))
-            self.blink_timer.start(100)
             
-    def show_rot(self, clockwise):
-        self.user_control = False
+    def show_rot(self, clockwise, callafter=None):
         if clockwise:
-            name = 'add_cw'
+            self.blink_cw.run(5000, callafter)
         else:
-            name = 'add_cww'
-        
-        self.blink_rot([name, 0, 0.3, 0.04, True])
-        self.fade_in()
-        
+            self.blink_ccw.run(5000, callafter)
+    
+    def show_loc(self, col, row, callafter=None):
+        self.blink_stone.coord = (col, row)
+        self.blink_stone.run(5000, callafter)
+    
     def mousePressEvent(self, event):
+        if not self.user_control:
+            self.reclaim_control()
+            return
         if self.prnt.may_rot and not self.overlay:
             # This shouldn't actually be happening. Just in case it is.
             warnings.warn('may_rot == True and mousePressEvent but no overlay')
@@ -338,14 +371,15 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.repaint()
     
     def mouseMoveEvent(self, event):
+        if not self.user_control:
+            return
+        
         if not self.overlay:
             x, y = event.x(), event.y()
             size = min([self.height(), self.width()]) / 3.0
             x, y = get_coord(size, x), get_coord(size, y)
             self.preview_stone = x, y
             self.repaint()
-            return
-        if not self.user_control:
             return
         
         x = event.x()
@@ -355,11 +389,29 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             self.overlay.highlight_ccw()
         self.repaint()
     
-    def set_stone(self, row, col, player_id):
+    def set_stone(self, row, col, player_id, may_rot=True):
+        if self.field[row][col]:
+            return
         self.field[row][col] = player_id
-        self.prnt.may_rot = True
-        self.overlay.show()
+        self.prnt.may_rot = may_rot
+        if may_rot:
+            self.overlay.show()
         self.repaint()
+    
+    @property
+    def user_control(self):
+        return not any(self.block_user_control)
+    
+    def reclaim_control(self):
+        for elem in self.block_user_control:
+            if elem:
+                elem.stop()
+    
+    def show_turn(self, row, col, clockwise, p_id):
+        self.set_stone(row, col, p_id, False)
+        self.show_loc(col, row,
+                      lambda: self.show_rot(
+                          clockwise, lambda: self.rotate(clockwise)))
 
 
 class Board(QtGui.QWidget):
@@ -367,6 +419,8 @@ class Board(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.may_rot = False
         self.quadrants = [Quadrant(self, i) for i in xrange(4)]
+        # Demonstration:
+        self.quadrants[0].show_turn(0, 1, True, 2)
     
     def paintEvent(self, event):
         size = min([self.height(), self.width()]) / 2.0

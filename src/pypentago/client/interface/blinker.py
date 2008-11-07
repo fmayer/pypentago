@@ -23,6 +23,7 @@ from PyQt4 import QtCore
 class Blinker(QtCore.QObject):
     def __init__(self, min_, max_, step, add=True, init=0, 
                  callback=None, interval=100):
+        QtCore.QObject.__init__(self)
         self.min_ = min_
         self.max_ = max_
         self._step = step
@@ -37,6 +38,8 @@ class Blinker(QtCore.QObject):
                            QtCore.SIGNAL('timeout()'),
                            self, QtCore.SLOT('tick()')
                            )
+        self.s_shot = None
+        self.active = False
     
     def get_step(self):
         # As this may change state of the iterator, 
@@ -74,16 +77,23 @@ class Blinker(QtCore.QObject):
         if self.callback is not None:
             self.callback()
     
-    def run(self, msec=None):
+    def run(self, msec=None, callafter=None):
+        self.active = True
         self.timer.start(self.interval)
+        if callafter is not None:
+            self.callafter = callafter
         if msec is not None:
-            timer = QtCore.QTimer()
-            timer.singleShot(msec, self.stop)
+            self.s_shot = QtCore.QTimer()
+            self.s_shot.singleShot(msec, self.stop)
     
     @QtCore.pyqtSignature('')
     def stop(self):
-        self.on_stop()
-        self.timer.stop()
+        if self.active:
+            self.active = False
+            if self.s_shot is not None:
+                self.s_shot.stop()
+            self.on_stop()
+            self.timer.stop()
     
     def on_stop(self):
         self.value = self.init
