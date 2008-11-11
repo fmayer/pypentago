@@ -137,7 +137,7 @@ class Board(object):
 
     def apply_turn(self, player, turn):
         """ Apply turn of player to board. 
-        Turn is (field, row, col, rot_dir, rot_field) """
+        Turn is (quadrant, row, col, rot_dir, rot_field) """
         field, row, col, rot_dir, rot_field = turn
         self.set_stone(player, field, row, col)
         if rot_dir == "R":
@@ -205,75 +205,6 @@ class Board(object):
                 string+="\n"
         return string
 
-
-class Game(object):
-    def __init__(self, players=None, board=None):
-        """ If players are passed it automatically sets their game attribute 
-        to this instance. """
-        self.board = board or Board()
-        self.next_uid = 1
-        self.players = list(players) if players is not None else None
-        self.observers = []
-        if players is not None:
-            for i, player in enumerate(players):
-                player.game = self
-                player.uid = i+1
-        self.last_set = None
-    
-    def rules(self, turn):
-        """ Checks that need to be done before player can set the stone. """
-        field, row, col, rot_dir, rot_field = turn
-        if not 0 <= row <= 2:
-            raise InvalidTurn
-        if not 0 <= col <= 2:
-            raise InvalidTurn
-        if not rot_dir in ("L", "R"):
-            raise InvalidTurn
-        if not 0 <= rot_field <= 3:
-            raise InvalidTurn
-        
-    def apply_turn(self, player, turn):
-        """ Apply turn of player to the board. Also checks whether it is the 
-        players turn. """
-        self.rules(turn)
-        if player is self.last_set:
-            raise NotYourTurn
-        
-        self.board.apply_turn(player, turn)
-        for a_player in self.players:
-            a_player.display_turn(player, turn)
-        self.last_set = player
-    
-    def get_winner(self):
-        """ Either return False if no-one has won or a tuple (winner, loser). 
-        """
-        for player in self.players:
-            pl = self.players[:]
-            pl.remove(player)
-            other_player = pl[0]
-            
-            check = [player.uid]*5
-            for line in (self.board.cols + self.board.rows + 
-                         self.board.diagonals):
-                if has_won(line, check):
-                    return player, other_player
-        return False
-    
-    def add_player(self, player):
-        """ Add player to the game. Sets the uid and game attributes of player.
-        
-        Raises GameFull exception if game is full. """
-        if len(self.players) < 2:
-            self.players.append(player)
-            player.game = self
-            player.uid = self.next_uid
-            self.next_uid+=1
-        else:
-            raise GameFull
-    
-    def get_random_beginner(self):
-        self.last_set = random.choice(self.players)
-
         
 class Player(object):
     """ The Player is the one that is interacting with the Game. """
@@ -292,3 +223,74 @@ class Player(object):
     def display_turn(self, player, turn):
         """ Override to display turn when it is set to turn """
         pass
+    
+    def begin(self):
+        pass
+
+
+class Game(object):
+    def __init__(self, board=None):
+        """ If players are passed it automatically sets their game attribute 
+        to this instance. """
+        self.board = board or Board()
+        self.players = []
+        self.observers = []
+        self.pool = [2, 1]
+        
+        self.last_set = None
+    
+    def rules(self, turn):
+        """ Checks that need to be done before player can set the stone. """
+        field, row, col, rot_dir, rot_field = turn
+        if not 0 <= row <= 2:
+            raise InvalidTurn
+        if not 0 <= col <= 2:
+            raise InvalidTurn
+        if not rot_dir in ("L", "R"):
+            raise InvalidTurn
+        if not 0 <= rot_field <= 3:
+            raise InvalidTurn
+        
+    def apply_turn(self, player, turn):
+        """ Apply turn of player to the board. Also checks whether it is the 
+        players turn. 
+        
+        The other player's and all other observer's display_turn methods are
+        called, it is the calling players responsibility to display it if
+        needed! """
+        self.rules(turn)
+        if player is self.last_set:
+            raise NotYourTurn
+        
+        self.board.apply_turn(player, turn)
+        self.other_player(player).display_turn(player, turn)
+        for obs in self.observers:
+            obs.display_turn(player, turn)
+        self.last_set = player
+    
+    def get_winner(self):
+        """ Return (winner, loser).
+        
+        If no winner has been found (None, None) is returned. """
+        for player in self.players:           
+            check = [player.uid]*5
+            for line in (self.board.cols + self.board.rows + 
+                         self.board.diagonals):
+                if has_won(line, check):
+                    return player, self.other_player(player)
+        return None, None
+    
+    def new_player(self, klass=Player, args=[], kwargs={}):
+        if not self.pool:
+            raise GameFull
+        p_id = self.pool.pop()
+        p = klass(self, p_id, *args, **kwargs)
+        self.players.append(p)
+        return p
+    
+    def random_beginner(self):
+        self.last_set = random.choice(self.players)
+        return self.other_player(self.last_set)
+    
+    def other_player(self, player):
+        return (p for p in self.players if p is not player).next()

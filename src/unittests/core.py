@@ -9,11 +9,13 @@ sys.path.append(abspath(join(script_path, ".."))) # Adjust to number
 
 import unittest
 from pypentago.core import Game, Player
-from pypentago.exceptions import SquareNotEmpty
+from pypentago.exceptions import SquareNotEmpty, NotYourTurn, GameFull
 
 class TestGame(unittest.TestCase):
     def setUp(self):
-        self.game = Game((Player(), Player()))
+        self.game = Game()
+        self.players = [self.game.new_player(),
+                        self.game.new_player()]
     
     def test_win_dia(self):
         board = self.game.board
@@ -25,9 +27,9 @@ class TestGame(unittest.TestCase):
         board[3][1][1] = 2
 
         # See whether the winner has been found.
-        winner = self.game.get_winner()
-        self.assertNotEqual(winner, False)
-        self.assertEqual(winner[0].uid, 2)
+        winner, loser = self.game.get_winner()
+        self.assertNotEqual(winner, None)
+        self.assertEqual(winner.uid, 2)
 
     def test_win_dia_sec(self):
         board = self.game.board
@@ -39,14 +41,22 @@ class TestGame(unittest.TestCase):
         board[3][1][2] = 2
 
         # See whether the winner has been found.
-        winner = self.game.get_winner()
-        self.assertNotEqual(winner, False)
-        self.assertEqual(winner[0].uid, 2)
+        winner, loser = self.game.get_winner()
+        self.assertNotEqual(winner, None)
+        self.assertEqual(winner.uid, 2)
 
     def test_square_not_empty(self):
-        self.game.apply_turn(self.game.players[0], (0, 0, 0, "R", 1))
-        self.assertRaises(SquareNotEmpty, self.game.apply_turn, 
-                          self.game.players[1], (0, 0, 0, "R", 1))
+        self.players[0].do_turn((0, 0, 0, "R", 1))
+        self.assertRaises(SquareNotEmpty, self.players[1].do_turn, 
+                          (0, 0, 0, "R", 1))
+    
+    def test_not_your_turn(self):
+        self.players[0].do_turn((0, 0, 0, "R", 1))
+        self.assertRaises(NotYourTurn, self.players[0].do_turn, 
+                          (1, 0, 0, "R", 1))
+    
+    def test_game_full(self):
+        self.assertRaises(GameFull, self.game.new_player)
 
 
 if __name__ == "__main__":

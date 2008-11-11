@@ -5,7 +5,8 @@ See COPYING.TANGO and AUTHORS.TANGO for more details.
 
 ball-black and ball-white
 -------------------------
-Created by Kenichi "XenoSilence" Lei.
+Created by Kenichi "XenoSilence" Lei. 
+Licensed under the Attribution-NonCommercial-ShareAlike 3.0
 
 agt_action_success and agt_action_fail
 -------------------------------------
@@ -16,3 +17,4 @@ Other images
 ------------
 All other images are created by myself, Florian Mayer.
 They are licensed under the terms of the GNU GPLv3.
+See LICENSE for pypentago for more details.

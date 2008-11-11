@@ -63,9 +63,7 @@ class Conn(Connection):
         self.server = self.factory
         self.logged_in = False
         self.name = "Player"
-        self.game_id = None
-        self.game = None
-        self.opponent = None
+        self.games = {}
         self.active = False
 
     @expose('CHPWD')
