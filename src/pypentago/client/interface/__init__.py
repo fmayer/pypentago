@@ -264,20 +264,16 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         else:
             b_col, b_row = None, None
         
-        y_c = y_p = 0
-        for row in self.field:
-            x_c = x_p = 0
-            for col in row:
+        for y_c, row in enumerate(self.field):
+            y_p = y_c * size
+            for x_c, col in enumerate(row):
+                x_p = x_c * size
                 if x_c == b_col and y_c == b_row:
                     paint.setOpacity(self.blink_stone.value)
                 stone_value = self.field[y_c][x_c]
                 paint.drawImage(x_p+d_size, y_p+d_size, imgs[stone_value])
                 if x_c == b_col and y_c == b_row:
                     paint.setOpacity(1)
-                x_c += 1
-                x_p += size
-            y_c += 1
-            y_p += size
         
         if self.preview_stone is not None:
             x_c, y_c = self.preview_stone
