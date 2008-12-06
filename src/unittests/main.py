@@ -17,14 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-import game_history_manager
-import player_manager
-import glicko
-import field
-import pgn
-
 import unittest
+
+from itertools import chain
+
+import core_test
+import pgn_test
+import actions_test
+import crypto_test
+import field_test
+
+TEST_MOD = [core_test, pgn_test, actions_test, crypto_test, field_test]
+
 if __name__ == '__main__':
-    unittest.main()
+    test_cases = chain(*[unittest.findTestCases(mod) for mod in TEST_MOD])
+    suite = unittest.TestSuite(test_cases)
+    display = unittest.TextTestRunner()
+    display.run(suite)
