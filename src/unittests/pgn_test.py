@@ -51,7 +51,6 @@ class CheckPGN(unittest.TestCase):
 
     def test_write_file(self):
         """ Check if writing and parsing of files is okay """
-        ## return 
         for integer in xrange(1, 4000):
             game = sample(self.all_turns, randint(5, 10))
             game = [t[:-1] + (choice((CW, CCW)), ) + t[-1:] for t in game]
