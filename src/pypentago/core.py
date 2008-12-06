@@ -295,6 +295,7 @@ class Game(object):
         return p
     
     def random_beginner(self):
+        """ Determine and return random beginner """
         self.last_set = random.choice(self.players)
         return self.other_player(self.last_set)
     

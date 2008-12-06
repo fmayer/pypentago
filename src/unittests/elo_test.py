@@ -25,21 +25,20 @@ sys.path.append(abspath(join(dirname(__file__), "..")))
 # End of prefix for executable files.
 
 import unittest
-from pypentago import crypto
 
+from pypentago import elo
 
-class PasswordTest(unittest.TestCase):
-    def test_hash_pwd(self):
-        pwd = 'fourty-two'
-        for m in crypto.methods:
-            h = crypto.hash_pwd(pwd, m)
-            if m != 'plain':
-                self.assertNotEqual(h.rsplit('$')[-1], pwd)
-            self.assertNotEqual(h, pwd)
-            self.assertEqual(crypto.check_pwd(pwd, h), True)
+class ELOKnownValues(unittest.TestCase):
+    def setUp(self):
+        # WHEN ADDING DATA ALWAYS PROVIDE SOURCES
+        self.known_values = (
+            # DATA FROM GERMAN WIKIPEDIA 
+            # See http://tinyurl.com/2b3dku
+            ((2577, 2806), (2585, 2798)), 
+            ((2806, 2577), (2808, 2575)),
+            ((2806, 2577, True), (2803, 2580)), # DRAW
+        )
     
-    def test_unknow_method(self):
-        self.assertRaises(ValueError, crypto.hash_pwd, 'fourty-two', '42')
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_known_values(self):
+        for key, value in self.known_values:
+            self.assertEqual(elo.get_new_rating(*key), value)

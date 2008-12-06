@@ -21,7 +21,8 @@ import unittest
 
 from itertools import chain
 
-MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 'field_test']
+MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 'field_test',
+           'elo_test']
 
 mod = map(__import__, MODULES)
 

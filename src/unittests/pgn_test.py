@@ -1,7 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#! /usr/bin/env python
+# -*- coding: us-ascii -*-
 
-# pyPentago - a board game
+# pypentago - a board game
 # Copyright (C) 2008 Florian Mayer
 
 # This program is free software: you can redistribute it and/or modify
@@ -17,14 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Prefix any executable file with this to set the correct PYTHONPATH:
+
+# Fix the PYTHONPATH so we needn't have src in it.
 import sys
 from os.path import dirname, abspath, join
-script_path = dirname(__file__)
-sys.path.append(abspath(join(script_path, ".."))) # Adjust to number
-                                            # of subdirs the current
-                                            # file is in.
+sys.path.append(abspath(join(dirname(__file__), "..")))
 # End of prefix for executable files.
+
 import unittest
 import tempfile
 
