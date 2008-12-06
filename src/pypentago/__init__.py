@@ -51,7 +51,8 @@ class _CW:
         return self is other or other == "CW" or other == "R"
     
     def __str__(self):
-        return "CW"
+        # PGN needs that until it is changed.
+        return "R"
 
 
 class _CCW:
@@ -60,7 +61,8 @@ class _CCW:
         return self is other or other == "CCW" or other == "L"
     
     def __str__(self):
-        return "CCW"
+        # PGN needs that until it is changed.
+        return "L"
 
 
 # Singleton representing clockwise rotation

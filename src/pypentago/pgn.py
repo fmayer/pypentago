@@ -18,6 +18,7 @@
 
 from __future__ import with_statement
 
+from pypentago import get_rotation
 from pypentago.parser import Parser, State
 
 
@@ -34,7 +35,7 @@ def to_pgn(field, row, column, rot_dir, rot_field):
     field = chr(ord("A")+int(field))
     row = chr(ord("a")+int(row))
     col = int(column)+1
-    rot_dir = rot_dir
+    rot_dir = str(rot_dir)
     rot_field = chr(ord("A")+int(rot_field))
     return "".join([str(a) for a in (field, row, col, rot_dir, rot_field)])
 
@@ -53,7 +54,7 @@ def from_pgn(pgn_string):
     field = ord(field) -  ord("A")
     row = ord(row) - ord("a")
     col = int(col)- 1
-    rot_dir = rot_dir
+    rot_dir = get_rotation(rot_dir)
     rot_field = ord(rot_field) - ord("A")
     if not (field < 4 and row < 3 and col < 3 and rot_dir in ("R", "L") 
             and rot_field < 4):
