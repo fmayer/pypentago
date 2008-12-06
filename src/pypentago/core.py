@@ -115,6 +115,9 @@ class Quadrant(object):
 
     def __setitem__(self, i, value):
         self.field[i] = value
+    
+    def checksum(self):
+        return hash(tuple(map(tuple, self.field)))
 
 
 class Board(object):
@@ -204,6 +207,9 @@ class Board(object):
             if i == 2:
                 string+="\n"
         return string
+    
+    def checksum(self):
+        return hash(tuple(q.checksum() for q in self.quadrants))
 
         
 class Player(object):
@@ -294,3 +300,6 @@ class Game(object):
     
     def other_player(self, player):
         return (p for p in self.players if p is not player).next()
+    
+    def checksum(self):
+        return self.board.checksum()
