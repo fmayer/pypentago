@@ -26,7 +26,7 @@ import logging.handlers
 from string import ascii_letters
 from random import randint, choice
 
-__version__ = "svn"
+__version__ = "devel"
 __authors__ = [ "Florian Mayer <flormayer@aim.com>", 
                 u'Mathias "DarkKiller" K\xe6rlev']
 __retired__ = ["J. Kovacs", "Abishek Goda", "Hardik Metha", ]
