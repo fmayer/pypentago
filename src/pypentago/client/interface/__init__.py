@@ -155,7 +155,7 @@ class SVGFakeImage:
         paint.end()
         self.cache = img
         return img
-
+    
     def scaledToWidth(self, width, mode=None):
         if self.cache is not None and self.cache.width() == width:
             return self.cache
@@ -233,19 +233,19 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
     def paintEvent(self, event):
         # We might want to change that for performance reasons later on.        
         s_mode = QtCore.Qt.SmoothTransformation                
-
+        
         h = self.height()
         w = self.width()
         min_size = min([h, w])
-
+        
         paint = QtGui.QPainter()
         paint.begin(self)
         
         # Resize the background image.
         bg = self.bg_image.scaledToHeight(min_size, s_mode)
-
+        
         paint.drawImage(0, 0, bg)
-
+        
         # The size of one stone is a fourth of either the height or the
         # width of the quadrant, depending which of them is smaller.
         w_size = min_size / 4.0
@@ -298,7 +298,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
                 paint.setOpacity(ccw_o + self.blink_ccw.value)
             paint.drawPixmap(w / 2.0, ccw_y, rot_ccw)
             paint.setOpacity(1)
-
+        
         # This was a triumph!
         paint.end()
 
@@ -402,8 +402,8 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
     def show_turn(self, row, col, clockwise, p_id):
         self.set_stone(row, col, p_id, False)
         self.show_loc(col, row,
-                      lambda: self.show_rot(
-                          clockwise, lambda: self.rotate(clockwise)))
+                      lambda: self.show_rot(clockwise, 
+                                            lambda: self.rotate(clockwise)))
 
 
 class Board(QtGui.QWidget):
