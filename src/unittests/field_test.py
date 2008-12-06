@@ -40,7 +40,7 @@ class CheckServerField(unittest.TestCase):
     """ Check the pypentago.server.field.Field methods """
     def test_rotate(self):                    
         """ check if rotation methods are okay """
-        for coords in imap(list, permutations([0,1,2], 3)):
+        for coords in imap(list, permutations([0,1,2] * 3, 3)):
             old_field = field.Field()
             rot_field = coords[0]
             old_field.set_stone(1, *coords)
@@ -52,7 +52,7 @@ class CheckServerField(unittest.TestCase):
     def test_set_stone_exception(self):
         """ check if exception is raised when attempting to set a piece onto a 
         square where there already is one """
-        for coords in imap(list, permutations([0,1,2], 3)):
+        for coords in imap(list, permutations([0,1,2] * 3, 3)):
             old_field = field.Field()
             old_field.set_stone(1, *coords)
             args = [1] + coords
