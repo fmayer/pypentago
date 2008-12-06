@@ -48,7 +48,7 @@ setup(
     url='https://gna.org/projects/pypentago/',
     keywords='pentago game board',
     license='GPL',
-    zip_safe = False,
+    zip_safe=False,
     packages=['pypentago', 'pypentago.server', 'pypentago.server.db.', 
               'pypentago.client',  'easy_twisted', 'pygrade', 'actions', 
               'depr', 'pypentago.client.interface'],

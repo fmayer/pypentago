@@ -1,7 +1,7 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: us-ascii -*-
 
-# pyPentago - a board game
+# pypentago - a board game
 # Copyright (C) 2008 Florian Mayer
 
 # This program is free software: you can redistribute it and/or modify
@@ -21,16 +21,12 @@ import unittest
 
 from itertools import chain
 
-import core_test
-import pgn_test
-import actions_test
-import crypto_test
-import field_test
+MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 'field_test']
 
-TEST_MOD = [core_test, pgn_test, actions_test, crypto_test, field_test]
+mod = map(__import__, MODULES)
 
 if __name__ == '__main__':
-    test_cases = chain(*[unittest.findTestCases(mod) for mod in TEST_MOD])
+    test_cases = chain(*[unittest.findTestCases(mod) for mod in mod])
     suite = unittest.TestSuite(test_cases)
     display = unittest.TextTestRunner()
     display.run(suite)

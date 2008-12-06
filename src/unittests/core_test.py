@@ -57,6 +57,15 @@ class TestGame(unittest.TestCase):
     
     def test_game_full(self):
         self.assertRaises(GameFull, self.game.new_player)
+    
+    def test_players(self):
+        def fail(*args, **kw):
+            raise NotImplementedError
+        p_1, p_2 = self.players
+        p_2.display_turn = fail
+        # See if p_2.display_turn gets called
+        self.assertRaises(NotImplementedError, p_1.do_turn, (1, 0, 0, "R", 1))
+        
 
 
 if __name__ == "__main__":
