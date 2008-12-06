@@ -20,6 +20,8 @@
 """ This module contains the basic Pentago field with all the operations like 
 rotating, setting a stone and win detection. """
 
+
+from pypentago.exceptions import SquareNotEmpty
 import logging
 
 class Field(object):
