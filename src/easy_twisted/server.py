@@ -39,4 +39,3 @@ def startServer(port, prot=None, factory=None):
                   "have a protocol attribute")
     reactor.listenTCP(port,factory)
     reactor.run()
-

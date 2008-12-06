@@ -398,12 +398,6 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         for elem in self.block_user_control:
             if elem:
                 elem.stop()
-    
-    def show_turn(self, row, col, clockwise, p_id):
-        self.set_stone(row, col, p_id, False)
-        self.show_loc(col, row,
-                      lambda: self.show_rot(clockwise, 
-                                            lambda: self.rotate(clockwise)))
 
 
 class Board(QtGui.QWidget):
@@ -412,7 +406,8 @@ class Board(QtGui.QWidget):
         self.may_rot = False
         self.quadrants = [Quadrant(self, i) for i in xrange(4)]
         # Demonstration:
-        ## self.quadrants[0].show_turn(0, 1, True, 2)
+        ## self[1].set_stone(1, 1, 1, False)
+        ## self.show_turn(1, 0, 1, 1, 1, True)
     
     def paintEvent(self, event):
         size = min([self.height(), self.width()]) / 2.0
@@ -421,9 +416,19 @@ class Board(QtGui.QWidget):
             quad.resize(size, size)
         
         self.quadrants[0].move(0, 0)
-        self.quadrants[1].move(0, size)
-        self.quadrants[2].move(size, 0)
-        self.quadrants[3].move(size, size)     
+        self.quadrants[1].move(size, 0)
+        self.quadrants[2].move(0, size)
+        self.quadrants[3].move(size, size)
+    
+    def show_turn(self, p_id, s_quad, row, col, r_quad, clockwise):
+        rot = lambda: self[r_quad].rotate(clockwise)
+        self[s_quad].set_stone(row, col, p_id, False)
+        self[s_quad].show_loc(col, row,
+                              lambda: self[r_quad].show_rot(clockwise, rot)
+                      )
+    
+    def __getitem__(self, i):
+        return self.quadrants[i]
         
 
 class Game(QtGui.QWidget):

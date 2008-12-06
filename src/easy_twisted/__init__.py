@@ -15,9 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import warnings
-
-
 __version__ = "svn"
 __author__    = "Florian Mayer <flormayer@aim.com>"
 __url__       = "https://gna.org/projects/pypentago/"

@@ -31,14 +31,13 @@ else:
 
 from twisted.protocols.basic import LineOnlyReceiver
 
-from easy_twisted.evt import Event, BIND_ANY
-
 
 expose = actions.register_method
 
 
 class Connection(actions.ActionHandler, LineOnlyReceiver):
     delimiter = "\3"
+    encoding = "utf-8"
     """ The Connection class. Please do not overwrite anything unless you 
     really know what you are doing or otherwise stated """
     
@@ -50,14 +49,12 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
         overwrite it to your needs """
         pass
     
-    def destruct(self):
+    def destruct(self, reason):
         """ This method is called once the connection is lost. Feel free to 
         overwrite it """
         pass
     
     def __init__(self):
-        self.binds = {}
-        self.debug = False
         self.context = actions.Context()
         actions.ActionHandler.__init__(self, self.context)
         self.construct()
@@ -65,17 +62,19 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
     def lineReceived(self, income_data):
         """ This method handles received data and forwards it to the correct 
         event handlers """
-        income_data = income_data.decode('utf-8')
-        if income_data:
-            keyword, data = loads(income_data)
-            event = Event(self, keyword, data)
-            ret = event.raise_event()
+        income_data = income_data.decode(self.encoding)
+        if not income_data:
+            return
     
-    def onAny(self, evt):
-        """ This method is called if BIND_ANY is not bound and an unknown 
-        keyword is received """
-        raise NotImplementedError("Please either use BIND_ANY or "
-                                  "override onAny")
+        keyword, data = loads(income_data)
+        event = {'keyword': keyword, 'data': data}
+        if keyword in self.context:
+            for ret in self.context.emmit_action(keyword, event):
+                self._handle_return(ret)
+        elif hasattr(self, 'on_any'):
+            self._handle_return(self.on_any(event))
+        else:
+            raise NotImplementedError
     
     def bind(self, keyword, function, *args, **kwargs):
         """ Bind the keyword to the function, this function has to accept one 
@@ -99,6 +98,12 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
     def send(self, keyword, data=None):
         """ Send keyword to the other side. If data is passed, it can be 
         obtained by the other side using Event.arg_list """
-        send = dumps([keyword, data])
-        send = send.encode('utf-8')
+        send = dumps([keyword, data]).encode(self.encoding)
         self.transport.write(send + self.delimiter)
+    
+    def _handle_return(self, ret):
+        if ret is not None:
+            if isinstance(ret, basestring):
+                self.send(ret)
+            else:
+                self.send(*ret)
