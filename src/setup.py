@@ -26,8 +26,10 @@ dep = []
 
 # Don't bother setuptools with any dependencies that are already installed.
 try:
-    import json
-    import simplejson
+    try:
+        import json
+    except ImportError:
+        import simplejson
 except ImportError:
     dep.append('simplejson')
 
