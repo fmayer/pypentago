@@ -22,8 +22,23 @@ compatible systems. We will supply a separate installer for Windows. """
 
 from setuptools import setup
 
+dep = []
+
+# Don't bother setuptools with any dependencies that are already installed.
+try:
+    import json
+    import simplejson
+except ImportError:
+    dep.append('simplejson')
+
+try:
+    import twisted
+except ImportError:
+    dep.append('twisted')
+
+
 setup(
-    name='pyPentago',
+    name='pypentago',
     version='0.1',
     description='Pentago board game',
     author='Florian Mayer',
@@ -51,9 +66,6 @@ setup(
     },
 
 
-    install_requires=[
-        'twisted',
-	'simplejson',
-        ],
+    install_requires=dep,
 )
 
