@@ -19,15 +19,8 @@
 from __future__ import with_statement
 
 from pypentago import get_rotation
+from pypentago.exceptions import InvalidPGN
 from pypentago.parser import Parser, State
-
-
-class InvalidPGN(Exception):
-    """ This exception is raised when a PGN passed to from_pgn
-    is not valid. This means that it is either too long, too
-    short or contains characters it may not 
-    """
-    pass
 
 
 def to_pgn(field, row, column, rot_dir, rot_field):
