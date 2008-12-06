@@ -158,6 +158,71 @@ class StopHandling(Exception):
     pass
 
 
+class Action:
+    """ This represents an action and its handlers.
+    
+    You shouldn't need to use it directly as all of its functionality
+    is exposed in the Context class."""
+    def __init__(self):
+        self.handlers = []
+    
+    def __call__(self, state):
+        """ Call all handlers for the action """
+        for callback in self.handlers:
+            exc, args, kwargs, no_state = callback
+            try:
+                r = (no_state and exc(*args, **kwargs) or
+                     exc(state, *args, **kwargs))
+                yield r
+            except StopHandling:
+                break
+    
+    def __contains__(self, func):
+        """ See if func is a handler of the action """
+        return any(h[0] == func for h in self.handlers)
+    
+    def __getitem__(self, exc):
+        try:
+            return (h for h in self.handlers if h[0] == exc).next()
+        except StopIteration:
+            raise ValueError('Handler not bound to action')
+    
+    def __delitem__(self, exc):
+        self.remove_handler(exc)
+        
+    def __len__(self):
+        return len(self.handlers)
+    
+    def __iter__(self):
+        for h in self.handlers:
+            yield h[0]
+
+    def __nonzero__(self):
+        return bool(self.handlers)
+    
+    def add_handler(self, exc, *args, **kwargs):
+        """ Add a handler that does take the state as the
+        first argument """
+        if exc in self:
+            raise ValueError('Handler already registered')
+        self.handlers.append((exc, args, kwargs, False))
+    
+    def add_nostate_handler(self, exc, *args, **kwargs):
+        """ Add a handler that doesn't take state as the
+        first argument """
+        if exc in self:
+            raise ValueError('Handler already registered')
+        self.handlers.append((exc, args, kwargs, True))
+    
+    def remove_handler(self, exc):
+        """ Remove exc from the handlers of the action """
+        self.handlers.remove(self[exc])
+    
+    def is_state(self, handler):
+        """ See if all handlers take state """
+        return all(not h[4] for h in self.handlers if h[0] == handler)
+
+
 class Context:
     """ The context in which the actions are defined. A default context is 
     created and its methods are exposed at module level automatically. 
@@ -165,7 +230,7 @@ class Context:
     both need to use actions, then you can define a context for each of them.
     """
     def __init__(self, offers=None, severity=WARN):
-        self.actions = defaultdict(list)
+        self.actions = defaultdict(Action)
         self.offered = offers
         if offers is None or severity == IGNORE:
             self._not_offered = lambda x: None
@@ -183,7 +248,7 @@ class Context:
         Registering multiple hooks for the same 
         action will execute them in order of registration. """
         self._not_offered(action)
-        self.actions[action].append((exc, args, kwargs, False))
+        self.actions[action].add_handler(exc, *args, **kwargs)
     
     def register_nostate_handler(self, action, exc, *args, **kwargs):
         """ Register handler that does not take state as first argument. 
@@ -191,17 +256,17 @@ class Context:
         Please only use this rarely and only for handlers that would only take 
         None as state. Useful for binding directly to framework functions. """
         self._not_offered(action)
-        self.actions[action].append((exc, args, kwargs, True))
+        self.actions[action].add_nostate_handler(exc, *args, **kwargs)
         
     def remove_handler(self, action, exc):
         """ Remove the function exc from the list of hooks for action. """
-        self.actions[action] = [x for x in self.actions[action]
-                                if x[0] is not exc]
+        if exc in self.actions[action]:
+            self.actions[action].remove_handler(exc)
     
     def remove_function(self, exc):
         """ Remove the function exc from the list of hooks for any action. """
-        for action, exc_list in self.actions:
-            exc_list = [x for x in exc_list if x[0] is not exc]
+        for action in self.actions:
+            self.remove_handler(action, exc)
         
     def delete_action(self, action):
         """ Delete all handlers associated with action. """
@@ -214,18 +279,7 @@ class Context:
         Returns a list of return values of all the handlers, in order
         of calling. """
         self._not_offered(action)
-        ret = []
-        for callback in self.actions[action]:
-            exc, args, kwargs, no_state = callback
-            try:
-                if no_state:
-                    # Do not pass state to nostate handlers.
-                    ret.append(exc(*args, **kwargs))
-                else:
-                    ret.append(exc(state, *args, **kwargs))
-            except StopHandling:
-                break
-        return ret
+        return list(self.actions[action](state))
     
     def register(self, *actions):
         """ Associate decorated function with action. """
@@ -237,12 +291,16 @@ class Context:
     
     def clear(self):
         """ Reset context to inital state. """
-        self.actions = defaultdict(list)
+        self.actions = defaultdict(Action)
     
     def offers(self, action):
         """ Tell whether the context offers given action. Always returns
         True if self.offered is None. """
         return self.offered is None or action in self.offered
+    
+    def has_handlers(self, action):
+        """ Tell whether there are any handlers bound to action. """
+        return bool(action in self.actions and self.actions[action])
     
     def _warn_if_not_offered(self, action):
         """ Warn if the context defines the actions it offers but action
@@ -259,6 +317,16 @@ class Context:
         You shouldn't need this method. """
         if not self.offers(action):
             raise ValueError("Action %r unknown by Context" % action)
+    
+    def __contains__(self, action):
+        return bool(action in self.actions and self.actions[action])
+    
+    def __getitem__(self, action):
+        self._not_offered(action)
+        return self.actions[action]
+    
+    def __delitem__(self, action):
+        self.delete_action(action)
 
 
 # Create default context and expose its methods on module level.
@@ -272,6 +340,8 @@ delete_action = _inst.delete_action
 emmit_action = _inst.emmit_action
 register = _inst.register
 clear = _inst.clear
+offers = _inst.offers
+has_handlers = _inst.has_handlers
 
 
 def register_method(action, lst=None):
@@ -284,7 +354,7 @@ def register_method(action, lst=None):
                       DeprecationWarning, 2)
     def decorate(exc):
         """ Append action to functions _bind_to attribute, if that does
-        not exist, set it to an empty list """
+        not exist, set it to an empty list and append to that one. """
         if not hasattr(exc, '_bind_to'):
             exc._bind_to = []
         exc._bind_to.append(action)
