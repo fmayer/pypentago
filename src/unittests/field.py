@@ -29,6 +29,7 @@ sys.path.append(abspath(join(script_path, ".."))) # Adjust to number
 
 import unittest
 
+from itertools import permutations, imap
 from copy import deepcopy
 from random import randint
 
@@ -39,9 +40,8 @@ class CheckServerField(unittest.TestCase):
     """ Check the pypentago.server.field.Field methods """
     def test_rotate(self):                    
         """ check if rotation methods are okay """
-        for integer in xrange(1, 4000):
+        for coords in imap(list, permutations([0,1,2], 3)):
             old_field = field.Field()
-            coords = [randint(0, 2), randint(0, 2), randint(0, 2)]
             rot_field = coords[0]
             old_field.set_stone(1, *coords)
             new_field = deepcopy(old_field)
@@ -52,9 +52,8 @@ class CheckServerField(unittest.TestCase):
     def test_set_stone_exception(self):
         """ check if exception is raised when attempting to set a piece onto a 
         square where there already is one """
-        for integer in xrange(1, 4000):
+        for coords in imap(list, permutations([0,1,2], 3)):
             old_field = field.Field()
-            coords = [randint(0, 2), randint(0, 2), randint(0, 2)]
             old_field.set_stone(1, *coords)
             args = [1] + coords
             self.assertRaises(SquareNotEmpty, old_field.set_stone, 
