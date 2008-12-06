@@ -44,6 +44,40 @@ __bugs__ = "https://gna.org/bugs/?func=additem&group=pypentago"
 PROTOCOL_VERSION = 1
 EMAIL_REGEX = r"""^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$"""
 
+
+class _CW:
+    """ Equals "CW" and "R" """
+    def __eq__(self, other):
+        return self is other or other == "CW" or other == "R"
+    
+    def __str__(self):
+        return "CW"
+
+
+class _CCW:
+    """ Equals "CCW" and "L" """
+    def __eq__(self, other):
+        return self is other or other == "CCW" or other == "L"
+    
+    def __str__(self):
+        return "CCW"
+
+
+# Singleton representing clockwise rotation
+CW = _CW()
+# Singleton representing counter-clockwise rotation
+CCW  = _CCW()
+
+
+def get_rotation(string):
+    if string == CW:
+        return CW
+    elif string == CCW:
+        return CCW
+    else:
+        raise ValueError
+
+
 # Map arguments to logging verbosity levels:
 verbosity_levels = {
     -1: 40, # -q
