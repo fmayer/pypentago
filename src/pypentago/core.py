@@ -181,7 +181,6 @@ class Board(object):
     @property
     def diagonals(self):
         """ Get all diagonals of the board """
-        # "[winner_id] * 5 in diagonals" to get winner!
         r = []
         for x in xrange(6):
             for y in xrange(6):
@@ -201,9 +200,8 @@ class Board(object):
     def __str__(self):
         string = ""
         for i, row in enumerate(self.rows):
-            string+="%s %s %s  %s %s %s\n" % (row[0], row[1],
-                                              row[2], row[3],
-                                              row[4], row[5])
+            r = map(str, row)
+            string+='%s  %s\n' % (' '.join(r[:3]), ' '.join(r[3:]))
             if i == 2:
                 string+="\n"
         return string
@@ -217,6 +215,7 @@ class Player(object):
     def __init__(self, game=None, uid=None):
         self.game = game
         self.uid = uid
+        self.cmd = {'TURN': self.do_turn}
     
     def do_turn(self, turn):
         """ turn is (field, row, col, rot_dir, rot_field) """
@@ -232,6 +231,12 @@ class Player(object):
     
     def begin(self):
         pass
+    
+    def lookup(self, cmd):
+        return self.cmd[cmd]
+    
+    def __repr__(self):
+        return "<Player %d>" % (self.uid, self.game)
 
 
 class Game(object):
@@ -300,6 +305,7 @@ class Game(object):
         return self.other_player(self.last_set)
     
     def other_player(self, player):
+        """ Get the player that is not player that is in the game """
         return (p for p in self.players if p is not player).next()
     
     def checksum(self):
