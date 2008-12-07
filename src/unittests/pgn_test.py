@@ -32,6 +32,7 @@ from itertools import permutations, imap
 from random import choice, randint, sample
 
 from pypentago.pgn import *
+from pypentago.exceptions import InvalidPGN
 from pypentago import CW, CCW
 
 def random_turn():
@@ -57,7 +58,15 @@ class CheckPGN(unittest.TestCase):
             write_file(game, temp_file.name)
             check_coords = parse_file(temp_file.name)
             self.assertEqual(game, check_coords)
-
+    
+    def test_too_short(self):
+        self.assertRaises(InvalidPGN, from_pgn, 'Aa1L')
+    
+    def test_too_long(self):
+        self.assertRaises(InvalidPGN, from_pgn, 'Aa1RBX')
+    
+    def test_out_of_range(self):
+        self.assertRaises(InvalidPGN, from_pgn, 'Xa1RB')
 
 if __name__ == "__main__":
     unittest.main()

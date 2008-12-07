@@ -38,7 +38,7 @@ class PasswordTest(unittest.TestCase):
             self.assertNotEqual(h, pwd)
             self.assertEqual(crypto.check_pwd(pwd, h), True)
     
-    def test_unknow_method(self):
+    def test_unknown_method(self):
         self.assertRaises(ValueError, crypto.hash_pwd, 'fourty-two', '42')
 
 if __name__ == '__main__':
