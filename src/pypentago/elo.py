@@ -96,8 +96,8 @@ def get_new_rating(winner_rating, loser_rating, draw=False):
     """
     # If it is a draw both players have outcome of 0.5, else winner has 1
     # while the loser has 0.
-    outcome_winner = 0.5 if draw else 1
-    outcome_loser = 0.5 if draw else 0 
+    outcome_winner = draw and 0.5 or 1
+    outcome_loser = draw and 0.5 or 0 
     winner_rating = _calculate_new_rating(winner_rating, loser_rating, 
                                           outcome_winner)
     loser_rating = _calculate_new_rating(loser_rating, winner_rating, 

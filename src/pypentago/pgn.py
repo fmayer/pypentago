@@ -47,10 +47,13 @@ def from_pgn(pgn_string):
     field = ord(field) -  ord("A")
     row = ord(row) - ord("a")
     col = int(col)- 1
-    rot_dir = get_rotation(rot_dir)
+    try:
+        rot_dir = get_rotation(rot_dir)
+    except ValueError:
+        raise InvalidPGN
     rot_field = ord(rot_field) - ord("A")
-    if not (field < 4 and row < 3 and col < 3 and rot_dir in ("R", "L") 
-            and rot_field < 4):
+    if (field < 0 or field > 3 or row < 0 or row > 2 or col < 0 or  col > 2 or 
+        rot_dir not in ("R", "L") or rot_field < 0 or rot_field > 3):
         raise InvalidPGN
     return (field, row, col, rot_dir, rot_field)
 
