@@ -21,7 +21,7 @@ from sqlalchemy import (create_engine, MetaData, Table, Text, String, Boolean,
                         DateTime, Column, Integer)
 
 from pypentago.server.db.core import transactionmaker, DatabaseObject
-from pypentago.exceptions import NotInDB
+from pypentago.exceptions import NotInDB, NoDB
 from pypentago.server.db.dbobjs import Player, GameHistory
 
 
@@ -56,7 +56,11 @@ def create_tables(metadata):
         )
     return players, game_hist
 
-transaction = None
+
+def transaction():
+    raise NoDB('Not connected to database')
+
+
 def connect(connect_string):
     engine = create_engine(connect_string)
     metadata = MetaData(engine)

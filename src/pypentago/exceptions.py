@@ -41,3 +41,6 @@ class NotInDB(Exception):
 
 class InvalidPlayerID(Exception):
     pass
+
+class NoDB(Exception):
+    pass
