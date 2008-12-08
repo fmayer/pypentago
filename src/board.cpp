@@ -63,8 +63,8 @@ int Board::longest_line(char player){
 
 int Board::longest_dia(char player){
    int a = dia_sum(player, 0, 0);
-   if(a == 6){
-      return 6;
+   if(a == 6 || a == 5){
+      return a;
    }
    int b = dia_sum(player, 0, 1);
    if(b == 5){
