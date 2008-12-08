@@ -22,6 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #define WHITE char(1)
 #define BLACK char(2)
 
+#define WIN 100
+#define LOSE 0
+
 using namespace std;
 
 // Put into board.h later.
@@ -29,6 +32,7 @@ class Board
 {
   public:
    Board();
+   // The array is [row][col]!
    char board[6][6];
    void rotate_cw(int quad);
    void rotate_ccw(int quad);
@@ -37,6 +41,7 @@ class Board
    int longest_col(char player);
    int longest_dia(char player);
    int longest_line(char player);
+   int rate(char player);
    void print_board();
    // These may be made private later:
    int quad_row(int quad);
@@ -44,6 +49,19 @@ class Board
   private:
    int dia_sum(char player, char r, char c);
 };
+
+int Board::rate(char player){
+    // TODO: Write this properly.
+    int own_line = longest_line(player);
+    if(own_line >= 5){
+        return WIN;
+    }
+    int other_line = longest_line(3 - player);
+    if(other_line >= 5){
+        return LOSE;
+    }
+    return own_line - other_line;
+}
 
 int Board::longest_line(char player){
    int d = longest_dia(player);
@@ -171,7 +189,7 @@ void Board::rotate_cw(int quad){
 
    for(char r = 0; r <= 2; r++){
       for(char c = 0; c <= 2; c++){
-         board[col+c][row+2-r] = q[r][c];
+         board[row+c][col+2-r] = q[r][c];
       }
    }
 }
@@ -189,7 +207,7 @@ void Board::rotate_ccw(int quad){
 
    for(char r = 0; r <= 2; r++){
       for(char c = 0; c <= 2; c++){
-         board[col+c][row+2-r] = q[2-r][2-c];
+         board[row+c][col+2-r] = q[2-r][2-c];
       }
    }
 }
@@ -214,6 +232,12 @@ int main(){
    //cout << b.quad_col(2) << endl;
    //cout << b.quad_col(3) << endl;
    //cout << endl;
+   b.set_stone(WHITE, 1, 0, 0);
+   b.set_stone(BLACK, 2, 0, 0);
+   b.print_board();
+   cout << endl;
+   b.rotate_cw(1);
+   b.print_board();
    b.set_stone(WHITE, 0, 0, 0);
    b.set_stone(WHITE, 0, 1, 1);
    b.set_stone(WHITE, 0, 2, 2);
@@ -222,7 +246,9 @@ int main(){
    b.set_stone(WHITE, 0, 0, 2);
    cout << "l: " << b.longest_line(WHITE) << endl;
    b.print_board();
-   
+   b.rotate_cw(3);
+   b.print_board();
+
    b.set_stone(WHITE, 0, 2, 1);
    b.set_stone(WHITE, 1, 0, 0);
    b.set_stone(BLACK, 1, 1, 2);
