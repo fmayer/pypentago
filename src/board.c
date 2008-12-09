@@ -297,7 +297,8 @@ struct Turn* possible_moves(struct Board* b){
    int n = n_moves(b);
    struct Turn* ret = (struct Turn*) calloc(n, sizeof(struct Turn));
    if(ret == NULL){
-      /* What to do? */
+      /* Let the caller deal with it. */
+      return NULL;
    }
    char q, r, c, cw;
    for(r=0; r <= 5; r++){
@@ -330,6 +331,7 @@ int main(){
    for(i=0; i < n; i++){
       printf("r: %d; c: %d; q: %d; r: %d\n", t[i].row, t[i].col, t[i].quad, t[i].dir);
    }
+   /* Important! */
    free(t);
    /*t.row = 0;*/
    /*t.col = 0;*/
