@@ -293,6 +293,7 @@ int n_moves(struct Board* b){
 
 struct Turn* possible_moves(struct Board* b){
    /* Returns a n_moves(b) long array. Don't forget to free it.*/
+   struct Turn t;
    int i = 0;
    int n = n_moves(b);
    struct Turn* ret = (struct Turn*) calloc(n, sizeof(struct Turn));
@@ -308,7 +309,6 @@ struct Turn* possible_moves(struct Board* b){
            }
            for(q=0; q <= 3; q++){
                for(cw=0; cw <= 1; cw++){
-                  struct Turn t;
                   t.row = r;
                   t.col = c;
                   t.quad = q;
