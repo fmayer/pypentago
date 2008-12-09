@@ -17,7 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
+#define CW 1
+#define CCW 0
 
 static char NONE = 0;
 static char WHITE = 1;
@@ -28,7 +31,17 @@ static char LOSE = 0;
 
 struct Board
 {
+   short filled;
    char board[6][6];
+   char colour;
+};
+
+struct Turn
+{
+   short row;
+   short col;
+   short quad;
+   char dir;
 };
 
 /* Helper functions */
@@ -144,6 +157,7 @@ int longest_line(struct Board* b, char player){
 }
 
 int rate(struct Board* b, char player){
+    /* TODO: This needs a lot of love! */
     int own_line = longest_line(b, player);
     if(own_line >= 5){
         return WIN;
@@ -195,6 +209,7 @@ void rotate_ccw(struct Board* b, int quad){
 void set_stone(struct Board* b, char player, int quad, int row, int col){
    int r = 3 * quad_row(quad);
    int c = 3 * quad_col(quad);
+   b->filled++;
    b->board[r+row][c+col] = player;
 }
 
@@ -204,6 +219,7 @@ struct Board* new_board(){
    struct Board* b;
    b = (struct Board*)calloc(1, sizeof(struct Board));
    memset(b->board, NONE, 6 * 6 * sizeof(char));
+   b->filled = 0;
    return b;
 }
 
@@ -222,6 +238,7 @@ void free_board(struct Board* b){
 }
 
 void print_board(struct Board* b){
+    /* Mainly useful for debugging. */
     char r, c;
     int x;
     for(r = 0; r <= 5; r++){
@@ -236,33 +253,119 @@ void print_board(struct Board* b){
            printf("\n");
     }
  }
+ 
+ void do_turn(struct Board* b, char player, struct Turn* t){
+    /* We don't need set_stone here as the Turn struct contains absolute
+    row and col values */
+    b->filled++;
+    b->board[t->row][t->col] = player;
+    if(t->dir == CW){
+       rotate_cw(b, t->quad);
+    }
+    else{
+       rotate_ccw(b, t->quad);
+    }
+}
+
+ void undo_turn(struct Board* b, struct Turn* t){
+    b->filled--;
+    if(t->dir == CW){
+       rotate_ccw(b, t->quad);
+    }
+    else{
+       rotate_cw(b, t->quad);
+    }
+    b->board[t->row][t->col] = NONE;
+}
+
+int rate_with_turn(struct Board* b, struct Turn* t, char player){
+   /* This may or may not be useful. */
+   do_turn(b, player, t);
+   int r = rate(b, player);
+   undo_turn(b, t);
+   return r;
+}
+
+int n_moves(struct Board* b){
+   /* Amount of turns possible for the position. */
+   return (36 - (b->filled)) * 8; /* 4 * 2 */
+}
+
+struct Turn* possible_moves(struct Board* b){
+   /* Returns a n_moves(b) long array. Don't forget to free it.*/
+   int i = 0;
+   int n = n_moves(b);
+   struct Turn* ret = (struct Turn*) calloc(n, sizeof(struct Turn));
+   if(ret == NULL){
+      /* What to do? */
+   }
+   char q, r, c, cw;
+   for(r=0; r <= 5; r++){
+       for(c=0; c <= 5; c++){
+           if(b->board[r][c] != NONE){
+               continue;
+           }
+           for(q=0; q <= 3; q++){
+               for(cw=0; cw <= 1; cw++){
+                  struct Turn t;
+                  t.row = r;
+                  t.col = c;
+                  t.quad = q;
+                  t.dir = cw;
+                  ret[i] = t;
+                  i++;
+               }
+           }
+       }
+   }
+   return ret;
+}
 
 int main(){
    /* This is for testing only! */
-   struct Board* b;
-   b = new_board();
-   set_stone(b, WHITE, 1, 0, 0);
-   set_stone(b, BLACK, 2, 0, 0);
-   rotate_cw(b, 1);
-   set_stone(b, WHITE, 0, 0, 0);
-   set_stone(b, WHITE, 0, 1, 1);
-   set_stone(b, WHITE, 0, 2, 2);
-   set_stone(b, WHITE, 3, 0, 0);
-   set_stone(b, WHITE, 0, 0, 1);
-   set_stone(b, WHITE, 0, 0, 2);
-   longest_line(b, WHITE);
-   rotate_cw(b, 3);
-   print_board(b);
-
-   set_stone(b, WHITE, 0, 2, 1);
-   set_stone(b, WHITE, 1, 0, 0);
-   set_stone(b, BLACK, 1, 1, 2);
-   set_stone(b, BLACK, 2, 1, 1);
-   set_stone(b, WHITE, 3, 2, 2);
+   struct Board* b = new_board();
+   struct Turn* t = possible_moves(b);
+   int n = n_moves(b);
    int i;
-   for(i = 0; i < 10000000; i++){
-      rotate_cw(b, 0);
-      rotate_ccw(b, 0);
+   for(i=0; i < n; i++){
+      printf("r: %d; c: %d; q: %d; r: %d\n", t[i].row, t[i].col, t[i].quad, t[i].dir);
    }
+   free(t);
+   /*t.row = 0;*/
+   /*t.col = 0;*/
+   /*t.dir = CW;*/
+   /*t.quad = 0;*/
+   /*b->board[1][2] = BLACK;*/
+   /*print_board(b);*/
+   /*printf("\n----------\n");*/
+   /*do_turn(b, WHITE, &t);*/
+   /*print_board(b);*/
+   /*printf("\n----------\n");*/
+   /*undo_turn(b, &t);*/
+   /*print_board(b);*/
+   /*printf("\n===========\n");*/
+   /*set_stone(b, WHITE, 1, 0, 0);*/
+   /*set_stone(b, BLACK, 2, 0, 0);*/
+   /*rotate_cw(b, 1);*/
+   /*set_stone(b, WHITE, 0, 0, 0);*/
+   /*set_stone(b, WHITE, 0, 1, 1);*/
+   /*set_stone(b, WHITE, 0, 2, 2);*/
+   /*set_stone(b, WHITE, 3, 0, 0);*/
+   /*set_stone(b, WHITE, 0, 0, 1);*/
+   /*set_stone(b, WHITE, 0, 0, 2);*/
+   /*longest_line(b, WHITE);*/
+   /*rotate_cw(b, 3);*/
+   /*print_board(b);*/
+
+   /*set_stone(b, WHITE, 0, 2, 1);*/
+   /*set_stone(b, WHITE, 1, 0, 0);*/
+   /*set_stone(b, BLACK, 1, 1, 2);*/
+   /*set_stone(b, BLACK, 2, 1, 1);*/
+   /*set_stone(b, WHITE, 3, 2, 2);*/
+   /*int i;*/
+   /*for(i = 0; i < 10000000; i++){*/
+      /*rotate_cw(b, 0);*/
+      /*rotate_ccw(b, 0);*/
+   /*}*/
    return 0;
 }
