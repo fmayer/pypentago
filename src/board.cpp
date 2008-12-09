@@ -32,8 +32,6 @@ class Board
 {
   public:
    Board();
-   // The array is [row][col]!
-   char board[6][6];
    void rotate_cw(int quad);
    void rotate_ccw(int quad);
    void set_stone(char player, int quad, int row, int col);
@@ -44,11 +42,35 @@ class Board
    int rate(char player);
    void print_board();
    // These may be made private later:
+   // The array is [row][col]!
+   vector<Board> next();
+   char board[6][6];
    int quad_row(int quad);
    int quad_col(int quad);
   private:
    int dia_sum(char player, char r, char c);
 };
+
+vector<Board> Board::next(){
+    int i = 0;
+    vector<Board> x;
+    char q, r, c, cw;
+    for(r=0; r <= 5; r++){
+        for(c=0; c <= 5; c++){
+            if(board[r][c] != NONE){
+                // Square isn't empty. This is not a possible turn.
+                continue;
+            }
+            for(q=0; q <= 3; q++){
+                for(cw=0; cw <= 1; cw++){
+                    i++;
+                }
+            }
+        }
+    }
+    cout << i << endl;
+    return x;
+}
 
 int Board::rate(char player){
     // TODO: Write this properly.
@@ -222,6 +244,10 @@ void Board::set_stone(char player, int quad, int row, int col){
 int main(){
    // Testing purposes.
    Board b;
+   b.next();
+   Board* ptr = &b;
+   (*ptr).print_board();
+   cout << endl;
    //cout << b.quad_row(0) << endl;
    //cout << b.quad_row(1) << endl;
    //cout << b.quad_row(2) << endl;

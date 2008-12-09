@@ -87,14 +87,14 @@ class Quadrant(object):
         """ Rotate quadrant counter-clockwise. """
         newfield = [[self.field[k][i] for k in xrange(3)] for i in xrange(3)]
         # Reverse newfield.
-        self.field = newfield[::-1]
+        self.field[:] = newfield[::-1]
     
     def rotate_cw(self):
         """ Rotate quadrant clockwise. """
         newfield = [[self.field[2-k][2-i] for k in xrange(3)]
                     for i in xrange(3)]
         # Reverse newfield.
-        self.field = newfield[::-1]
+        self.field[:] = newfield[::-1]
     
     @depr.deprecated_alias(rotate_ccw)
     def rotleft(*args, **kwargs):

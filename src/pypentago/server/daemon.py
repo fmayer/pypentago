@@ -30,7 +30,7 @@ def _fork_exit_parent():
     pid = os.fork()
     if pid != 0:
         os._exit(0)
-    
+
 
 def close_tty():
     """ Close all file descriptors to TTY """
