@@ -156,13 +156,13 @@ int longest_line(struct Board* b, char player){
    return max(max(r, c), d);
 }
 
-int rate(struct Board* b, char player){
+int rate(struct Board* b){
    /* TODO: This needs a lot of love! */
-   int own_line = longest_line(b, player);
+   int own_line = longest_line(b, b->colour);
    if(own_line >= 5){
       return WIN;
    }
-   int other_line = longest_line(b, 3 - player);
+   int other_line = longest_line(b, 3 - b->colour);
    if(other_line >= 5){
       return LOSE;
    }
@@ -258,17 +258,17 @@ void print_board(struct Board* b){
    }
 }
 
-void do_turn(struct Board* b, char player, struct Turn* t){
+void do_turn(struct Board* b, struct Turn* t){
    /* Swap active player: 3 - 2 = 1; 3 - 1 = 2 */
-   b->colour = 3 - (b->colour);
    b->filled++;
-   b->board[t->row][t->col] = player;
+   b->board[t->row][t->col] = b->colour;
    if(t->dir == CW){
       rotate_cw(b, t->quad);
    }
    else{
       rotate_ccw(b, t->quad);
    }
+   b->colour = 3 - (b->colour);
 }
 
 void undo_turn(struct Board* b, struct Turn* t){
@@ -285,8 +285,8 @@ void undo_turn(struct Board* b, struct Turn* t){
 
 int rate_with_turn(struct Board* b, struct Turn* t, char player){
    /* This may or may not be useful. */
-   do_turn(b, player, t);
-   int r = rate(b, player);
+   do_turn(b, t);
+   int r = rate(b);
    undo_turn(b, t);
    return r;
 }
@@ -347,13 +347,9 @@ int alpha_beta(struct Board *b, int depth, int alpha, int beta){
    if(l != -1)
       return l;
 
-   if(depth == 0)
-      return rate(b, b->colour);
+   if(depth == 0 || b->filled == 36)
+      return rate(b);
 
-   n = n_moves(b);
-   if(n == 0){
-      return rate(b, b->colour);
-   }
    char q, r, c, cw;
    for(r=0; r <= 5; r++){
       for(c=0; c <= 5; c++){
@@ -366,18 +362,19 @@ int alpha_beta(struct Board *b, int depth, int alpha, int beta){
                t.col = c;
                t.quad = q;
                t.dir = cw;
-               do_turn(b, b->colour, &t);
+               do_turn(b, &t);
                v = -alpha_beta(b, depth-1, -beta, -alpha);
                undo_turn(b, &t);
                if(v > alpha)
                   alpha = v;
                if(beta<=alpha)
-                  break;
+                  goto end;
             }
          }
       }
    }
-   return alpha;
+   end:
+      return alpha;
 }
 
 struct Turn* best_turn(struct Board *b, int depth){
@@ -400,7 +397,7 @@ struct Turn* best_turn(struct Board *b, int depth){
                t.col = c;
                t.quad = q;
                t.dir = cw;
-               do_turn(b, b->colour, &t);
+               do_turn(b, &t);
                v = -alpha_beta(b, depth-1, -beta, -alpha);
                undo_turn(b, &t);
                if(v > alpha){
@@ -410,13 +407,14 @@ struct Turn* best_turn(struct Board *b, int depth){
                   *best = t;
                }
                if(beta<=alpha)
-                  break;
+                  goto end;
             }
          }
       }
    }
    /* If this is the best turn, I am Elvis! */
-   return best;
+   end:
+      return best;
 }
 
 void print_turn(struct Turn* x){
@@ -441,7 +439,7 @@ int main(){
    b->board[1][2] = BLACK;
    print_board(b);
    printf("\n----------\n");
-   do_turn(b, WHITE, &t);
+   do_turn(b, &t);
    print_board(b);
    printf("\n----------\n");
    undo_turn(b, &t);
