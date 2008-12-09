@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <float.h>
 
 #define CW 1
 #define CCW 0
@@ -214,11 +215,10 @@ void set_stone(struct Board* b, char player, int quad, int row, int col){
 
 
 struct Board* new_board(char beginner){
-   /* The field is empty in the beginning. */
    struct Board* b;
    b = (struct Board*) malloc(sizeof(struct Board));
    int i, k;
-   /* memcpy */
+   /* The field is empty in the beginning. */
    for(i=0; i < 6; i++)
       for(k=0; k < 6; k++)
          b->board[i][k] = NONE;
@@ -296,14 +296,19 @@ int n_moves(struct Board* b){
    return (36 - (b->filled)) * 8; /* 4 * 2 */
 }
 
-struct Turn* possible_moves(struct Board* b){
-   /* Returns a n_moves(b) long array. Don't forget to free it.*/
+
+/* 
+ * Not needed anymore, only here for reference.
+ * Now, this is hardcoded into the alpha_beta and the best_turn
+ * functions. Like this we don't have to create an array all the
+ * time.
+/* 
+struct Turn** possible_moves(struct Board* b){
    struct Turn t;
    int i = 0;
    int n = n_moves(b);
-   struct Turn* ret = (struct Turn*) malloc(n * sizeof(struct Turn));
+   struct Turn** ret = (struct Turn**) malloc(n * sizeof(struct Turn*));
    if(ret == NULL){
-      /* Let the caller deal with it. */
       return NULL;
    }
    char q, r, c, cw;
@@ -314,10 +319,11 @@ struct Turn* possible_moves(struct Board* b){
            }
            for(q=0; q <= 3; q++){
                for(cw=0; cw <= 1; cw++){
-                  t.row = r;
-                  t.col = c;
-                  t.quad = q;
-                  t.dir = cw;
+		  struct Turn* t = (struct Turn*) malloc(n * sizeof(struct Turn));
+                  t->row = r;
+                  t->col = c;
+                  t->quad = q;
+                  t->dir = cw;
                   ret[i] = t;
                   i++;
                }
@@ -326,18 +332,107 @@ struct Turn* possible_moves(struct Board* b){
    }
    return ret;
 }
+*/
+
+int lookup(struct Board *b, int depth){
+   /* TODO: Write me! This is supposed to look up whether we already
+      analyzed given position with given depth.*/
+   return -1;
+}
+
+int alpha_beta(struct Board *b, int depth, int alpha, int beta){
+	int i, n, v;
+	struct Turn t;
+	int l = lookup(b, depth);
+	if(l != -1)
+	   return l;
+
+	if(depth == 0)
+	   return rate(b, b->colour);
+
+	n = n_moves(b);
+	if(n == 0){
+	   return rate(b, b->colour);
+        }
+	char q, r, c, cw;
+	for(r=0; r <= 5; r++){
+	    for(c=0; c <= 5; c++){
+		if(b->board[r][c] != NONE){
+		    continue;
+		}
+		for(q=0; q <= 3; q++){
+		    for(cw=0; cw <= 1; cw++){
+		       t.row = r;
+		       t.col = c;
+		       t.quad = q;
+		       t.dir = cw;
+		       do_turn(b, b->colour, &t);
+		       v = -alpha_beta(b, depth-1, -beta, -alpha);
+		       undo_turn(b, &t);
+		       if(v > alpha)
+			     alpha = v;
+		       if(beta<=alpha)
+			     break;
+		    }
+		}
+	    }
+	}
+	return alpha;
+}
+
+struct Turn* best_turn(struct Board *b, int depth){
+	int i, n, v;
+	struct Turn t;
+	struct Turn* best = malloc(0);
+	int alpha = -10000000;
+	int beta = 10000000;
+	
+	n = n_moves(b);
+	char q, r, c, cw;
+	for(r=0; r <= 5; r++){
+	    for(c=0; c <= 5; c++){
+		if(b->board[r][c] != NONE){
+		    continue;
+		}
+		for(q=0; q <= 3; q++){
+		    for(cw=0; cw <= 1; cw++){
+		       t.row = r;
+		       t.col = c;
+		       t.quad = q;
+		       t.dir = cw;
+		       do_turn(b, b->colour, &t);
+		       v = -alpha_beta(b, depth-1, -beta, -alpha);
+		       undo_turn(b, &t);
+		       if(v > alpha){
+			     free(best);
+			     best = (struct Turn*) malloc(sizeof(struct Turn));
+			     alpha = v;
+			     *best = t;
+			}
+			if(beta<=alpha)
+			     break;
+		    }
+		}
+	    }
+	}
+	/* If this is the best turn, I am Elvis! */
+	return best;
+}
+
+void print_turn(struct Turn* x){
+   printf("r: %d; c: %d; q: %d; r: %d\n", x->row, x->col, x->quad, x->dir);
+}
+
 
 int main(){
    /* This is for testing only! */
-   struct Board* b = new_board(0);
-   struct Turn* x = possible_moves(b);
-   int n = n_moves(b);
-   int i;
-   for(i=0; i < n; i++){
-      printf("r: %d; c: %d; q: %d; r: %d\n", x[i].row, x[i].col, x[i].quad, x[i].dir);
-   }
-   /* Important! */
-   free(x);
+   struct Board* b = new_board(WHITE);
+   set_stone(b, WHITE, 0, 0, 0);
+   struct Turn* best = best_turn(b, 3);
+   printf("In my wisdown I decide: \n");
+   print_turn(best);
+   printf("I have spoken!\n\n");
+   
    struct Turn t;
    t.row = 0;
    t.col = 0;
@@ -370,7 +465,7 @@ int main(){
    set_stone(b, BLACK, 1, 1, 2);
    set_stone(b, BLACK, 2, 1, 1);
    set_stone(b, WHITE, 3, 2, 2);
-   /* int i; */
+   int i;
    for(i = 0; i < 10000000; i++){
       rotate_cw(b, 0);
       rotate_ccw(b, 0);
