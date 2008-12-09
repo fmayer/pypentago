@@ -47,12 +47,12 @@ struct Turn
 /* Helper functions */
 
 int max(int x, int y){
-    if(x > y){
-        return x;
-    }
-    else{
-        return y;
-    }
+   if(x > y){
+      return x;
+   }
+   else{
+      return y;
+   }
 }
 
 int quad_row(int quad){
@@ -60,7 +60,7 @@ int quad_row(int quad){
 }
 
 int quad_col(int quad){
-    return (quad == 1 || quad == 3);
+   return (quad == 1 || quad == 3);
 }
 
 /* End of helper functions */
@@ -157,16 +157,16 @@ int longest_line(struct Board* b, char player){
 }
 
 int rate(struct Board* b, char player){
-    /* TODO: This needs a lot of love! */
-    int own_line = longest_line(b, player);
-    if(own_line >= 5){
-        return WIN;
-    }
-    int other_line = longest_line(b, 3 - player);
-    if(other_line >= 5){
-        return LOSE;
-    }
-    return own_line - other_line;
+   /* TODO: This needs a lot of love! */
+   int own_line = longest_line(b, player);
+   if(own_line >= 5){
+      return WIN;
+   }
+   int other_line = longest_line(b, 3 - player);
+   if(other_line >= 5){
+      return LOSE;
+   }
+   return own_line - other_line;
 }
 
 
@@ -228,59 +228,59 @@ struct Board* new_board(char beginner){
 }
 
 struct Board* copy_board(struct Board* b){
-    struct Board* nb;
-    nb = (struct Board*) malloc(sizeof(struct Board));
-    int i;
-    for(i=0; i < sizeof(struct Board); i++){
-        nb[i] = b[i];
-    }
-    return nb;
+   struct Board* nb;
+   nb = (struct Board*) malloc(sizeof(struct Board));
+   int i;
+   for(i=0; i < sizeof(struct Board); i++){
+      nb[i] = b[i];
+   }
+   return nb;
 }
 
 void free_board(struct Board* b){
-    free(b);
+   free(b);
 }
 
 void print_board(struct Board* b){
-    /* Mainly useful for debugging. */
-    char r, c;
-    int x;
-    for(r = 0; r <= 5; r++){
-       for(c = 0; c <= 5; c++){
-           x = b->board[r][c];
-           printf("%d ", x);
-          if(c == 2)
-             printf(" ");
-       }
-       printf("\n");
-       if(r == 2)
-           printf("\n");
-    }
- }
- 
- void do_turn(struct Board* b, char player, struct Turn* t){
-    /* Swap active player: 3 - 2 = 1; 3 - 1 = 2 */
-    b->colour = 3 - (b->colour);
-    b->filled++;
-    b->board[t->row][t->col] = player;
-    if(t->dir == CW){
-       rotate_cw(b, t->quad);
-    }
-    else{
-       rotate_ccw(b, t->quad);
-    }
+   /* Mainly useful for debugging. */
+   char r, c;
+   int x;
+   for(r = 0; r <= 5; r++){
+      for(c = 0; c <= 5; c++){
+         x = b->board[r][c];
+         printf("%d ", x);
+      if(c == 2)
+         printf(" ");
+      }
+      printf("\n");
+      if(r == 2)
+         printf("\n");
+   }
 }
 
- void undo_turn(struct Board* b, struct Turn* t){
-    b->filled--;
-    b->colour = 3 - (b->colour);
-    if(t->dir == CW){
-       rotate_ccw(b, t->quad);
-    }
-    else{
-       rotate_cw(b, t->quad);
-    }
-    b->board[t->row][t->col] = NONE;
+void do_turn(struct Board* b, char player, struct Turn* t){
+   /* Swap active player: 3 - 2 = 1; 3 - 1 = 2 */
+   b->colour = 3 - (b->colour);
+   b->filled++;
+   b->board[t->row][t->col] = player;
+   if(t->dir == CW){
+      rotate_cw(b, t->quad);
+   }
+   else{
+      rotate_ccw(b, t->quad);
+   }
+}
+
+void undo_turn(struct Board* b, struct Turn* t){
+   b->filled--;
+   b->colour = 3 - (b->colour);
+   if(t->dir == CW){
+      rotate_ccw(b, t->quad);
+   }
+   else{
+      rotate_cw(b, t->quad);
+   }
+   b->board[t->row][t->col] = NONE;
 }
 
 int rate_with_turn(struct Board* b, struct Turn* t, char player){
@@ -298,10 +298,10 @@ int n_moves(struct Board* b){
 
 
 /* 
- * Not needed anymore, only here for reference.
- * Now, this is hardcoded into the alpha_beta and the best_turn
- * functions. Like this we don't have to create an array all the
- * time.
+   * Not needed anymore, only here for reference.
+   * Now, this is hardcoded into the alpha_beta and the best_turn
+   * functions. Like this we don't have to create an array all the
+   * time.
 /* 
 struct Turn** possible_moves(struct Board* b){
    struct Turn t;
@@ -313,22 +313,22 @@ struct Turn** possible_moves(struct Board* b){
    }
    char q, r, c, cw;
    for(r=0; r <= 5; r++){
-       for(c=0; c <= 5; c++){
-           if(b->board[r][c] != NONE){
-               continue;
-           }
-           for(q=0; q <= 3; q++){
-               for(cw=0; cw <= 1; cw++){
-		  struct Turn* t = (struct Turn*) malloc(n * sizeof(struct Turn));
-                  t->row = r;
-                  t->col = c;
-                  t->quad = q;
-                  t->dir = cw;
-                  ret[i] = t;
-                  i++;
-               }
-           }
-       }
+      for(c=0; c <= 5; c++){
+         if(b->board[r][c] != NONE){
+            continue;
+         }
+         for(q=0; q <= 3; q++){
+            for(cw=0; cw <= 1; cw++){
+               struct Turn* t = (struct Turn*) malloc(n * sizeof(struct Turn));
+               t->row = r;
+               t->col = c;
+               t->quad = q;
+               t->dir = cw;
+               ret[i] = t;
+               i++;
+            }
+         }
+      }
    }
    return ret;
 }
@@ -341,82 +341,82 @@ int lookup(struct Board *b, int depth){
 }
 
 int alpha_beta(struct Board *b, int depth, int alpha, int beta){
-	int i, n, v;
-	struct Turn t;
-	int l = lookup(b, depth);
-	if(l != -1)
-	   return l;
+   int i, n, v;
+   struct Turn t;
+   int l = lookup(b, depth);
+   if(l != -1)
+      return l;
 
-	if(depth == 0)
-	   return rate(b, b->colour);
+   if(depth == 0)
+      return rate(b, b->colour);
 
-	n = n_moves(b);
-	if(n == 0){
-	   return rate(b, b->colour);
-        }
-	char q, r, c, cw;
-	for(r=0; r <= 5; r++){
-	    for(c=0; c <= 5; c++){
-		if(b->board[r][c] != NONE){
-		    continue;
-		}
-		for(q=0; q <= 3; q++){
-		    for(cw=0; cw <= 1; cw++){
-		       t.row = r;
-		       t.col = c;
-		       t.quad = q;
-		       t.dir = cw;
-		       do_turn(b, b->colour, &t);
-		       v = -alpha_beta(b, depth-1, -beta, -alpha);
-		       undo_turn(b, &t);
-		       if(v > alpha)
-			     alpha = v;
-		       if(beta<=alpha)
-			     break;
-		    }
-		}
-	    }
-	}
-	return alpha;
+   n = n_moves(b);
+   if(n == 0){
+      return rate(b, b->colour);
+   }
+   char q, r, c, cw;
+   for(r=0; r <= 5; r++){
+      for(c=0; c <= 5; c++){
+         if(b->board[r][c] != NONE){
+            continue;
+         }
+         for(q=0; q <= 3; q++){
+            for(cw=0; cw <= 1; cw++){
+               t.row = r;
+               t.col = c;
+               t.quad = q;
+               t.dir = cw;
+               do_turn(b, b->colour, &t);
+               v = -alpha_beta(b, depth-1, -beta, -alpha);
+               undo_turn(b, &t);
+               if(v > alpha)
+                  alpha = v;
+               if(beta<=alpha)
+                  break;
+            }
+         }
+      }
+   }
+   return alpha;
 }
 
 struct Turn* best_turn(struct Board *b, int depth){
-	int i, n, v;
-	struct Turn t;
-	struct Turn* best = malloc(0);
-	int alpha = -10000000;
-	int beta = 10000000;
-	
-	n = n_moves(b);
-	char q, r, c, cw;
-	for(r=0; r <= 5; r++){
-	    for(c=0; c <= 5; c++){
-		if(b->board[r][c] != NONE){
-		    continue;
-		}
-		for(q=0; q <= 3; q++){
-		    for(cw=0; cw <= 1; cw++){
-		       t.row = r;
-		       t.col = c;
-		       t.quad = q;
-		       t.dir = cw;
-		       do_turn(b, b->colour, &t);
-		       v = -alpha_beta(b, depth-1, -beta, -alpha);
-		       undo_turn(b, &t);
-		       if(v > alpha){
-			     free(best);
-			     best = (struct Turn*) malloc(sizeof(struct Turn));
-			     alpha = v;
-			     *best = t;
-			}
-			if(beta<=alpha)
-			     break;
-		    }
-		}
-	    }
-	}
-	/* If this is the best turn, I am Elvis! */
-	return best;
+   int i, n, v;
+   struct Turn t;
+   struct Turn* best = malloc(0);
+   int alpha = -10000000;
+   int beta = 10000000;
+
+   n = n_moves(b);
+   char q, r, c, cw;
+   for(r=0; r <= 5; r++){
+      for(c=0; c <= 5; c++){
+         if(b->board[r][c] != NONE){
+            continue;
+         }
+         for(q=0; q <= 3; q++){
+            for(cw=0; cw <= 1; cw++){
+               t.row = r;
+               t.col = c;
+               t.quad = q;
+               t.dir = cw;
+               do_turn(b, b->colour, &t);
+               v = -alpha_beta(b, depth-1, -beta, -alpha);
+               undo_turn(b, &t);
+               if(v > alpha){
+                  free(best);
+                  best = (struct Turn*) malloc(sizeof(struct Turn));
+                  alpha = v;
+                  *best = t;
+               }
+               if(beta<=alpha)
+                  break;
+            }
+         }
+      }
+   }
+   /* If this is the best turn, I am Elvis! */
+   return best;
 }
 
 void print_turn(struct Turn* x){
@@ -432,7 +432,7 @@ int main(){
    printf("In my wisdown I decide: \n");
    print_turn(best);
    printf("I have spoken!\n\n");
-   
+
    struct Turn t;
    t.row = 0;
    t.col = 0;
