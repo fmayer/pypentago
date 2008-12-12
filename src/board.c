@@ -373,14 +373,11 @@ struct Turn* best_turn(struct Board *b, int depth){
    /* best = NULL; */
    int i, n;
    float v;
-   float ra;
    struct Turn t;
    
    float alpha = -INFINITY;
    float beta = INFINITY;
    
-   ra = rate(b);
-
    char q, r, c, cw;
    for(r=0; r <= 5; r++){
       for(c=0; c <= 5; c++){
@@ -425,6 +422,7 @@ struct Turn* find_best(struct Board* b, int max_depth){
       else if(t->value > best->value){
             *best = *t;
       }
+      free(t);
    }
    return best;
 }
