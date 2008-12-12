@@ -23,9 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #define CCW 0
 
 #ifndef INFINITY
-#warning "No INFINITY. Try compiling in C99 mode. Assuming INFINITY = really big;"
+#warning "No INFINITY. Try compiling in C99 mode. Assuming INFINITY = big!"
 /* That should be enough. I want it to compile on C89 */
-float INFINITY = 2147483647;
+#define INFINITY 2147483647
 #endif
 
 
@@ -330,8 +330,6 @@ float alpha_beta(struct Board *b, int depth, float alpha, float beta){
    
    /* Game is over. */
    if(ra == INFINITY || ra == -INFINITY){
-      printf("GOVR\n");
-      print_board(b);
       return ra;
    }
    
@@ -404,7 +402,6 @@ struct Turn* best_turn(struct Board *b, int depth){
                   *best = t;
                }
                if(beta <= alpha){
-                  printf("cutoff\n");
                   return best;
                }
             }
