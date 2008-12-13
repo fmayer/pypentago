@@ -185,6 +185,7 @@ float rate(struct Board* b){
 }
 
 char won(struct Board* b){
+   /* TODO: Performance */
    float r = rate(b);
    if(r == INFINITY)
       return b->colour;
@@ -420,7 +421,7 @@ struct Turn* find_best(struct Board* b, int max_depth){
          first = 0;
       }
       else if(t->value > best->value){
-            *best = *t;
+         *best = *t;
       }
       free(t);
    }
