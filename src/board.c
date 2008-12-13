@@ -248,10 +248,8 @@ char won_dia(struct Board* b, unsigned char r, unsigned char c){
             winner = check;
          }
       }
-      if(r && c){
-         if(b->board[0][0] != check && b->board[5][5] != check)
-            return 0;
-      }
+      if(r && c && b->board[0][0] != check && b->board[5][5] != check)
+         return 0;
    }
    return winner;
 }
@@ -379,6 +377,7 @@ void do_turn(struct Board* b, struct Turn* t){
 }
 
 void undo_turn(struct Board* b, struct Turn* t){
+   /* Keep game-piece counter up-to-date */
    b->filled--;
    b->colour = 3 - (b->colour);
    if(t->dir == CW){
@@ -406,7 +405,6 @@ int lookup(struct Board *b, int depth){
 
 float alpha_beta(struct Board *b, int depth, float alpha, float beta){
    float v;
-   float ra;
    struct Turn t;
    
    int w = won(b);
