@@ -186,34 +186,96 @@ float rate(struct Board* b){
    return own_line - other_line;
 }
 
-char won(struct Board* b){
-   char imp_set = 0;
-   char winner = 0;
-   char break_ = 0;
-   char check = 1;
-   unsigned char r, c;
+char won_row(struct Board* b, unsigned char r){
+   unsigned char c, check, winner, imp_set;
+   winner = imp_set = 0;
    for(check=1; check <= 2; check++){
-      if(winner || imp_set)
+      if(imp_set)
          break;
-      for(r=0; r < 6; r++){
-         if(break_)
+      for(c=1; c < 5; c++){
+         if(b->board[r][c] != check){
+            winner = 0;
             break;
-         for(c=1; r < 5; c++){
-            if(b->board[r][c] != check){
-               winner = 0;
-               break_ = 1;
-               break;
-            }
-            else{
-               imp_set = 1;
-               winner = check;
-            }
+         }
+         else{
+            imp_set = 1;
+            winner = check;
          }
       }
-      if(!(winner && (b->board[r][0] == check || b->board[r][5])))
-         winner = 0;
+      if(winner && b->board[r][0] != check && b->board[r][5] != check)
+         return 0;
    }
    return winner;
+}
+
+char won_col(struct Board* b, unsigned char c){
+   unsigned char r, check, winner, imp_set;
+   winner = imp_set = 0;
+   for(check=1; check <= 2; check++){
+      if(imp_set)
+         break;
+      for(r=1; r < 5; r++){
+         if(b->board[r][c] != check){
+            winner = 0;
+            break;
+         }
+         else{
+            imp_set = 1;
+            winner = check;
+         }
+      }
+      if(winner && b->board[0][c] != check && b->board[5][c] != check)
+         return 0;
+   }
+   return winner;
+}
+
+char won_dia(struct Board* b, unsigned char r, unsigned char c){
+   unsigned char x, check, winner, imp_set;
+   winner = imp_set = 0;
+   for(check=1; check <= 2; check++){
+      if(imp_set)
+         break;
+      if(!r && !c)
+         r = c = 1;
+      for(x=0; x <= (4 - (r && c)); x++){
+         if(b->board[x+r][x+c] != check){
+            winner = 0;
+            break;
+         }
+         else{
+            imp_set = 1;
+            winner = check;
+         }
+      }
+      if(r && c){
+         if(b->board[0][0] != check && b->board[5][5] != check)
+            return 0;
+      }
+   }
+   return winner;
+}
+
+char won(struct Board* b){
+   unsigned char r, w;
+   for(r=0; r < 6; r++){
+      w = won_row(b, r);
+      if(w != 0)
+         return w;
+      w = won_col(b, r);
+      if(w != 0)
+         return w;
+   }
+   w = won_dia(b, 0, 0);
+   if(w != 0)
+      return w;
+   w = won_dia(b, 0, 1);
+   if(w != 0)
+      return w;
+   w = won_dia(b, 1, 0);
+   if(w != 0)
+      return w;
+   return 0;
 }
 
 void rotate_cw(struct Board* b, int quad){
@@ -462,7 +524,18 @@ int main(){
 
    /*printf("- Thinking -\n");*/
    struct Turn* best = find_best(b, 3);/*, -INFINITY, INFINITY); */
+   printf("%d = 0\n\n", won(b));
    do_turn(b, best);
+   printf("%d = 1\n\n", won(b));
    print_board(b);
+   
+   struct Board* x = new_board(WHITE);
+   set_stone(x, WHITE, 0, 1, 0);
+   set_stone(x, WHITE, 0, 2, 1);
+   set_stone(x, WHITE, 2, 0, 2);
+   set_stone(x, WHITE, 3, 1, 0);
+   set_stone(x, WHITE, 3, 2, 1);
+   print_board(x);
+   printf("%d = 1\n\n", won(x));
    return 0;
 }
