@@ -409,20 +409,22 @@ float alpha_beta(struct Board *b, int depth, float alpha, float beta){
    float ra;
    struct Turn t;
    
-   ra = rate(b);
-   
-   /* Game is over. */
-   if(ra == INFINITY || ra == -INFINITY){
-      return ra;
+   int w = won(b);
+   if(w){
+      if(w == b->colour)
+         return INFINITY;
+      else{
+         return -INFINITY;
+      }
    }
-   
+      
    int l = lookup(b, depth);
    if(l != -1)
       return l;
    
    /* Game full or max. depth reached. */
    if(depth == 0 || b->filled == 36){
-      return ra;
+      return rate(b);
    }
 
    unsigned char q, r, c, cw;
@@ -540,13 +542,22 @@ int main(){
    /* This is for testing only! */
    struct Board* b = new_board(WHITE);
    struct Turn* best;
-   while(!won(b)){
+   while(1){
       print_board(b);
       struct Turn tu = prompt_turn();
       do_turn(b, &tu);
+      print_board(b);
+      if(won(b)){
+         printf("You won the game!\n");
+         break;
+      }
       printf("Pondering...\n");
       best = find_best(b, depth);
       do_turn(b, best);
+      if(won(b)){
+         printf("The AI beat you!\n");
+         break;
+      }
    }
    return 0;
 }
