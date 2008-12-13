@@ -497,45 +497,56 @@ struct Turn* find_best(struct Board* b, int max_depth){
    struct Turn* t;
    for(d=1; d <= max_depth; d++){
       t = best_turn(b, d);
-      if(first){
+      if(first || t->value > best->value){
          *best = *t;
          first = 0;
-      }
-      else if(t->value > best->value){
-         *best = *t;
       }
       free(t);
    }
    return best;
 }
 
+struct Turn prompt_turn(){
+   struct Turn t;
+   int r, c, q, dir;
+   while(1){
+      printf("Row: ");
+      scanf("%d", &r);
+      printf("Col: ");
+      scanf("%d", &c);
+      printf("Quadrant to rotate: ");
+      scanf("%d", &q);
+      printf("Dir. to rotate (1 = CW): ");
+      scanf("%d", &dir);
+      if(r >= 0 && r <= 5 && c >= 0 && c <= 5 && q >= 0 && 
+         q <= 3 && dir >= 0 && dir <= 1){
+         t.row = r;
+         t.col = c;
+         t.quad = q;
+         t.dir = dir;
+         t.value = 0;
+         return t;
+      }
+   }
+   return t;
+}
+
 
 int main(){
+   int depth = 4;
+   printf("Welcome to pypentago!\n");
+   printf("Note that everything you enter is zero indexed\n");
+   printf("\n\n");
    /* This is for testing only! */
    struct Board* b = new_board(WHITE);
-   set_stone(b, WHITE, 0, 0, 0);
-   set_stone(b, WHITE, 0, 1, 0);
-   set_stone(b, WHITE, 0, 2, 0);
-   set_stone(b, WHITE, 1, 0, 1);
-   
-   b->colour = WHITE;
-   
-   print_board(b);
-
-   /*printf("- Thinking -\n");*/
-   struct Turn* best = find_best(b, 3);/*, -INFINITY, INFINITY); */
-   printf("%d = 0\n\n", won(b));
-   do_turn(b, best);
-   printf("%d = 1\n\n", won(b));
-   print_board(b);
-   
-   struct Board* x = new_board(WHITE);
-   set_stone(x, WHITE, 0, 1, 0);
-   set_stone(x, WHITE, 0, 2, 1);
-   set_stone(x, WHITE, 2, 0, 2);
-   set_stone(x, WHITE, 3, 1, 0);
-   set_stone(x, WHITE, 3, 2, 1);
-   print_board(x);
-   printf("%d = 1\n\n", won(x));
+   struct Turn* best;
+   while(!won(b)){
+      print_board(b);
+      struct Turn tu = prompt_turn();
+      do_turn(b, &tu);
+      printf("Pondering...\n");
+      best = find_best(b, depth);
+      do_turn(b, best);
+   }
    return 0;
 }
