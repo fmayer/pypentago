@@ -93,6 +93,8 @@ int longest_row(struct Board* b, char player){
          }
       }
    }
+   if(len > longest)
+      return len;
    return longest;
 }
 
@@ -113,6 +115,8 @@ int longest_col(struct Board* b, char player){
          }
       }
    }
+   if(len > longest)
+      return len;
    return longest;
 }
 
