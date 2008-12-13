@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef INFINITY
 #warning "No INFINITY. Try compiling in C99 mode. Assuming INFINITY = big!"
 /* That should be enough. I want it to compile on C89 */
-#define INFINITY 2147483647
+#define INFINITY 2147483647.0
 #endif
 
 
@@ -389,14 +389,6 @@ void undo_turn(struct Board* b, struct Turn* t){
    b->board[t->row][t->col] = NONE;
 }
 
-int rate_with_turn(struct Board* b, struct Turn* t, char player){
-   /* This may or may not be useful. */
-   do_turn(b, t);
-   int r = rate(b);
-   undo_turn(b, t);
-   return r;
-}
-
 int lookup(struct Board *b, int depth){
    /* TODO: Write me! This is supposed to look up whether we already
       analyzed given position with given depth.*/
@@ -512,11 +504,16 @@ struct Turn prompt_turn(){
    while(1){
       printf("Row: ");
       scanf("%d", &r);
+      if(r == 42){
+         /* Yes. This has to be! */
+         printf("Where is my towel?\n");
+         continue;
+      }
       printf("Col: ");
       scanf("%d", &c);
       printf("Quadrant to rotate: ");
       scanf("%d", &q);
-      printf("Dir. to rotate (1 = CW): ");
+      printf("Dir. to rotate (1 = CW|0 = CCW): ");
       scanf("%d", &dir);
       if(r >= 0 && r <= 5 && c >= 0 && c <= 5 && q >= 0 && 
          q <= 3 && dir >= 0 && dir <= 1){
@@ -524,6 +521,7 @@ struct Turn prompt_turn(){
          t.col = c;
          t.quad = q;
          t.dir = dir;
+         /* This only matters for find_best. */
          t.value = 0;
          return t;
       }
@@ -553,6 +551,7 @@ int main(){
       best = find_best(b, depth);
       do_turn(b, best);
       if(won(b)){
+         print_board(b);
          printf("The AI beat you!\n");
          break;
       }
