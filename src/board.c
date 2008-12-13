@@ -33,8 +33,6 @@ static char NONE = 0;
 static char WHITE = 1;
 static char BLACK = 2;
 
-static char WIN = 100;
-static char LOSE = -100;
 
 struct Board
 {
@@ -81,7 +79,7 @@ int quad_col(int quad){
 int longest_row(struct Board* b, char player){
    int len = 0;
    int longest = 0;
-   char r, c;
+   unsigned char r, c;
    for(r = 0; r <= 5; r++){
       for(c = 0; c <= 5; c++){
          if(b->board[r][c] == player){
@@ -101,7 +99,7 @@ int longest_row(struct Board* b, char player){
 int longest_col(struct Board* b, char player){
    int len = 0;
    int longest = 0;
-   char r, c;
+   unsigned char r, c;
    for(c = 0; c <= 5; c++){
       for(r = 0; r <= 5; r++){
          if(b->board[r][c] == player){
@@ -121,7 +119,7 @@ int longest_col(struct Board* b, char player){
 int dia_sum(struct Board* b, char player, char r, char c){
    int len = 0;
    int longest = 0;
-   char x;
+   unsigned char x;
    for(x = 0; x <= (5 - (r || c)); x++){
       if(b->board[x+r][x+c] == player){
          len++;
@@ -185,21 +183,40 @@ float rate(struct Board* b){
 }
 
 char won(struct Board* b){
-   /* TODO: Performance */
-   float r = rate(b);
-   if(r == INFINITY)
-      return b->colour;
-   else if(r == -INFINITY)
-      return 3 - b->colour;
-   else
-      return -1;
+   char imp_set = 0;
+   char winner = 0;
+   char break_ = 0;
+   char check = 1;
+   unsigned char r, c;
+   for(check=1; check <= 2; check++){
+      if(winner || imp_set)
+         break;
+      for(r=0; r < 6; r++){
+         if(break_)
+            break;
+         for(c=1; r < 5; c++){
+            if(b->board[r][c] != check){
+               winner = 0;
+               break_ = 1;
+               break;
+            }
+            else{
+               imp_set = 1;
+               winner = check;
+            }
+         }
+      }
+      if(!(winner && (b->board[r][0] == check || b->board[r][5])))
+         winner = 0;
+   }
+   return winner;
 }
 
 void rotate_cw(struct Board* b, int quad){
    int row = 3 * quad_row(quad);
    int col = 3 * quad_col(quad);
    char q[3][3];
-   char r, c;
+   unsigned char r, c;
    for(r = 0; r <= 2; r++){
       for(c = 0; c <= 2; c++){
          q[r][c] = b->board[row+r][col+c];
@@ -217,7 +234,7 @@ void rotate_ccw(struct Board* b, int quad){
    int row = 3 * quad_row(quad);
    int col = 3 * quad_col(quad);
    char q[3][3];
-   char r, c;
+   unsigned char r, c;
    for(r = 0; r <= 2; r++){
       for(c = 0; c <= 2; c++){
          q[r][c] = b->board[row+r][col+c];
@@ -268,7 +285,7 @@ void free_board(struct Board* b){
 
 void print_board(struct Board* b){
    /* Mainly useful for debugging. */
-   char r, c;
+   unsigned char r, c;
    for(r = 0; r <= 5; r++){
       for(c = 0; c <= 5; c++){
          printf("%d ", b->board[r][c]);
@@ -322,7 +339,6 @@ int lookup(struct Board *b, int depth){
 }
 
 float alpha_beta(struct Board *b, int depth, float alpha, float beta){
-   int i, n;
    float v;
    float ra;
    struct Turn t;
@@ -343,7 +359,7 @@ float alpha_beta(struct Board *b, int depth, float alpha, float beta){
       return ra;
    }
 
-   char q, r, c, cw;
+   unsigned char q, r, c, cw;
    for(r=0; r <= 5; r++){
       for(c=0; c <= 5; c++){
          if(b->board[r][c] != NONE){
@@ -372,14 +388,13 @@ float alpha_beta(struct Board *b, int depth, float alpha, float beta){
 struct Turn* best_turn(struct Board *b, int depth){
    struct Turn* best = (struct Turn*) malloc(sizeof(struct Turn));
    /* best = NULL; */
-   int i, n;
    float v;
    struct Turn t;
    
    float alpha = -INFINITY;
    float beta = INFINITY;
    
-   char q, r, c, cw;
+   unsigned char q, r, c, cw;
    for(r=0; r <= 5; r++){
       for(c=0; c <= 5; c++){
          if(b->board[r][c] != NONE){
