@@ -276,7 +276,7 @@ struct Board* new_board(char beginner){
 struct Board* copy_board(struct Board* b){
    struct Board* nb;
    nb = (struct Board*) malloc(sizeof(struct Board));
-   int i;
+   unsigned int i;
    for(i=0; i < sizeof(struct Board); i++){
       nb[i] = b[i];
    }
