@@ -23,11 +23,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #define CCW 0
 
 #ifndef INFINITY
+#ifdef __GNUC__
 #warning "No INFINITY. Try compiling in C99 mode. Assuming INFINITY = big!"
+#endif
 /* That should be enough. I want it to compile on C89 */
 #define INFINITY 2147483647.0
 #endif
 
+#ifndef max
+/* Visual Studio already has this defined */
+#define max(a,b)    (((a) > (b)) ? (a) : (b))
+#endif
 
 static char NONE = 0;
 static char WHITE = 1;
@@ -55,15 +61,6 @@ struct Turn
 
 void print_turn(struct Turn* x){
    printf("r: %d; c: %d; q: %d; r: %d\n", x->row, x->col, x->quad, x->dir);
-}
-
-int max(int x, int y){
-   if(x > y){
-      return x;
-   }
-   else{
-      return y;
-   }
 }
 
 int quad_row(int quad){
