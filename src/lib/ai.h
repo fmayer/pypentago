@@ -1,0 +1,12 @@
+int main();
+struct Turn prompt_turn();
+struct Turn *find_best(struct Board *b,int max_depth);
+struct Turn *best_turn(struct Board *b,int depth);
+float alpha_beta(struct Board *b,int depth,float alpha,float beta);
+int lookup(struct Board *b,int depth);
+float rate(struct Board *b);
+int longest_line(struct Board *b,char player);
+int longest_dia(struct Board *b,char player);
+int dia_sum(struct Board *b,char player,char r,char c);
+int longest_col(struct Board *b,char player);
+int longest_row(struct Board *b,char player);
