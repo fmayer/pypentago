@@ -16,9 +16,6 @@
 
 from pypentago.server.game import Game
 
-class NoSuchRoom(Exception):
-    pass
-
 
 class Room:
     """ This class represents a room. 
