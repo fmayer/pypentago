@@ -20,7 +20,7 @@ import logging
 
 from random import choice
 
-from pygrade import elo
+from pypentago import elo
 
 from pypentago import pgn
 from pypentago.server import field

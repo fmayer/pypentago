@@ -32,15 +32,11 @@ sys.path.insert(0, abspath(join(script_path, "..", "..")))
 
 import pypentago
 # Imports that need PYTHONPATH set.
-from pypentago.except_hook import set_except_hook
-from pypentago.get_conf import get_conf_obj, str_to_bool, app_data
+from pypentago.get_conf import get_conf_obj
 from pypentago.server.server import run_server
 from pypentago import __version__, verbosity_levels
 from pypentago.server import server
 
-
-
-set_except_hook()
 
 config = get_conf_obj("server")
 
@@ -96,6 +92,7 @@ def main():
     if not logfile:
         logfile = join(script_path, "server.log")
     pypentago.init_logging(logfile, verbosity)
+    sys.excepthook = pypentago.except_hook
     log = logging.getLogger("pypentago.server")
 
     if options.daemon:

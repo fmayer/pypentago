@@ -36,7 +36,6 @@ if exists(join(script_path, "connection.py")):
 
 import pypentago
 
-from pypentago.except_hook import set_except_hook
 from pypentago.get_conf import get_conf_obj, str_to_bool
 from pypentago.client import interface
 from pypentago import __version__, verbosity_levels
