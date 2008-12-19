@@ -31,8 +31,9 @@ from pypentago.exceptions import SquareNotEmpty, NotYourTurn, GameFull
 class TestGame(unittest.TestCase):
     def setUp(self):
         self.game = Game()
-        self.players = [self.game.new_player(),
-                        self.game.new_player()]
+        self.players = [Player() for _ in xrange(2)]
+        for p in self.players:
+            self.game.add_player(p)
     
     def test_win_dia(self):
         board = self.game.board
@@ -73,7 +74,7 @@ class TestGame(unittest.TestCase):
                           (1, 0, 0, "R", 1))
     
     def test_game_full(self):
-        self.assertRaises(GameFull, self.game.new_player)
+        self.assertRaises(GameFull, self.game.new_id)
     
     def test_players(self):
         def fail(*args, **kw):

@@ -212,9 +212,9 @@ class Board(object):
         
 class Player(object):
     """ The Player is the one that is interacting with the Game. """
-    def __init__(self, game=None, uid=None):
-        self.game = game
-        self.uid = uid
+    def __init__(self):
+        self.game = None
+        self.uid = None
         self.cmd = {'TURN': self.do_turn}
     
     def do_turn(self, turn):
@@ -236,7 +236,7 @@ class Player(object):
         return self.cmd[cmd]
     
     def __repr__(self):
-        return "<Player %d>" % (self.uid, self.game)
+        return "<Player %d>" % (self.uid)
 
 
 class Game(object):
@@ -291,13 +291,17 @@ class Game(object):
                     return player, self.other_player(player)
         return None, None
     
-    def new_player(self, klass=Player, args=[], kwargs={}):
+    def new_id(self):
         if not self.pool:
             raise GameFull
-        p_id = self.pool.pop()
-        p = klass(self, p_id, *args, **kwargs)
+        return self.pool.pop()
+    
+    def add_player(self, p):
+        if len(self.players) == 2:
+            raise GameFull
+        p.uid = self.new_id()
+        p.game = self
         self.players.append(p)
-        return p
     
     def random_beginner(self):
         """ Determine and return random beginner """
