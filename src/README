@@ -2,35 +2,6 @@ Thank you for downloading pypentago.
 
 COPYRIGHT
 Pentago is a trademark of MindTwisters.
-pyPentago is licensed under the terms of the GPLv3, see COPYING for more 
+pypentago is licensed under the terms of the GPLv3, see COPYING for more 
 details.
-
-REQUIREMENTS
-You will need Python, version 2.5 or newer, wxPython, at least version 
-2.8, and Twisted to run pyPentago. You can obtain them at 
-http://python.org, http://wxpython.org and http://twistedmatrix.com
-
-INSTALLATION
-If you have Python, wxPython and Twisted installed, extract the contents 
-of the tarball. This will create a directory called pypentago-alpha1.
-Navigate into it and run client/main.py to run the client.
-
-SVN INSTALLATION
-If you are using the svn version of pypentago, you only need to navigate 
-into pypentago/client/ and run the file main.py. For *nix-like system 
-you can specify the server to connect to using the -s command line 
-option, for instance python main.py -s 127.0.0.1 to connect to a server 
-started locally at your machine.
-
-USAGE
-Open a game using Game->Open Game and wait for someone to join. As soon 
-as someone has joined, the game will start and you will be able to see 
-whether its your turn if you look at the coloured circle in the 
-statusbar. Then set a stone by clicking on one of the empty buttons and 
-rotate a subboard using the arrow buttons.
-
-BUGS
-Should you encounter any bugs please report them at:
-https://gna.org/bugs/?group=pypentago
-If possible please provide the command line output, and if the error is 
-reproducable be sure to run pypentago with the -vv command line option.
+The artwork is licensed under different licenses. See pypentago/data/README.
