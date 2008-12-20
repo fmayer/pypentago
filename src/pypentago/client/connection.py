@@ -284,6 +284,18 @@ class Conn(Connection):
     @expose('REGISTERED')
     def registered(self, evt):
         context.emmit_action('registered', ID_REG)
+    
+    def remote_dispatcher(self, evt):
+        game_id = evt['data'][0]
+        rest = evt['data'][1:]
+        
+        if game_id not in GAME_LOOKUP:
+            self.send('INVALIDGAME')
+        else:
+            remote = GAME_LOOKUP[game_id]
+            cmd = rest[0]
+            arg = rest[1:]
+            remote.lookup(cmd)(*arg)
 
 
 def run_client(host, port):

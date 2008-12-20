@@ -49,7 +49,7 @@ class OverlayBlink(Blinker):
     
     def on_stop(self):
         # Hide overlay without stopping timer that wasn't started.
-        self.overlay.value = self.overlay.INIT_OPACITY
+        self.overlay.value = self.overlay.MAX_OPACITY
         self.overlay.shown = False
         self.value = self.init
         self.callback()
@@ -514,9 +514,9 @@ class Game(QtGui.QWidget):
         self.chat.scrollToBottom()
 
 
-class MainWindow(QtGui.QWidget):
-    def __init__(self, game):
-        QtGui.QWidget.__init__(self)
+class GameWindow(QtGui.QWidget):
+    def __init__(self, game, parent=None):
+        QtGui.QWidget.__init__(self, parent)
         game = Game(game, self)
         hbox = QtGui.QHBoxLayout()
         hbox.addWidget(game)
@@ -530,9 +530,9 @@ class MainWindow(QtGui.QWidget):
 def main(connection=None):
     app = QtGui.QApplication(sys.argv)
     game = core.Game()
-    dt = MainWindow(game)
+    dt = GameWindow(game)
     dt.show()
-    ot = MainWindow(game)
+    ot = GameWindow(game)
     ot.show()
     game.random_beginner()
     app.exec_()
