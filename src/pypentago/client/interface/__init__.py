@@ -317,7 +317,6 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             self.prnt.prnt.add_msg('System', 'You won the game!')
         elif lose is self.prnt.prnt.local_player:
             self.prnt.prnt.add_msg('System', 'You lost the game!')
-        # This is where we need to communicate back the game.
             
     def show_rot(self, clockwise, callafter=None):
         if clockwise:
