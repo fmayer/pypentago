@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: us-ascii -*-
 
 # pyPentago - a board game
 # Copyright (C) 2008 Florian Mayer
