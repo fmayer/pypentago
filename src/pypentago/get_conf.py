@@ -34,6 +34,7 @@ from pypentago import could_int
 
 default_server_conf = \
 """[default]
+server =
 port = 26500
 verbosity = 30
 logfile = {appdata}/server.log

@@ -531,19 +531,14 @@ def new_game(game):
     g.show()
 
 
-def local_setup():
+def main(connection=None):
+    app = QtGui.QApplication(sys.argv)
     game = core.Game()
     dt = GameWindow(game)
     ot = GameWindow(game)
     dt.show()
     ot.show()
     game.random_beginner()
-    return dt, ot
-
-
-def main(connection=None):
-    app = QtGui.QApplication(sys.argv)
-    local_setup()
     app.exec_()
 
 
