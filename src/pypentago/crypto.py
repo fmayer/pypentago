@@ -125,3 +125,11 @@ def check_pwd(pwhash, pwd):
     h.update(salt)
     h.update(pwd)
     return hash_ == h.hexdigest()
+
+
+def challenge_response(pwd, method='sha'):
+    """ Returns ([method, salt], expected_hash) for pwd. The salt and the
+    method are sent to the client, the client response with the hash which
+    is then compared. """
+    h = hash_pwd(pwd, method)
+    return h.split('$')[:2], h.split('$')[2]

@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding: us-ascii -*-
 
 # pyPentago - a board game
 # Copyright (C) 2008 Florian Mayer
@@ -17,13 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from sha import sha
+from hashlib import sha1 as sha
 from functools import partial
 
 import sys
 import logging
-
-from wx import CallAfter, MessageDialog, OK, ICON_INFORMATION
 
 if __name__ == '__main__':
     from os.path import dirname, join
@@ -32,7 +30,10 @@ if __name__ == '__main__':
 import actions
 
 from pypentago import PROTOCOL_VERSION, could_int, int_all
+from pypentago.core import Game
 from pypentago.client import context
+from pypentago.client.core import RemotePlayer
+from pypentago.client.interface import new_game
 
 from easy_twisted.connection import expose
 from easy_twisted import evt
@@ -78,10 +79,30 @@ class GameInfo:
 
 class Conn(Connection):
     def init(self):
+        # This maps the game-id to the remote player.
+        self.remote_table = {}
         log.info("Connection established")
         context.emmit_action('conn_established', self)
-        self.active = False
-        self.get_games()
+    
+    def init_game(self, evt):
+        game = Game()
+        new_game(game)
+        r = RemotePlayer(self)
+        self.remote_table[evt['id']] = r
+        game.add_player(r)
+
+    def remote_dispatcher(self, evt):
+        game_id = evt['data'][0]
+        rest = evt['data'][1:]
+        
+        if game_id not in self.remote_table:
+            # Notify other side that the game is not known
+            pass
+        else:
+            remote = self.remote_table[game_id]
+            cmd = rest[0]
+            arg = rest[1:]
+            remote.lookup(cmd)(*arg)
         
     @expose('PWDCHANGED')
     def passwd_changed(self, evt):
@@ -284,18 +305,6 @@ class Conn(Connection):
     @expose('REGISTERED')
     def registered(self, evt):
         context.emmit_action('registered', ID_REG)
-    
-    def remote_dispatcher(self, evt):
-        game_id = evt['data'][0]
-        rest = evt['data'][1:]
-        
-        if game_id not in GAME_LOOKUP:
-            self.send('INVALIDGAME')
-        else:
-            remote = GAME_LOOKUP[game_id]
-            cmd = rest[0]
-            arg = rest[1:]
-            remote.lookup(cmd)(*arg)
 
 
 def run_client(host, port):

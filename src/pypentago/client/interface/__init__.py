@@ -526,6 +526,11 @@ class GameWindow(QtGui.QWidget):
         )
 
 
+def new_game(game):
+    g = GameWindow(game)
+    g.show()
+
+
 def main(connection=None):
     app = QtGui.QApplication(sys.argv)
     game = core.Game()
