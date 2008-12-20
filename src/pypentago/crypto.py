@@ -112,7 +112,7 @@ def hash_pwd(pwd, method='sha', salt_len=6):
     salt = gen_salt(salt_len)
     h.update(salt)
     h.update(pwd)
-    return "%s$%s$%s" % (method, salt, h.hexdigest())
+    return '$'.join((method, salt, h.hexdigest()))
 
 
 def check_pwd(pwhash, pwd):
@@ -127,9 +127,18 @@ def check_pwd(pwhash, pwd):
     return hash_ == h.hexdigest()
 
 
-def challenge_response(pwd, method='sha'):
+def challenge(pwd, method='sha'):
     """ Returns ([method, salt], expected_hash) for pwd. The salt and the
     method are sent to the client, the client response with the hash which
     is then compared. """
     h = hash_pwd(pwd, method)
     return h.split('$')[:2], h.split('$')[2]
+
+
+def respond(challenge, pwd):
+    """ Generate response for challenge with given pwd. """
+    method, salt = challenge
+    h = hash_func(method)
+    h.update(salt)
+    h.update(pwd)
+    return h.hexdigest()
