@@ -31,8 +31,7 @@ from os.path import join, dirname, expanduser, abspath, exists
 # Sets the PYTHONPATH if this file is not on its own, meaning that the rest is 
 # in site-packages.
 script_path = abspath(dirname(__file__))
-if exists(join(script_path, "connection.py")):
-    sys.path.insert(0, abspath(join(script_path, "..", "..")))
+sys.path.insert(0, abspath(join(script_path, "..", "..")))
 
 import pypentago
 
