@@ -36,10 +36,13 @@ class PasswordTest(unittest.TestCase):
             if m != 'plain':
                 self.assertNotEqual(h.rsplit('$')[-1], pwd)
             self.assertNotEqual(h, pwd)
-            self.assertEqual(crypto.check_pwd(pwd, h), True)
+            self.assertEqual(crypto.check_pwd(h, pwd), True)
     
     def test_unknown_method(self):
         self.assertRaises(ValueError, crypto.hash_pwd, 'fourty-two', '42')
+    
+    def test_invalid_hash(self):
+        self.assertRaises(ValueError, crypto.check_pwd, 'invalid$hash', '42')
 
 if __name__ == '__main__':
     unittest.main()
