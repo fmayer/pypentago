@@ -129,7 +129,7 @@ class Overlay(QtCore.QObject):
         return self.value + self.add_cw, self.value + self.add_ccw
 
 
-class SVGFakeImage:
+class SVGFakePixmap:
     def __init__(self, img):
         self.render = QtSvg.QSvgRenderer(img)
         self.cache = None
@@ -199,12 +199,12 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         )
 
         # Clockwise rotation image overlay.
-        self.rot_cw = SVGFakeImage(
+        self.rot_cw = SVGFakePixmap(
             pypentago.data['rot_cw.svg']
         )
 
         # Counter-clockwise rotation image overlay.
-        self.rot_ccw = SVGFakeImage(
+        self.rot_ccw = SVGFakePixmap(
             pypentago.data['rot_ccw.svg']
         )
         
