@@ -71,6 +71,7 @@ verbosity = verbosity_levels[options.verbose]
     
 def main():
     pypentago.init_logging(options.logfile, verbosity)
+    sys.excepthook = pypentago.except_hook
     log = logging.getLogger("pypentago.client")
     interface.main()
 
