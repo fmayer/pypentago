@@ -26,7 +26,8 @@ import pypentago
 
 from PyQt4 import QtGui, QtCore, QtSvg
 
-from pypentago import core
+from pypentago import core, CW, CCW
+from pypentago.client import core as c_core
 from pypentago.client.interface.blinker import Blinker
 
 
@@ -278,9 +279,10 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         if self.preview_stone is not None:
             x_c, y_c = self.preview_stone
             if not self.field[y_c][x_c]:
+                uid = self.prnt.prnt.local_player.uid
                 x_p, y_p = x_c * size, y_c * size
                 paint.setOpacity(self.PREVIEW_OPACITY)
-                paint.drawImage(x_p+d_size, y_p+d_size, imgs[1])
+                paint.drawImage(x_p+d_size, y_p+d_size, imgs[uid])
                 paint.setOpacity(1)
             
         if self.overlay:
@@ -302,12 +304,20 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         # This was a triumph!
         paint.end()
 
-    def rotate(self, clockwise):
+    def rotate(self, clockwise, user_done=True):
         core.Quadrant.rotate(self, clockwise)
         
         self.prnt.may_rot = False
         self.overlay.hide()
         self.repaint()
+        if user_done:
+            self.prnt.do_turn(clockwise and CW or CCW, self.uid)
+        win, lose = self.prnt.prnt.game.get_winner()
+        if win is self.prnt.prnt.local_player:
+            self.prnt.prnt.add_msg('System', 'You won the game!')
+        elif lose is self.prnt.prnt.local_player:
+            self.prnt.prnt.add_msg('System', 'You lost the game!')
+        # This is where we need to communicate back the game.
             
     def show_rot(self, clockwise, callafter=None):
         if clockwise:
@@ -320,8 +330,8 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.blink_stone.run(5000, callafter)
     
     def mousePressEvent(self, event):
-        if not self.user_control:
-            self.reclaim_control()
+        if not self.prnt.user_control:
+            self.prnt.reclaim_control()
             return
         if self.prnt.may_rot and not self.overlay:
             # This shouldn't actually be happening. Just in case it is.
@@ -350,7 +360,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             #     self.game.set_stone(self.uid, y, x)
             # except (InvalidTurn, SquareNotEmpty):
             #     pass # Do something!
-            self.set_stone(y, x, 1)
+            self.set_stone(y, x)
         
     def enterEvent(self, event):
         if self.prnt.may_rot:
@@ -363,7 +373,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.repaint()
     
     def mouseMoveEvent(self, event):
-        if not self.user_control:
+        if not self.prnt.user_control:
             return
         
         if not self.overlay:
@@ -373,19 +383,22 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             self.preview_stone = x, y
             self.repaint()
             return
-        
-        x = event.x()
-        if x < self.width() / 2.0:
-            self.overlay.highlight_cw()
         else:
-            self.overlay.highlight_ccw()
-        self.repaint()
+            x = event.x()
+            if x < self.width() / 2.0:
+                self.overlay.highlight_cw()
+            else:
+                self.overlay.highlight_ccw()
+            self.repaint()
     
-    def set_stone(self, row, col, player_id, may_rot=True):
+    def set_stone(self, row, col, player_id=None, may_rot=True):
+        if player_id is None:
+            player_id = self.prnt.prnt.local_player.uid
         if self.field[row][col]:
             return
         self.field[row][col] = player_id
         self.prnt.may_rot = may_rot
+        self.prnt.temp_turn = [self.uid, row, col]
         if may_rot:
             self.overlay.show()
         self.repaint()
@@ -403,11 +416,19 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
 class Board(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
+        self.temp_turn = None
+        self.prnt = parent
         self.may_rot = False
         self.quadrants = [Quadrant(self, i) for i in xrange(4)]
         # Demonstration:
         ## self[1].set_stone(1, 1, 1, False)
         ## self.show_turn(1, 0, 1, 1, 1, True)
+    
+    def do_turn(self, rot_dir, rot_quad):
+        if self.temp_turn is None:
+            raise ValueError('No turn stored!')
+        self.prnt.local_player.do_turn(self.temp_turn + [rot_dir, rot_quad])
+        self.temp_turn = None
     
     def paintEvent(self, event):
         size = min([self.height(), self.width()]) / 2.0
@@ -421,7 +442,7 @@ class Board(QtGui.QWidget):
         self.quadrants[3].move(size, size)
     
     def show_turn(self, p_id, s_quad, row, col, r_quad, clockwise):
-        rot = lambda: self[r_quad].rotate(clockwise)
+        rot = lambda: self[r_quad].rotate(clockwise, False)
         self[s_quad].set_stone(row, col, p_id, False)
         self[s_quad].show_loc(col, row,
                               lambda: self[r_quad].show_rot(clockwise, rot)
@@ -429,12 +450,29 @@ class Board(QtGui.QWidget):
     
     def __getitem__(self, i):
         return self.quadrants[i]
+    
+    @property
+    def user_control(self):
+        return (self.prnt.local_player.is_turn() and
+                all(x.user_control for x in self.quadrants))
+    
+    def reclaim_control(self):
+        if not self.prnt.local_player.is_turn():
+            # It's not our turn. We can't reclaim user control.
+            return
+        
+        for quad in self.quadrants:
+            if not quad.user_control:
+                quad.reclaim_control()
         
 
 class Game(QtGui.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, game, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.board = Board(self)
+        self.game = game
+        self.local_player = c_core.LocalPlayer(self)
+        self.game.add_player(self.local_player)
         hbox = QtGui.QHBoxLayout()
         hbox.addWidget(self.board, 40)
         
@@ -477,9 +515,9 @@ class Game(QtGui.QWidget):
 
 
 class MainWindow(QtGui.QWidget):
-    def __init__(self):
+    def __init__(self, game):
         QtGui.QWidget.__init__(self)
-        game = Game(self)
+        game = Game(game, self)
         hbox = QtGui.QHBoxLayout()
         hbox.addWidget(game)
         self.setLayout(hbox)
@@ -491,8 +529,12 @@ class MainWindow(QtGui.QWidget):
 
 def main(connection=None):
     app = QtGui.QApplication(sys.argv)
-    dt = MainWindow()
+    game = core.Game()
+    dt = MainWindow(game)
     dt.show()
+    ot = MainWindow(game)
+    ot.show()
+    game.random_beginner()
     app.exec_()
 
 
