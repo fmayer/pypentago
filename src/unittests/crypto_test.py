@@ -44,5 +44,6 @@ class PasswordTest(unittest.TestCase):
     def test_invalid_hash(self):
         self.assertRaises(ValueError, crypto.check_pwd, 'invalid$hash', '42')
 
+
 if __name__ == '__main__':
     unittest.main()

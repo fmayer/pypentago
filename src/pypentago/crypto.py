@@ -96,7 +96,7 @@ def hash_func(method):
 
 
 def _gen_from_pool(len_, pool):
-    """ Helper function that takes len_ elemtens from pool(it doesn't
+    """ Helper function that takes len_ random elements from pool(it doesn't
     remove them from pool), and joins them together to a string. """
     return ''.join(random.choice(pool) for _ in xrange(len_))
 
