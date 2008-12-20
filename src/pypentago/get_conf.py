@@ -143,7 +143,7 @@ def create_app_data(app_data):
         open_file.write(default_server_conf)
 
 if not exists(app_data):
-    create_app_data()
+    create_app_data(app_data)
 
 
 script_path = dirname(__file__)
