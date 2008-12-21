@@ -170,6 +170,7 @@ class ServerTest(unittest.TestCase):
         keyword, data = json.loads(recvs[0])
         self.assertEqual(keyword, "GAME")
         self.assertEqual(data, [uid, "TURN", turn])
+        return a
         
 
 if __name__ == "__main__":

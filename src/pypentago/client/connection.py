@@ -57,13 +57,15 @@ class Conn(Connection):
         log.info("Connection established")
         context.emmit_action('conn_established', self)
     
+    @expose("INITGAME")
     def init_game(self, evt):
         game = Game()
         new_game(game)
         r = RemotePlayer(self)
         self.remote_table[evt['data'][0]] = r
         game.add_player(r)
-
+    
+    @expose("GAME")
     def remote_dispatcher(self, evt):
         game_id = evt['data'][0]
         rest = evt['data'][1:]
