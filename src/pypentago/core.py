@@ -149,6 +149,7 @@ class Board(object):
         elif rot_dir == CCW:
             self[rot_field].rotate_ccw()
         else:
+            self[field][row][col] = 0
             raise InvalidTurn
         
     def set_stone(self, player, field, row, col):
