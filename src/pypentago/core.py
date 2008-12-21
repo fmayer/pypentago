@@ -34,6 +34,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(script_path, os.pardir)))
 
 import depr
 
+from pypentago import CW, CCW
 from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn, 
                                   GameFull)
 
@@ -143,9 +144,9 @@ class Board(object):
         Turn is (quadrant, row, col, rot_dir, rot_field) """
         field, row, col, rot_dir, rot_field = turn
         self.set_stone(player, field, row, col)
-        if rot_dir == "R":
+        if rot_dir == CW:
             self[rot_field].rotate_cw()
-        elif rot_dir == "L":
+        elif rot_dir == CCW:
             self[rot_field].rotate_ccw()
         else:
             raise InvalidTurn
@@ -273,7 +274,7 @@ class Game(object):
             raise InvalidTurn
         if not 0 <= col <= 2:
             raise InvalidTurn
-        if not rot_dir in ("L", "R"):
+        if not (rot_dir == CW or rot_dir == CCW):
             raise InvalidTurn
         if not 0 <= rot_field <= 3:
             raise InvalidTurn
