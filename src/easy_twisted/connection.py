@@ -31,12 +31,16 @@ else:
 
 from twisted.protocols.basic import LineOnlyReceiver
 
-
 expose = actions.register_method
 
 
+def require_auth(f):
+    f.auth = True
+    return f
+
+
 class Connection(actions.ActionHandler, LineOnlyReceiver):
-    delimiter = "\3"
+    delimiter = "\0"
     encoding = "utf-8"
     """ The Connection class. Please do not overwrite anything unless you 
     really know what you are doing or otherwise stated """
@@ -57,6 +61,7 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
     def __init__(self):
         self.context = actions.Context()
         actions.ActionHandler.__init__(self, self.context)
+        self.auth = False
         self.construct()
 
     def lineReceived(self, income_data):
@@ -68,6 +73,12 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
     
         keyword, data = loads(income_data)
         event = {'keyword': keyword, 'data': data}
+        
+        if not self.auth and any(getattr(h, 'auth', False) for h in
+                                 self.context.actions[keyword]):
+            self.send("AUTHREQ")
+            return
+            
         if keyword in self.context:
             for ret in self.context.emmit_action(keyword, event):
                 self._handle_return(ret)

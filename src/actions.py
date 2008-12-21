@@ -344,20 +344,20 @@ offers = _inst.offers
 has_handlers = _inst.has_handlers
 
 
-def register_method(action, lst=None):
+def register_method(*actions):
     """ Associate decorated method with action. Be sure to call 
     ActionHandler.__init__ in your classes __init__ method. 
     """
-    if lst is not None:
-        # Developer still seems to use old version including _decorators.
-        warnings.warn("Using register_method with lst is deprecated", 
-                      DeprecationWarning, 2)
     def decorate(exc):
         """ Append action to functions _bind_to attribute, if that does
         not exist, set it to an empty list and append to that one. """
-        if not hasattr(exc, '_bind_to'):
-            exc._bind_to = []
-        exc._bind_to.append(action)
+        if not actions:
+            exc._bind_to = [exc.__name__]
+        else:
+            if not hasattr(exc, '_bind_to'):
+                exc._bind_to = []
+            for action in actions:
+                exc._bind_to.append(action)
         return exc
     return decorate
 

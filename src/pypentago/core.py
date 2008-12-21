@@ -217,6 +217,9 @@ class Player(object):
         self.uid = None
         self.cmd = {'TURN': self.do_turn}
     
+    def your_turn(self):
+        self.game.last_set = self.game.other_player(self)
+    
     def do_turn(self, turn):
         """ turn is (field, row, col, rot_dir, rot_field) """
         self.game.apply_turn(self, list(turn))
@@ -237,6 +240,19 @@ class Player(object):
     
     def __repr__(self):
         return "<Player %d>" % (self.uid)
+
+
+class RemotePlayer(Player):
+    def __init__(self, conn=None):
+        Player.__init__(self)
+        self.cmd.update({'LOCALTURN': self.local_turn})
+        self.conn = conn
+    
+    def local_turn(self):
+        self.game.last_set = self
+    
+    def display_turn(self, player, turn):
+        self.conn.send('GAME', [self.game.uid, 'TURN', turn])
 
 
 class Game(object):

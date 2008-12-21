@@ -78,14 +78,14 @@ def connect(connect_string):
     return transaction
 
 
-def players_by_login(login):
+def player_by_login(login):
     with transaction() as session:
         players = session.query(Player).filter_by(
             player_name=login)
     if players.count() < 1:
         # No player with that login.
         raise NotInDB
-    return players.all()
+    return players.first()
 
 
 def player_by_id(identifier):
@@ -96,7 +96,7 @@ def player_by_id(identifier):
 
 def login_available(login):
     try:
-        players_by_login(login)
+        player_by_login(login)
     except NotInDB:
         return True
     return False

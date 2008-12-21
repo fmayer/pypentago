@@ -18,15 +18,6 @@
 
 from pypentago import core, CW, CCW
 
-class RemotePlayer(core.Player):
-    def __init__(self, conn):
-        core.Player.__init__(self)
-        self.conn = conn
-    
-    def display_turn(self, turn):
-        self.conn.send('GAME', [self.game.uid, turn])
-
-
 class LocalPlayer(core.Player):
     def __init__(self, gui_game):
         core.Player.__init__(self)

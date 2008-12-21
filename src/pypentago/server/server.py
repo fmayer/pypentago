@@ -26,15 +26,20 @@ from easy_twisted.server import startServer
 
 from pypentago import EMAIL_REGEX
 from pypentago.server.connection import Conn
-from pypentago.server.room import NoSuchRoom
+from pypentago.exceptions import NoSuchRoom
 from pypentago.server import db
 
 class Factory(protocol.ServerFactory):
     def __init__(self):
-        self.games = []
+        self.games = {}
         self.clients = []
         self.rooms = []
         self.email_regex = re.compile(EMAIL_REGEX, re.IGNORECASE)
+        self.next_id = -1
+    
+    def next_game_id(self):
+        self.next_id += 1
+        return self.next_id
     
     def get_room(self, name):
         for room in self.rooms:
