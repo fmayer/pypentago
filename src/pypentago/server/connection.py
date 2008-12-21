@@ -96,6 +96,7 @@ class Conn(Connection):
         p = core.RemotePlayer(self)
         g = self.server.games[uid]
         g.add_player(p)
+        self.remote_table[uid] = p
         b = g.random_beginner()
         self.send("INITGAME", uid)
         g.other_player(self).conn.send("INITGAME", uid)

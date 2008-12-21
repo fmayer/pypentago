@@ -156,6 +156,21 @@ class ServerTest(unittest.TestCase):
         keyword, data = json.loads(rest)
         self.assertEqual(keyword, "GAME")
         self.assertEqual(data, [opened_game, 'LOCALTURN'])
+        return opened_game, other_client, recvs[1]
+    
+    def test_turn(self):
+        turn = [0, 0, 0, 'L', 0]
+        uid, other_client, is_turn = self.test_join()
+        a = is_turn and other_client or self.client
+        b = is_turn and self.client or other_client
+        a.send(json.dumps(['GAME', [uid, 'TURN', turn]]) + '\0')
+        # print a.recv(100)
+        recv = b.recv(100)
+        recvs = recv.split('\0')
+        keyword, data = json.loads(recvs[0])
+        self.assertEqual(keyword, "GAME")
+        self.assertEqual(data, [uid, "TURN", turn])
+        
 
 if __name__ == "__main__":
     unittest.main()
