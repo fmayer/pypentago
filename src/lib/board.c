@@ -37,6 +37,22 @@ int quad_col(int quad){
    return (quad == 1 || quad == 3);
 }
 
+void set_colour(struct Board* b, char v){
+   b->colour = v;
+}
+
+int get_colour(struct Board* b){
+   return b->colour;
+}
+
+char get(struct Board* b, unsigned char row, unsigned char col){
+   return b->board[row][col];
+}
+
+void set(struct Board* b, unsigned char row, unsigned char col, char value){
+   b->board[row][col] = value;
+}
+
 /* End of helper functions */
 
 char won_row(struct Board* b, unsigned char r){
@@ -165,11 +181,20 @@ void rotate_ccw(struct Board* b, int quad){
    }
 }
 
-void set_stone(struct Board* b, char player, int quad, int row, int col){
+void set_stone(struct Board* b, unsigned char quad, 
+               unsigned char row, unsigned char col){
    int r = 3 * quad_row(quad);
    int c = 3 * quad_col(quad);
    b->filled++;
-   b->board[r+row][c+col] = player;
+   b->board[r+row][c+col] = b->colour;
+   b->colour = 3 - b->colour;
+}
+
+char get_stone(struct Board* b, unsigned char quad, unsigned char row,
+               unsigned char col){
+   int r = 3 * quad_row(quad);
+   int c = 3 * quad_col(quad);
+   return b->board[r+row][c+col];
 }
 
 
@@ -198,6 +223,10 @@ struct Board* copy_board(struct Board* b){
 
 void free_board(struct Board* b){
    free(b);
+}
+
+void free_turn(struct Turn* t){
+   free(t);
 }
 
 void print_board(struct Board* b){

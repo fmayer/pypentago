@@ -36,7 +36,8 @@ void print_board(struct Board *b);
 void free_board(struct Board *b);
 struct Board *copy_board(struct Board *b);
 struct Board *new_board(char beginner);
-void set_stone(struct Board *b,char player,int quad,int row,int col);
+void set_stone(struct Board *b,unsigned char quad,unsigned char row,
+                unsigned char col);
 void rotate_ccw(struct Board *b,int quad);
 void rotate_cw(struct Board *b,int quad);
 char won(struct Board *b);
@@ -46,3 +47,10 @@ char won_row(struct Board *b,unsigned char r);
 int quad_col(int quad);
 int quad_row(int quad);
 void print_turn(struct Turn *x);
+void set_colour(struct Board* b, char v);
+int get_colour(struct Board* b);
+char get(struct Board* b, unsigned char row, unsigned char col);
+void set(struct Board* b, unsigned char row, unsigned char col, char value);
+char get_stone(struct Board* b, unsigned char quad, unsigned char row,
+                unsigned char col);
+void free_turn(struct Turn* t);
