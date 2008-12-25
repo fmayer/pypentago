@@ -57,6 +57,19 @@ class Conn(Connection):
         log.info("Connection established")
         context.emmit_action('conn_established', self)
     
+    def register(self, login, passwd, real_name, email):
+        self.send("REGISTER", {'login': login, 'passwd': passwd,
+                               'real_name': real_name, 'email': email})
+    
+    def authenticate(self, login, passwd):
+        self.send("LOGIN", {'login': login, 'passwd': passwd})
+    
+    def open_game(self, name):
+        self.send("OPEN", name)
+    
+    def join_game(self, uid):
+        self.send("JOIN", uid)
+    
     @expose("INITGAME")
     def init_game(self, evt):
         game = Game()
@@ -78,6 +91,22 @@ class Conn(Connection):
             cmd = rest[0]
             arg = rest[1:]
             remote.lookup(cmd)(*arg)
+    
+    @expose("AUTH")
+    def auth(self):
+        pass
+    
+    @expose("AUTHF")
+    def authf(self):
+        pass
+    
+    @expose("REGISTERED")
+    def registered(self):
+        pass
+    
+    @expose("REGFAILED")
+    def reg_failed(self):
+        pass
 
 
 def run_client(host, port):

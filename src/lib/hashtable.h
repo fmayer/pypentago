@@ -14,11 +14,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef keytype
-#define keytype void*
+#ifndef ht_keytype
+    #define ht_keytype void*
 #endif
-#ifndef valuetype
-#define valuetype void*
+#ifndef ht_valuetype
+    #define ht_valuetype void*
+#endif
+
+#ifndef ht_freevalues
+    #define ht_freevalues 1
 #endif
 
 static const unsigned int goodprimes[] = {
@@ -41,24 +45,24 @@ struct ht_hashtable
     /* The actual hashtable. */
     struct ht_entry** table;
     /* Function to get hash of the keys. */
-    unsigned int (*hashfn) (keytype k);
+    unsigned int (*hashfn) (ht_keytype k);
     /* Function to compare keys. */
-    unsigned char (*eqfn) (keytype k1, keytype k2);
+    unsigned char (*eqfn) (ht_keytype k1, ht_keytype k2);
 };
 
 struct ht_entry
 {
-    valuetype value;
-    keytype key;
+    ht_valuetype value;
+    ht_keytype key;
     unsigned int hash;
     struct ht_entry* next;
 };
 
 struct ht_hashtable* ht_new_hashtable(unsigned int size,
-                                    unsigned int (*hashf) (keytype),
-                                    unsigned char (*eqf) (keytype, keytype));
-struct ht_entry* ht_lookup(struct ht_hashtable* h, keytype key);
-unsigned char ht_insert(struct ht_hashtable* h, keytype key, valuetype value);
-void ht_free_hashtable(struct ht_hashtable* h, unsigned char free_values);
+                                    unsigned int (*hashf) (ht_keytype),
+                                    unsigned char (*eqf) (ht_keytype, ht_keytype));
+struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key);
+unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key, ht_valuetype value);
+void ht_free_hashtable(struct ht_hashtable* h);
 unsigned int ht_hash(unsigned int i);
 unsigned char ht_expand(struct ht_hashtable* h);

@@ -20,8 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <stdio.h>
 
 
-#define keytype unsigned int
-#define valuetype unsigned int
+#define ht_keytype unsigned int
+#define ht_valuetype unsigned int
+#define ht_freevalues 0
 #include "hashtable.h"
 
 /* How many items come to one allocated slot for a ht_entry.
@@ -37,8 +38,9 @@ unsigned int ht_hash(unsigned int i){
 }
 
 struct ht_hashtable* ht_new_hashtable(unsigned int size,
-                                    unsigned int (*hashf) (keytype),
-                                    unsigned char (*eqf) (keytype, keytype)){
+                                    unsigned int (*hashf) (ht_keytype),
+                                    unsigned char (*eqf) (ht_keytype, 
+                                                            ht_keytype)){
     unsigned int i;
     unsigned int a_size;
     
@@ -68,7 +70,7 @@ struct ht_hashtable* ht_new_hashtable(unsigned int size,
     return h;
 }
 
-struct ht_entry* ht_lookup(struct ht_hashtable* h, keytype key){
+struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key){
     unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
     struct ht_entry* e = h->table[idx];
     if(e == NULL)
@@ -81,7 +83,8 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, keytype key){
     return e;
 }
 
-unsigned char ht_insert(struct ht_hashtable* h, keytype key, valuetype value){
+unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
+                          ht_valuetype value){
     unsigned int hash = ht_hash(h->hashfn(key));
     unsigned int idx = hash % h->length;
     struct ht_entry* e = (struct ht_entry*) malloc(sizeof(struct ht_entry));
@@ -107,13 +110,13 @@ unsigned char ht_insert(struct ht_hashtable* h, keytype key, valuetype value){
     return 1;
 }
 
-void ht_free_hashtable(struct ht_hashtable* h, unsigned char free_values){
+void ht_free_hashtable(struct ht_hashtable* h){
     unsigned int i;
     for(i=0; i < sizeof(struct ht_entry*) * h->length; i++){
-        if(free_values){
+        #if ht_freevalues
             free((h->table[i])->key);
             free((h->table[i])->value);
-        }
+        #endif
         free(h->table[i]);
     }
     free(h->table);
