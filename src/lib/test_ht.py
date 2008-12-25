@@ -18,8 +18,10 @@
 
 import subprocess
 import os
+import sys
 
 def main():
+    e = 0
     subprocess.Popen(['gcc', 'test_ht.c', '-o', 'test_ht']).wait()
     p = subprocess.Popen([], executable='./test_ht', stdout=subprocess.PIPE)
     for l in p.stdout:
@@ -27,8 +29,10 @@ def main():
         x, y = l.split('==')
         if x != y:
             print l
+            e = 1
     
     os.remove('./test_ht')
+    sys.exit(e)
 
 if __name__ == "__main__":
     main()
