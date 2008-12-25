@@ -54,5 +54,19 @@ int main(){
     }
     if(a != (testsize - 1))
         printf("Iter too short!\n");
+    
+    e = ht_pop(h, 0);
+    if(e->value != 21)
+        printf("21 != %u\n", e->value);
+    
+    free(it);
+        a = 0;
+    
+    it = ht_iter_new(h);
+    while((e = ht_iter_next(it)) != NULL){
+        a++;
+    }
+    if(a != (testsize - 2))
+        printf("Iter too short!\n");
     return r;
 }

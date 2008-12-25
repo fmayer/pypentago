@@ -72,6 +72,7 @@ struct ht_hashtable* ht_new(unsigned int size,
                             unsigned int (*hashf) (ht_keytype),
                             unsigned char (*eqf) (ht_keytype, ht_keytype));
 struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key);
+struct ht_entry* ht_pop(struct ht_hashtable* h, ht_keytype key);
 unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key, ht_valuetype value);
 void ht_free(struct ht_hashtable* h);
 unsigned int ht_hash(unsigned int i);

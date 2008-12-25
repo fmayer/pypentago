@@ -76,6 +76,26 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key){
     return e;
 }
 
+struct ht_entry* ht_pop(struct ht_hashtable* h, ht_keytype key){
+    unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
+    struct ht_entry* prev = NULL;
+    struct ht_entry* e = h->table[idx];
+    if(e == NULL)
+        return NULL;
+    while(!h->eqfn(key, e->key)){
+        prev = e;
+        e = e->next;
+        if(e == NULL)
+            return NULL;
+    }
+    if(prev == NULL){
+        h->table[idx] = e->next;
+    } else{
+        prev->next = e->next;
+    }
+    return e;
+}
+
 unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
                         ht_valuetype value){
     struct ht_entry* e = (struct ht_entry*) malloc(sizeof(struct ht_entry));
@@ -211,4 +231,3 @@ struct ht_entry* ht_iter_next(struct ht_iter* it){
     }
     return ret;
 }
-   
