@@ -21,10 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "hashtable.h"
 
-/* How many items come to one allocated slot for a ht_entry.
- * Usually this should be lower than zero. */
-const float ht_items_per_place = 65. / 100;
-
 unsigned int ht_hash(unsigned int i){
     /* Protect against poor hashing functions. */
     i += ~(i << 9);
@@ -40,7 +36,7 @@ struct ht_hashtable* ht_new(unsigned int size,
     unsigned int a_size;
     
     /* size > goodprimes[-1] */
-    if(size > 161061274)
+    if(size > ht_goodprimes[ht_len_gp - 1])
         return NULL;
     
     for(i=0; i < ht_len_gp; i++)
@@ -82,7 +78,6 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key){
 
 unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
                         ht_valuetype value){
-    unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
     struct ht_entry* e = (struct ht_entry*) malloc(sizeof(struct ht_entry));
     if(e == NULL)
         return 0;
@@ -92,6 +87,7 @@ unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
     if(++(h->entries) > h->loadlimit){
         ht_expand(h);
     }
+    unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
     if((h->table[idx]) == NULL){
         h->table[idx] = e;
     } else{
@@ -119,32 +115,35 @@ void ht_free(struct ht_hashtable* h){
 
 unsigned char ht_resize(struct ht_hashtable* h, unsigned int n){
     struct ht_entry* e;
+    struct ht_entry* next;
     struct ht_entry** new_table;
 
     unsigned int i, idx;
     
     new_table = (struct ht_entry**) calloc(n, sizeof(struct ht_entry*));
-    if(new_table != NULL){    
+    if(new_table != NULL){
         for(i=0; i < h->length; i++){
             e = h->table[i];
             while(e != NULL){
+                next = e->next;
+                e->next = NULL;
                 idx = ht_hash(h->hashfn(e->key)) % n;
                 if(new_table[idx] == NULL){
                     new_table[idx] = e;
                 } else{
                     struct ht_entry* l;
                     l = new_table[idx];
-                    while(l->next != NULL)
+                    while(l->next != NULL){
                         l = l->next;
+                    }
                     l->next = e;
                 }
-                e = e->next;
+                e = next;
             }
         }
         free(h->table);
         h->table = new_table;
     } else{
-        struct ht_entry* next;
         struct ht_entry* prev;
         new_table = realloc(h->table, n * sizeof(struct entry *));
         if(new_table == NULL)
@@ -172,7 +171,6 @@ unsigned char ht_resize(struct ht_hashtable* h, unsigned int n){
             }
         }
     }
-
     h->length = n;
     h->loadlimit = n * ht_items_per_place;
     return 1; 

@@ -8,6 +8,8 @@
  * ht_valuetype and ht_freevalues. */
 #include "hashtable.c"
 
+#define lookback 159
+
 int main(){
     unsigned int hash(unsigned int key){
         return key;
@@ -19,46 +21,24 @@ int main(){
     /* Testing goes here! */
     struct ht_hashtable* h = ht_new(10, hash, eq);
     unsigned int a;
-    unsigned int b;
+    struct ht_entry* b;
     
-    a = 5;
-    b = 10;
-    ht_insert(h, a, b);
-    printf("10: %u\n", ht_lookup(h, a)->value);
-    a = 15;
-    b = 12;
-    ht_insert(h, a, b);
-    printf("12: %u\n", ht_lookup(h, a)->value);
-    a = 24;
-    b = 82;
-    ht_insert(h, a, b);
-    printf("82: %u\n", ht_lookup(h, a)->value);
-    a = 11;
-    b = 14;
-    ht_insert(h, a, b);
-    printf("14: %u\n", ht_lookup(h, a)->value);
-    a = 19;
-    b = 6;
-    ht_insert(h, a, b);
-    printf("6: %u\n", ht_lookup(h, a)->value);
-    a = 17;
-    b = 155;
-    ht_insert(h, a, b);
-    printf("155: %u\n", ht_lookup(h, a)->value);
-    a = 150;
-    b = 125;
-    ht_insert(h, a, b);
-    printf("125: %u\n", ht_lookup(h, a)->value);
-    a = 115;
-    b = 122;
-    ht_insert(h, a, b);
-    printf("122: %u\n", ht_lookup(h, a)->value);
-    
-    
-    ht_expand(h);
-    printf("122: %u\n", ht_lookup(h, a)->value);
-    printf("155: %u\n", ht_lookup(h, 17)->value);
-    printf("6: %u\n", ht_lookup(h, 19)->value);
-    printf("82: %u\n", ht_lookup(h, 24)->value);
+    for(a=0; a < 1000000; a++){
+        ht_insert(h, a, a+21);
+        b = ht_lookup(h, a);
+        if(b == NULL){
+            printf("%u==NULL\n", a+21);
+        } else{
+            printf("%u==%u\n", a+21, b->value);
+        }
+        if(a > lookback){
+            b = ht_lookup(h, a-lookback);
+            if(b == NULL){
+                printf("%u==NULL\n", a-lookback+21);
+            } else{
+                printf("%u==%u\n", a-lookback+21, b->value);
+            }
+        }
+    }
     return 0;
 }
