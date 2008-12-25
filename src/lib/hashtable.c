@@ -156,4 +156,3 @@ unsigned char ht_expand(struct ht_hashtable* h){
         return 0;
     return ht_resize(h, ht_goodprimes[++(h->primeidx)]);
 }
-

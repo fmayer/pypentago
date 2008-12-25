@@ -1,5 +1,4 @@
-/* Costumize the hashtable. This has to be done at compile time, and before
-#include "hashtable.h"! */
+/* Costumize the hashtable. This has to be done at compile time. */
 
 #define ht_keytype unsigned int
 #define ht_valuetype unsigned int
