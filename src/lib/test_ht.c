@@ -30,8 +30,10 @@ int main(){
         b = ht_lookup(h, a);
         if(b == NULL){
             printf("%u != NULL\n", a+21);
+            r = 1;
         } else if(a+21 != b->value){
             printf("%u != %u\n", a+21, b->value);
+            r = 1;
         }
         if(a > lookback){
             b = ht_lookup(h, a-lookback);
