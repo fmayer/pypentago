@@ -54,11 +54,10 @@ struct ht_entry
 {
     ht_valuetype value;
     ht_keytype key;
-    unsigned int hash;
     struct ht_entry* next;
 };
 
-struct ht_hashtable* ht_new_hashtable(unsigned int size,
+struct ht_hashtable* ht_new(unsigned int size,
                                     unsigned int (*hashf) (ht_keytype),
                                     unsigned char (*eqf) (ht_keytype, ht_keytype));
 struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key);
@@ -66,3 +65,4 @@ unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key, ht_valuetype val
 void ht_free_hashtable(struct ht_hashtable* h);
 unsigned int ht_hash(unsigned int i);
 unsigned char ht_expand(struct ht_hashtable* h);
+unsigned char ht_resize(struct ht_hashtable* h, unsigned int n);
