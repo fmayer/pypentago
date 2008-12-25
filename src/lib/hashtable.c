@@ -40,8 +40,8 @@ unsigned int ht_hash(unsigned int i){
 }
 
 struct ht_hashtable* ht_new(unsigned int size,
-                             unsigned int (*hashf) (ht_keytype),
-                             unsigned char (*eqf) (ht_keytype, ht_keytype)){
+                            unsigned int (*hashf) (ht_keytype),
+                            unsigned char (*eqf) (ht_keytype, ht_keytype)){
     unsigned int i;
     unsigned int a_size;
     
@@ -87,7 +87,7 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key){
 }
 
 unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
-                          ht_valuetype value){
+                        ht_valuetype value){
     unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
     struct ht_entry* e = (struct ht_entry*) malloc(sizeof(struct ht_entry));
     if(e == NULL)
@@ -162,6 +162,7 @@ unsigned char ht_expand(struct ht_hashtable* h){
         return 0;
     return ht_resize(h, goodprimes[++(h->primeidx)]);
 }
+
 int main(){
     unsigned int hash(unsigned int key){
         return key;
@@ -211,5 +212,6 @@ int main(){
     
     ht_expand(h);
     printf("122: %u\n", ht_lookup(h, a)->value);
+    printf("155: %u\n", ht_lookup(h, 17)->value);
     return 0;
 }

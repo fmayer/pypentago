@@ -45,9 +45,9 @@ struct ht_hashtable
     /* The actual hashtable. */
     struct ht_entry** table;
     /* Function to get hash of the keys. */
-    unsigned int (*hashfn) (ht_keytype k);
+    unsigned int (*hashfn) (ht_keytype);
     /* Function to compare keys. */
-    unsigned char (*eqfn) (ht_keytype k1, ht_keytype k2);
+    unsigned char (*eqfn) (ht_keytype, ht_keytype);
 };
 
 struct ht_entry
@@ -58,8 +58,8 @@ struct ht_entry
 };
 
 struct ht_hashtable* ht_new(unsigned int size,
-                                    unsigned int (*hashf) (ht_keytype),
-                                    unsigned char (*eqf) (ht_keytype, ht_keytype));
+                            unsigned int (*hashf) (ht_keytype),
+                            unsigned char (*eqf) (ht_keytype, ht_keytype));
 struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key);
 unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key, ht_valuetype value);
 void ht_free(struct ht_hashtable* h);
