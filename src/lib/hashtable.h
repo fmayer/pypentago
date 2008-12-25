@@ -1,6 +1,8 @@
 
 #ifndef keytype
 #define keytype void*
+#endif
+#ifndef valuetype
 #define valuetype void*
 #endif
 
@@ -27,7 +29,6 @@ struct ht_hashtable
     unsigned int (*hashfn) (keytype k);
     /* Function to compare keys. */
     unsigned char (*eqfn) (keytype k1, keytype k2);
-    struct ht_entry* n_entry;
 };
 
 struct ht_entry
@@ -43,6 +44,6 @@ struct ht_hashtable* ht_new_hashtable(unsigned int size,
                                     unsigned char (*eqf) (keytype, keytype));
 struct ht_entry* ht_lookup(struct ht_hashtable* h, keytype key);
 unsigned char ht_insert(struct ht_hashtable* h, keytype key, valuetype value);
-void ht_free_hashtable(struct ht_hashtable* h);
+void ht_free_hashtable(struct ht_hashtable* h, unsigned char free_values);
 unsigned int ht_hash(unsigned int i);
 unsigned char ht_expand(struct ht_hashtable* h);
