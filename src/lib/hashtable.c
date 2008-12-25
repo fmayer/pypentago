@@ -110,7 +110,7 @@ unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
     return 1;
 }
 
-void ht_free_hashtable(struct ht_hashtable* h){
+void ht_free(struct ht_hashtable* h){
     unsigned int i;
     for(i=0; i < sizeof(struct ht_entry*) * h->length; i++){
         #if ht_freevalues
