@@ -15,8 +15,8 @@ unsigned int ht_hash(unsigned int i){
 }
 
 struct ht_hashtable* ht_new_hashtable(unsigned int size,
-                                    unsigned int (*hashf) (void*),
-                                    unsigned char (*eqf) (void*, void*)){
+                                    unsigned int (*hashf) (keytype),
+                                    unsigned char (*eqf) (keytype, keytype)){
     unsigned int i;
     unsigned int a_size;
     
@@ -51,7 +51,7 @@ struct ht_hashtable* ht_new_hashtable(unsigned int size,
     return h;
 }
 
-struct ht_entry* ht_lookup(struct ht_hashtable* h, void* key){
+struct ht_entry* ht_lookup(struct ht_hashtable* h, keytype key){
     unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
     struct ht_entry* e = h->table[idx];
     if(e->key == NULL)
@@ -64,7 +64,7 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, void* key){
     return e;
 }
 
-unsigned char ht_insert(struct ht_hashtable* h, void* key, void* value){
+unsigned char ht_insert(struct ht_hashtable* h, keytype key, valuetype value){
     unsigned int hash = ht_hash(h->hashfn(key));
     unsigned int idx = hash % h->length;
     struct ht_entry* e = (struct ht_entry*) malloc(sizeof(struct ht_entry));
