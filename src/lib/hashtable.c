@@ -58,7 +58,7 @@ struct ht_hashtable* ht_new(unsigned int size,
     struct ht_hashtable* h = (struct ht_hashtable*) malloc(sizeof(struct ht_hashtable));
     if(h == NULL)
         return NULL;
-    h->table = (struct ht_entry**) malloc(sizeof(struct ht_entry*) * a_size);
+    h->table = (struct ht_entry**) calloc(a_size, sizeof(struct ht_entry*));
     if(h->table == NULL){
         free(h);
         return NULL;
@@ -69,9 +69,6 @@ struct ht_hashtable* ht_new(unsigned int size,
     h->eqfn = eqf;
     h->loadlimit = items_per_place * a_size;
     h->entries = 0;
-    
-    for(i=0; i < a_size; i++)
-        h->table[i] = NULL;
     
     return h;
 }
@@ -132,11 +129,9 @@ unsigned char ht_resize(struct ht_hashtable* h, unsigned int n){
 
     unsigned int i, idx;
     
-    new_table = (struct ht_entry**) malloc(sizeof(struct ht_entry*) * n);
+    new_table = (struct ht_entry**) calloc(n, sizeof(struct ht_entry*));
     if(new_table == NULL)
         return 0;
-    for(i=0; i <  n; i++)
-        new_table[i] = NULL;
     
     for(i=0; i < h->length; i++){
         e = h->table[i];
