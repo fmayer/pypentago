@@ -9,6 +9,7 @@
 #include "hashtable.c"
 
 #define lookback 159
+#define testsize 1000000
 
 int main(){
     unsigned int hash(unsigned int key){
@@ -24,7 +25,7 @@ int main(){
     r = 0;
     struct ht_entry* b;
     
-    for(a=0; a < 1000000; a++){
+    for(a=0; a < testsize; a++){
         ht_insert(h, a, a+21);
         b = ht_lookup(h, a);
         if(b == NULL){
@@ -43,5 +44,13 @@ int main(){
             }
         }
     }
+    a = 0;
+    struct ht_iter* it = ht_iter_new(h);
+    struct ht_entry* e;
+    while((e = ht_iter_next(it)) != NULL){
+        a++;
+    }
+    if(a != (testsize - 1))
+        printf("Iter too short!\n");
     return r;
 }

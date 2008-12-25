@@ -61,6 +61,13 @@ struct ht_entry
     struct ht_entry* next;
 };
 
+struct ht_iter
+{
+    unsigned int i;
+    struct ht_entry* e;
+    struct ht_hashtable* h;
+};
+
 struct ht_hashtable* ht_new(unsigned int size,
                             unsigned int (*hashf) (ht_keytype),
                             unsigned char (*eqf) (ht_keytype, ht_keytype));
@@ -70,3 +77,6 @@ void ht_free(struct ht_hashtable* h);
 unsigned int ht_hash(unsigned int i);
 unsigned char ht_expand(struct ht_hashtable* h);
 unsigned char ht_resize(struct ht_hashtable* h, unsigned int n);
+
+struct ht_iter* ht_iter_new(struct ht_hashtable* h);
+struct ht_entry* ht_iter_next(struct ht_iter* it);

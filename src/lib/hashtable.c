@@ -33,7 +33,7 @@ struct ht_hashtable* ht_new(unsigned int size,
                             unsigned int (*hashf) (ht_keytype),
                             unsigned char (*eqf) (ht_keytype, ht_keytype)){
     unsigned int i;
-    unsigned int a_size;
+    unsigned int a_size = 0; /* -Wall */
     
     /* size > goodprimes[-1] */
     if(size > ht_goodprimes[ht_len_gp - 1])
@@ -186,3 +186,30 @@ unsigned char ht_expand(struct ht_hashtable* h){
         return 0;
     }
 }
+
+struct ht_iter* ht_iter_new(struct ht_hashtable* h){
+    struct ht_iter* it = (struct ht_iter*) malloc(sizeof(struct ht_iter));
+    it->h = h;
+    it->i = 0;
+    while(it->i < it->h->length && h->table[it->i] == NULL)
+        it->i++;
+    it->e = h->table[it->i];
+    return it;
+}
+
+struct ht_entry* ht_iter_next(struct ht_iter* it){
+    struct ht_entry* ret;
+    ret = it->e;
+    if(it->e->next != NULL){
+        it->e = it->e->next;
+    } else{
+        if(++(it->i) >= it->h->length)
+            return NULL;
+        while(it->i < it->h->length && it->h->table[it->i] == NULL)
+            it->i++;
+        it->e = it->h->table[it->i];
+    }
+    return ret;
+}
+        
+    
