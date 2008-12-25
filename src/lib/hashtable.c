@@ -99,7 +99,6 @@ unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
     }
     if((h->table[idx]) == NULL){
         h->table[idx] = e;
-        h->entries++;
     } else{
         struct ht_entry* l;
         l = h->table[idx];
@@ -107,6 +106,7 @@ unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
             l = l->next;
         l->next = e;
     }
+    h->entries++;
     return 1;
 }
 
