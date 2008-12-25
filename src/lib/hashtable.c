@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include "hashtable.h"
 
 /* How many items come to one allocated slot for a ht_entry.
-Usually this should be lower than zero. */
+ * Usually this should be lower than zero. */
 const float ht_items_per_place = 65. / 100;
 
 unsigned int ht_hash(unsigned int i){
@@ -124,27 +124,55 @@ unsigned char ht_resize(struct ht_hashtable* h, unsigned int n){
     unsigned int i, idx;
     
     new_table = (struct ht_entry**) calloc(n, sizeof(struct ht_entry*));
-    if(new_table == NULL)
-        return 0;
-    
-    for(i=0; i < h->length; i++){
-        e = h->table[i];
-        while(e != NULL){
-            idx = ht_hash(h->hashfn(e->key)) % n;
-            if(new_table[idx] == NULL){
-                new_table[idx] = e;
-            } else{
-                struct ht_entry* l;
-                l = new_table[idx];
-                while(l->next != NULL)
-                    l = l->next;
-                l->next = e;
+    if(new_table != NULL){    
+        for(i=0; i < h->length; i++){
+            e = h->table[i];
+            while(e != NULL){
+                idx = ht_hash(h->hashfn(e->key)) % n;
+                if(new_table[idx] == NULL){
+                    new_table[idx] = e;
+                } else{
+                    struct ht_entry* l;
+                    l = new_table[idx];
+                    while(l->next != NULL)
+                        l = l->next;
+                    l->next = e;
+                }
+                e = e->next;
             }
-            e = e->next;
+        }
+        free(h->table);
+        h->table = new_table;
+    } else{
+        struct ht_entry* next;
+        struct ht_entry* prev;
+        new_table = realloc(h->table, n * sizeof(struct entry *));
+        if(new_table == NULL)
+            return 0;
+        h->table = new_table;
+        for(i=h->length; i < n; i++)
+            h->table[i] = NULL;
+        
+        for(i=0; i < h->length; i++){
+            e = h->table[i];
+            prev = NULL;
+            while(e != NULL){
+                idx = ht_hash(h->hashfn(e->key)) % n;
+                next = e->next;
+                if(h->table[idx] == NULL){
+                    h->table[idx] = e;
+                } else{
+                    e->next = h->table[idx];
+                    h->table[idx] = e;
+                }
+                if(prev != NULL)
+                    prev->next = next;
+                prev = e;
+                e = next;
+            }
         }
     }
-    free(h->table);
-    h->table = new_table;
+
     h->length = n;
     h->loadlimit = n * ht_items_per_place;
     return 1;    

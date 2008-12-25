@@ -58,5 +58,7 @@ int main(){
     ht_expand(h);
     printf("122: %u\n", ht_lookup(h, a)->value);
     printf("155: %u\n", ht_lookup(h, 17)->value);
+    printf("6: %u\n", ht_lookup(h, 19)->value);
+    printf("82: %u\n", ht_lookup(h, 24)->value);
     return 0;
 }
