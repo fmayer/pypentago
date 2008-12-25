@@ -14,6 +14,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+/* TODO: dynamic type of hash? */
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -135,6 +137,7 @@ unsigned char ht_expand(struct ht_hashtable* h){
     for(i=0; i < h->length; i++){
         e = h->table[i];
         while(e != NULL){
+            /* FIXME: Should I get rid of e->hash and re-hash instead? */
             idx = e->hash % n;
             if(new_table[idx] == NULL)
                 new_table[idx] = e;
@@ -150,6 +153,8 @@ unsigned char ht_expand(struct ht_hashtable* h){
     }
     free(h->table);
     h->table = new_table;
+    h->length = n;
+    h->loadlimit = n * items_per_place;
     return 1;
 }
 int main(){
