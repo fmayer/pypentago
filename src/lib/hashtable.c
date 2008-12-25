@@ -145,7 +145,7 @@ unsigned char ht_resize(struct ht_hashtable* h, unsigned int n){
         h->table = new_table;
     } else{
         struct ht_entry* prev;
-        new_table = realloc(h->table, n * sizeof(struct entry *));
+        new_table = (struct ht_entry**) realloc(h->table, n * sizeof(struct entry *));
         if(new_table == NULL)
             return 0;
         h->table = new_table;

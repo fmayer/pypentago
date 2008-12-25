@@ -20,7 +20,8 @@ int main(){
     }
     /* Testing goes here! */
     struct ht_hashtable* h = ht_new(10, hash, eq);
-    unsigned int a;
+    unsigned int a, r;
+    r = 0;
     struct ht_entry* b;
     
     for(a=0; a < 1000000; a++){
@@ -35,10 +36,12 @@ int main(){
             b = ht_lookup(h, a-lookback);
             if(b == NULL){
                 printf("%u != NULL\n", a-lookback+21);
+                r = 1;
             } else if(a-lookback+21 != b->value){
                 printf("%u != %u\n", a-lookback+21, b->value);
+                r = 1;
             }
         }
     }
-    return 0;
+    return r;
 }
