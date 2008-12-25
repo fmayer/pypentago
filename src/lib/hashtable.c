@@ -19,17 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <stdlib.h>
 #include <stdio.h>
 
-/* Costumize the hashtable. This has to be done at compile time, and before
-#include "hashtable.h"! */
-#define ht_keytype unsigned int
-#define ht_valuetype unsigned int
-#define ht_freevalues 0
-
 #include "hashtable.h"
 
 /* How many items come to one allocated slot for a ht_entry.
 Usually this should be lower than zero. */
-const float items_per_place = 65. / 100;
+const float ht_items_per_place = 65. / 100;
 
 unsigned int ht_hash(unsigned int i){
     /* Protect against poor hashing functions. */
@@ -49,9 +43,9 @@ struct ht_hashtable* ht_new(unsigned int size,
     if(size > 161061274)
         return NULL;
     
-    for(i=0; i < len_goodprimes; i++)
-        if(goodprimes[i] > size){
-            a_size = goodprimes[i];
+    for(i=0; i < ht_len_gp; i++)
+        if(ht_goodprimes[i] > size){
+            a_size = ht_goodprimes[i];
             break;
         }
     
@@ -67,7 +61,7 @@ struct ht_hashtable* ht_new(unsigned int size,
     h->primeidx = i;
     h->hashfn = hashf;
     h->eqfn = eqf;
-    h->loadlimit = items_per_place * a_size;
+    h->loadlimit = ht_items_per_place * a_size;
     h->entries = 0;
     
     return h;
@@ -152,66 +146,14 @@ unsigned char ht_resize(struct ht_hashtable* h, unsigned int n){
     free(h->table);
     h->table = new_table;
     h->length = n;
-    h->loadlimit = n * items_per_place;
+    h->loadlimit = n * ht_items_per_place;
     return 1;    
     
 }
 
 unsigned char ht_expand(struct ht_hashtable* h){
-    if(h->primeidx == (len_goodprimes - 1))
+    if(h->primeidx == (ht_len_gp - 1))
         return 0;
-    return ht_resize(h, goodprimes[++(h->primeidx)]);
+    return ht_resize(h, ht_goodprimes[++(h->primeidx)]);
 }
 
-int main(){
-    unsigned int hash(unsigned int key){
-        return key;
-    }
-    
-    unsigned char eq(unsigned int one, unsigned int other){
-        return one == other;
-    }
-    /* Testing goes here! */
-    struct ht_hashtable* h = ht_new(10, hash, eq);
-    unsigned int a;
-    unsigned int b;
-    
-    a = 5;
-    b = 10;
-    ht_insert(h, a, b);
-    printf("10: %u\n", ht_lookup(h, a)->value);
-    a = 15;
-    b = 12;
-    ht_insert(h, a, b);
-    printf("12: %u\n", ht_lookup(h, a)->value);
-    a = 24;
-    b = 82;
-    ht_insert(h, a, b);
-    printf("82: %u\n", ht_lookup(h, a)->value);
-    a = 11;
-    b = 14;
-    ht_insert(h, a, b);
-    printf("14: %u\n", ht_lookup(h, a)->value);
-    a = 19;
-    b = 6;
-    ht_insert(h, a, b);
-    printf("6: %u\n", ht_lookup(h, a)->value);
-    a = 17;
-    b = 155;
-    ht_insert(h, a, b);
-    printf("155: %u\n", ht_lookup(h, a)->value);
-    a = 150;
-    b = 125;
-    ht_insert(h, a, b);
-    printf("125: %u\n", ht_lookup(h, a)->value);
-    a = 115;
-    b = 122;
-    ht_insert(h, a, b);
-    printf("122: %u\n", ht_lookup(h, a)->value);
-    
-    
-    ht_expand(h);
-    printf("122: %u\n", ht_lookup(h, a)->value);
-    printf("155: %u\n", ht_lookup(h, 17)->value);
-    return 0;
-}

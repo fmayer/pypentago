@@ -25,12 +25,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
     #define ht_freevalues 1
 #endif
 
-static const unsigned int goodprimes[] = {
+static const unsigned int ht_goodprimes[] = {
 53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613,
 393241, 786433, 1572869, 3145739, 6291469, 12582917, 25165843, 50331653,
 100663319, 201326611, 402653189, 805306457, 1610612741};
 
-const unsigned int len_goodprimes = sizeof(goodprimes)/sizeof(goodprimes[0]);
+const unsigned int ht_len_gp = sizeof(ht_goodprimes)/sizeof(ht_goodprimes[0]);
 
 struct ht_hashtable
 {
