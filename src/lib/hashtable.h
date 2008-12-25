@@ -21,6 +21,7 @@ struct ht_hashtable
     unsigned int (*hashfn) (void *k);
     /* Function to compare keys. */
     unsigned char (*eqfn) (void *k1, void *k2);
+    struct ht_entry* n_entry;
 };
 
 struct ht_entry
@@ -38,4 +39,4 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, void* key);
 unsigned char ht_insert(struct ht_hashtable* h, void* key, void* value);
 void ht_free_hashtable(struct ht_hashtable* h);
 unsigned int ht_hash(unsigned int i);
-void ht_expand(struct ht_hashtable* h);
+unsigned char ht_expand(struct ht_hashtable* h);
