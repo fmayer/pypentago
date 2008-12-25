@@ -175,12 +175,16 @@ unsigned char ht_resize(struct ht_hashtable* h, unsigned int n){
 
     h->length = n;
     h->loadlimit = n * ht_items_per_place;
-    return 1;    
-    
+    return 1; 
 }
 
 unsigned char ht_expand(struct ht_hashtable* h){
     if(h->primeidx == (ht_len_gp - 1))
         return 0;
-    return ht_resize(h, ht_goodprimes[++(h->primeidx)]);
+    if(ht_resize(h, ht_goodprimes[++(h->primeidx)])){
+        return 1;
+    } else{
+        h->length = ht_goodprimes[--(h->primeidx)];
+        return 0;
+    }
 }
