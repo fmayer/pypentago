@@ -27,17 +27,17 @@ int main(){
         ht_insert(h, a, a+21);
         b = ht_lookup(h, a);
         if(b == NULL){
-            printf("%u==NULL\n", a+21);
-        } else{
-            printf("%u==%u\n", a+21, b->value);
+            printf("%u != NULL\n", a+21);
+        } else if(a+21 != b->value){
+            printf("%u != %u\n", a+21, b->value);
         }
         if(a > lookback){
             b = ht_lookup(h, a-lookback);
-            if(b == NULL){
-                printf("%u==NULL\n", a-lookback+21);
-            } else{
-                printf("%u==%u\n", a-lookback+21, b->value);
-            }
+        if(b == NULL){
+            printf("%u != NULL\n", a-lookback+21);
+        } else if(a-lookback+21 != b->value){
+            printf("%u != %u\n", a-lookback+21, b->value);
+        }
         }
     }
     return 0;
