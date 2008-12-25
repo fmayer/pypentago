@@ -1,9 +1,11 @@
 /* Costumize the hashtable. This has to be done at compile time. */
-
 #define ht_keytype unsigned int
 #define ht_valuetype unsigned int
 #define ht_freevalues 0
 
+/* Yes, this is supposed to be hashtable.c. We have to statically link as
+ * the source-code changes depending on our choices for ht_keytype,
+ * ht_valuetype and ht_freevalues. */
 #include "hashtable.c"
 
 int main(){
