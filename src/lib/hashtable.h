@@ -29,6 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
     #define ht_items_per_place (65. / 100)
 #endif
 
+#ifndef ht_hhash
+    #define ht_hhash(h, x) (ht_hash(h->hashfn(x)))
+#endif
+
 static const unsigned int ht_goodprimes[] = {
 53, 97, 193, 389, 769, 1543, 3079, 6151, 12289, 24593, 49157, 98317, 196613,
 393241, 786433, 1572869, 3145739, 6291469, 12582917, 25165843, 50331653,
@@ -59,6 +63,7 @@ struct ht_entry
     ht_valuetype value;
     ht_keytype key;
     struct ht_entry* next;
+    unsigned int hash;
 };
 
 struct ht_iter

@@ -64,7 +64,8 @@ struct ht_hashtable* ht_new(unsigned int size,
 }
 
 struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key){
-    unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
+    unsigned int hash = ht_hhash(h, key);
+    unsigned int idx = hash % h->length;
     struct ht_entry* e = h->table[idx];
     if(e == NULL)
         return NULL;
@@ -77,12 +78,13 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key){
 }
 
 struct ht_entry* ht_pop(struct ht_hashtable* h, ht_keytype key){
-    unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
+    unsigned int hash = ht_hhash(h, key);
+    unsigned int idx = hash % h->length;
     struct ht_entry* prev = NULL;
     struct ht_entry* e = h->table[idx];
     if(e == NULL)
         return NULL;
-    while(!h->eqfn(key, e->key)){
+    while(e->hash != hash && !h->eqfn(key, e->key)){
         prev = e;
         e = e->next;
         if(e == NULL)
@@ -104,10 +106,11 @@ unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
     e->key = key;
     e->value = value;
     e->next = NULL;
+    e->hash = ht_hhash(h, key);
     if(++(h->entries) > h->loadlimit){
         ht_expand(h);
     }
-    unsigned int idx = ht_hash(h->hashfn(key)) % h->length;
+    unsigned int idx = e->hash % h->length;
     if((h->table[idx]) == NULL){
         h->table[idx] = e;
     } else{
@@ -148,7 +151,7 @@ unsigned char ht_resize(struct ht_hashtable* h, unsigned int n){
         while(e != NULL){
             next = e->next;
             e->next = NULL;
-            idx = ht_hash(h->hashfn(e->key)) % n;
+            idx = e->hash % n;
             if(new_table[idx] == NULL){
                 new_table[idx] = e;
             } else{
