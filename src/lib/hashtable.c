@@ -14,14 +14,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-/* TODO: dynamic type of hash? */
 
 #include <stdlib.h>
 #include <stdio.h>
 
 #include "hashtable.h"
 
-unsigned int ht_hash(unsigned int i){
+ht_hashtype ht_hash(ht_hashtype i){
     /* Protect against poor hashing functions. */
     i += ~(i << 9);
     i ^=  ((i >> 14) | (i << 18)); /* >>> */
@@ -126,8 +125,11 @@ unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
 void ht_free(struct ht_hashtable* h){
     unsigned int i;
     for(i=0; i < sizeof(struct ht_entry*) * h->length; i++){
-        #if ht_freevalues
+        #if ht_freekeys
             free((h->table[i])->key);
+        #endif
+        
+        #if ht_freevalues
             free((h->table[i])->value);
         #endif
         free(h->table[i]);

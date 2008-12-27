@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #ifndef ht_keytype
     #define ht_keytype void*
 #endif
+
 #ifndef ht_valuetype
     #define ht_valuetype void*
 #endif
@@ -25,12 +26,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
     #define ht_freevalues 1
 #endif
 
+#ifndef ht_freekeys
+    #define ht_freekeys 1
+#endif
+
 #ifndef ht_items_per_place
     #define ht_items_per_place (65. / 100)
 #endif
 
 #ifndef ht_hhash
     #define ht_hhash(h, x) (ht_hash(h->hashfn(x)))
+#endif
+
+#ifndef ht_hashtype
+    #define ht_hashtype unsigned int
 #endif
 
 static const unsigned int ht_goodprimes[] = {
@@ -63,7 +72,7 @@ struct ht_entry
     ht_valuetype value;
     ht_keytype key;
     struct ht_entry* next;
-    unsigned int hash;
+    ht_hashtype hash;
 };
 
 struct ht_iter
@@ -80,7 +89,7 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key);
 struct ht_entry* ht_pop(struct ht_hashtable* h, ht_keytype key);
 unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key, ht_valuetype value);
 void ht_free(struct ht_hashtable* h);
-unsigned int ht_hash(unsigned int i);
+ht_hashtype ht_hash(ht_hashtype i);
 unsigned char ht_expand(struct ht_hashtable* h);
 unsigned char ht_resize(struct ht_hashtable* h, unsigned int n);
 
