@@ -16,17 +16,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 struct Board
 {
-   short filled;
+   unsigned char filled;
    char board[6][6];
    char colour;
 };
 
 struct Turn
 {
-   short row;
-   short col;
-   short quad;
-   char dir;
+   unsigned char row;
+   unsigned char col;
+   unsigned char quad;
+   unsigned char dir;
    float value;
 };
 
