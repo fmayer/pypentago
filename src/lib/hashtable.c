@@ -68,7 +68,7 @@ struct ht_entry* ht_lookup(struct ht_hashtable* h, ht_keytype key){
     struct ht_entry* e = h->table[idx];
     if(e == NULL)
         return NULL;
-    while(!h->eqfn(key, e->key)){
+    while(!(e->hash == hash && h->eqfn(key, e->key))){
         e = e->next;
         if(e == NULL)
             return NULL;
@@ -124,16 +124,24 @@ unsigned char ht_insert(struct ht_hashtable* h, ht_keytype key,
 
 void ht_free(struct ht_hashtable* h){
     unsigned int i;
-    for(i=0; i < sizeof(struct ht_entry*) * h->length; i++){
-        #if ht_freekeys
-            free((h->table[i])->key);
-        #endif
-        
-        #if ht_freevalues
-            free((h->table[i])->value);
-        #endif
-        free(h->table[i]);
+    struct ht_entry* e;
+    struct ht_entry* n;
+    for(i=0; i < h->length; i++){        
+        e = h->table[i];
+        while(e != NULL){
+            n = e->next;
+            #if ht_freekeys
+                free(e->key);
+            #endif
+            
+            #if ht_freevalues
+                free(e->value);
+            #endif
+            free(e);
+            e = n;
+        }
     }
+ 
     free(h->table);
     free(h);
 }
@@ -189,7 +197,7 @@ struct ht_iter* ht_iter_new(struct ht_hashtable* h){
     struct ht_iter* it = (struct ht_iter*) malloc(sizeof(struct ht_iter));
     it->h = h;
     it->i = 0;
-    while(it->i < it->h->length && h->table[it->i] == NULL)
+    while(it->i < (it->h->length - 1) && h->table[it->i] == NULL)
         it->i++;
     it->e = h->table[it->i];
     return it;
@@ -198,13 +206,15 @@ struct ht_iter* ht_iter_new(struct ht_hashtable* h){
 struct ht_entry* ht_iter_next(struct ht_iter* it){
     struct ht_entry* ret;
     ret = it->e;
-    if(it->e->next != NULL){
+    if(it->e != NULL && it->e->next != NULL){
         it->e = it->e->next;
     } else{
-        if(++(it->i) >= it->h->length)
+        if(++(it->i) >= it->h->length){
             return NULL;
-        while(it->i < it->h->length && it->h->table[it->i] == NULL)
+        }
+        while(it->i < (it->h->length - 1) && it->h->table[it->i] == NULL){
             it->i++;
+        }
         it->e = it->h->table[it->i];
     }
     return ret;
