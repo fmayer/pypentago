@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: us-ascii -*-
 
 # pypentago - a board game
@@ -24,11 +23,12 @@ import time
 
 import pypentago
 
-from PyQt4 import QtGui, QtCore, QtSvg
+from PyQt4 import QtGui, QtCore
 
 from pypentago import core, CW, CCW
 from pypentago.client import core as c_core
 from pypentago.client.interface.blinker import Blinker
+from pypentago.client.interface.svg import SVGFakePixmap
 
 
 def get_coord(size, x):
@@ -127,59 +127,6 @@ class Overlay(QtCore.QObject):
     @property
     def opacity(self):
         return self.value + self.add_cw, self.value + self.add_ccw
-
-
-class SVGFakePixmap:
-    def __init__(self, img):
-        self.render = QtSvg.QSvgRenderer(img)
-        self.cache = None
-    
-    def scaledToHeight(self, heigth, mode=None):
-        if self.cache is not None and self.cache.height() == height:
-            return self.cache
-        viewbox = self.render.viewBox()
-        h = viewbox.height()
-        w = viewbox.width()
-        
-        ratio = w / float(h)
-        
-        new_h = heigth
-        new_w = heigth * ratio
-        
-        img = QtGui.QPixmap(new_h, new_w)
-        img.fill(QtCore.Qt.transparent)
-        
-        paint = QtGui.QPainter(img)
-        
-        self.render.render(paint)
-        
-        paint.end()
-        self.cache = img
-        return img
-    
-    def scaledToWidth(self, width, mode=None):
-        if self.cache is not None and self.cache.width() == width:
-            return self.cache
-        viewbox = self.render.viewBox()
-        h = viewbox.height()
-        w = viewbox.width()
-        
-        ratio = h / float(w)
-        
-        new_w = width
-        new_h = width * ratio
-        
-        img = QtGui.QPixmap(new_h, new_w)
-        img.fill(QtCore.Qt.transparent)
-        
-        paint = QtGui.QPainter(img)
-        
-        self.render.render(paint)
-        
-        paint.end()
-        self.cache = img
-        return img
-
 
 
 class Quadrant(QtGui.QLabel, core.Quadrant):
@@ -524,23 +471,3 @@ class GameWindow(QtGui.QWidget):
         self.setWindowIcon(
             QtGui.QIcon(pypentago.data['icon.png'])
         )
-
-
-def new_game(game):
-    g = GameWindow(game)
-    g.show()
-
-
-def main(connection=None):
-    app = QtGui.QApplication(sys.argv)
-    game = core.Game()
-    dt = GameWindow(game)
-    ot = GameWindow(game)
-    dt.show()
-    ot.show()
-    game.random_beginner()
-    app.exec_()
-
-
-if __name__ == '__main__':
-    main()
