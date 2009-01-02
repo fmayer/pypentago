@@ -212,12 +212,8 @@ struct Board* new_board(char beginner){
 }
 
 struct Board* copy_board(struct Board* b){
-   struct Board* nb;
-   nb = (struct Board*) malloc(sizeof(struct Board));
-   unsigned int i;
-   for(i=0; i < sizeof(struct Board); i++){
-      nb[i] = b[i];
-   }
+   struct Board* nb = (struct Board*) malloc(sizeof(struct Board));
+   memcpy(nb, b, sizeof(struct Board));
    return nb;
 }
 
