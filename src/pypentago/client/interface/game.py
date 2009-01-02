@@ -179,7 +179,8 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
                                    self.blink_stone]
     
     def paintEvent(self, event):
-        # We might want to change that for performance reasons later on.        
+        # We might want to change that for performance reasons later on.
+        # Either FastTransformation or SmoothTransformation.
         s_mode = QtCore.Qt.SmoothTransformation                
         
         h = self.height()
@@ -302,10 +303,6 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             # No overlay. Player wants to set a stone.
             size = min([h, w]) / 3.0
             x, y = get_coord(size, x), get_coord(size, y)
-            # try:
-            #     self.game.set_stone(self.uid, y, x)
-            # except (InvalidTurn, SquareNotEmpty):
-            #     pass # Do something!
             self.set_stone(y, x)
         
     def enterEvent(self, event):
