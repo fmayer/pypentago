@@ -57,6 +57,7 @@ class Conn(Connection):
         self.log.info("Got connection from %s" % self.transport.getPeer().host)
         
         self.server = self.factory
+        self.db_player = None
         self.name = "Player"
         self.remote_table = {}
         self.expect_response = None
@@ -68,8 +69,7 @@ class Conn(Connection):
         rest = evt['data'][1:]
         
         if game_id not in self.remote_table:
-            # Notify other side that the game is not known
-            pass
+            self.send("INVGAME")
         else:
             remote = self.remote_table[game_id]
             cmd = rest[0]
@@ -123,6 +123,7 @@ class Conn(Connection):
         
         if crypto.check_pwd(p.passwd_hash, evt['data']['passwd']):
             self.auth = True
+            self.db_player = p
             return "AUTH"
         else:
             return "AUTHF"

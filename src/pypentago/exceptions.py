@@ -42,5 +42,8 @@ class NotInDB(Exception):
 class InvalidPlayerID(Exception):
     pass
 
+
 class NoDB(Exception):
+    """ Doing an action that needs you to be connected to a database, 
+    but we are not. """
     pass
