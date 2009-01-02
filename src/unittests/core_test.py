@@ -89,6 +89,11 @@ class TestGame(unittest.TestCase):
         other = self.game.other_player(beginner)
         self.assertRaises(NotYourTurn, other.do_turn, (1, 0, 0, "R", 1))
         self.assertEqual(beginner.do_turn((1, 0, 0, "R", 1)), None)
+    
+    def test_other(self):
+        one, other = self.players
+        self.assert_(self.game.other_player(one) is other)
+        self.assert_(self.game.other_player(other) is one)
 
 
 if __name__ == "__main__":

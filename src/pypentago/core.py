@@ -264,7 +264,6 @@ class Game(object):
         self.board = board or Board()
         self.players = []
         self.observers = []
-        self.pool = [2, 1]
         
         self.last_set = None
     
@@ -310,9 +309,10 @@ class Game(object):
         return None, None
     
     def new_id(self):
-        if not self.pool:
+        players = len(self.players)
+        if players == 2:
             raise GameFull
-        return self.pool.pop()
+        return players + 1
     
     def add_player(self, p):
         if len(self.players) == 2:
@@ -328,7 +328,7 @@ class Game(object):
     
     def other_player(self, player):
         """ Get the player that is not player that is in the game """
-        return (p for p in self.players if p is not player).next()
+        return self.players[2 - player.uid]
     
     def checksum(self):
         return self.board.checksum()
