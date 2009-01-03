@@ -62,7 +62,7 @@ class OverlayBlink(Blinker):
 
 class StoneBlink(Blinker):
     def __init__(self, repaint, callafter=None):
-        Blinker.__init__(self, 0, 0.3, 0.05, callback=repaint)
+        Blinker.__init__(self, 0.4, 0.8, 0.05, callback=repaint)
         self.coord = None
         self.callafter = callafter
 
@@ -478,3 +478,4 @@ class GameWindow(QtGui.QWidget):
         self.setWindowIcon(
             QtGui.QIcon(pypentago.data['icon.png'])
         )
+        self.resize(750, 480)
