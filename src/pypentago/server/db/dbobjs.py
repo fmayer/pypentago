@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from core import DatabaseObject
+from datetime import datetime
 
 class Player(DatabaseObject):
     def __init__(self, player_name, passwd_hash, real_name, 

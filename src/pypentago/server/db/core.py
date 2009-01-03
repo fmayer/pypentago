@@ -40,7 +40,7 @@ class Database(object):
         self.Session = sessionmaker(bind=engine, 
                                     autoflush=True,
                                     transactional=True)
-        
+    
     @property
     def transaction(self):
         return DatabaseConnection(self.Session)

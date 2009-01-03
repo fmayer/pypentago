@@ -94,7 +94,7 @@ class Conn(Connection):
             remote.lookup(cmd)(*arg)
     
     @expose("AUTH")
-    def auth(self):
+    def auths(self):
         pass
     
     @expose("AUTHF")
