@@ -320,7 +320,8 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.repaint()
     
     def leaveEvent(self, event):
-        self.overlay.hide()
+        if not (self.blink_ccw or self.blink_cw):
+            self.overlay.hide()
         self.preview_stone = None
         self.repaint()
     
