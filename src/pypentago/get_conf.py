@@ -93,17 +93,12 @@ class ConfParser(ConfigParser, object):
             ret = int(ret)
         try:
             ret = str_to_bool(ret)
-        except AttributeError:
+        except ValueError:
             pass
         return ret
     
     def __getitem__(self, item):
-        class Item:
-            def __init__(self, partial):
-                self.partial = partial
-            def __getitem__(self, item):
-                return self.partial(item)
-        return Item(partial(self.get, item))
+        return self.get(*item)
 
 
 def get_app_data():
@@ -190,11 +185,14 @@ def get_conf_obj(*file_names):
 def str_to_bool(x):
     ''' Convert string to bool. If the string is "True" return True, if "False" 
     return False, else raise AttributeError. '''
+    if not isinstance(x, basestring):
+        raise ValueError("Invalid attribute. Has to be False or True. Got "
+                             "%s" % x)        
     if x.lower() == "true":
         return True
     elif x.lower() == "false":
         return False
     else:
-        raise AttributeError("Invalid attribute. Has to be False or True. Got "
+        raise ValueError("Invalid attribute. Has to be False or True. Got "
                              "%s" % x)
 
