@@ -37,19 +37,19 @@ def get_coord(size, x):
 
 class OverlayBlink(Blinker):
     def __init__(self, overlay, repaint, callafter=None):
-        Blinker.__init__(self, 0, 0.3, 0.05, callback=repaint)
+        Blinker.__init__(self, 0.2, 0.5, 0.05, callback=repaint)
         self.overlay = overlay
-        self.overlay.value = self.overlay.MAX_OPACITY
         self.callafter = callafter
     
     def run(self, msec=None, callafter=None):
         # Show overlay without fading in.
+        self.overlay.value = 0.5
         self.overlay.shown = True
         Blinker.run(self, msec, callafter)
     
     def on_stop(self):
         # Hide overlay without stopping timer that wasn't started.
-        self.overlay.value = self.overlay.MAX_OPACITY
+        self.overlay.value = self.overlay.INIT_OPACITY
         self.overlay.shown = False
         self.value = self.init
         self.callback()
