@@ -144,6 +144,13 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.bg_image = QtGui.QImage(
             pypentago.data['quad_bg.png']
         )
+        
+        # 0 1 | With 0 aligned properly, 
+        # 2 3 | 1 and 3 need to be mirrored horizontally, 2 and 3 verticaly.
+        # While horizontally mirror means "| *" -> "* |", meaning that the
+        # mirror axis lies vertically.
+        self.bg_image = self.bg_image.mirrored(uid == 1 or uid == 3,
+                                               uid == 2 or uid == 3)
 
         # Clockwise rotation image overlay.
         self.rot_cw = SVGFakePixmap(
@@ -195,15 +202,17 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         
         paint.drawImage(0, 0, bg)
         
-        # The size of one stone is a fourth of either the height or the
-        # width of the quadrant, depending which of them is smaller.
-        w_size = min_size / 4.0
+        s_size = min_size - min_size / 6.0
+        
         # The space a stone has got is a third of the total space
         # available.
-        size = min_size / 3.0
+        size = s_size / 3.0
+        # The size of one stone is a fourth of either the height or the
+        # width of the quadrant, depending which of them is smaller.
+        w_size = size / 1.25
         # What we need to add to compensate for the difference of the img
         # and the total size.
-        d_size = (size - w_size) / 2.0
+        d_size = (size - w_size) / 2.0 + (min_size - s_size) / 2.0
         # Scale all of the images to one fourth of the space we've got.
         # We're assuming to work with squared images!
         imgs = [img.scaledToHeight(w_size, s_mode) for img in self.img]
