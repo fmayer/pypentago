@@ -14,10 +14,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-def transactionmaker(Session):
-    def transaction():
-        return DatabaseConnection(Session)
-    return transaction
+from sqlalchemy.orm import sessionmaker, mapper
+from sqlalchemy import create_engine, MetaData
+
+class Database(object):
+    def __init__(self, connect_string=None):
+        if connect_string is not None:
+            self.connect(connect_string)        
+    
+    def create_tables(self, metadata):
+        raise NotImplementedError
+    
+    def map_tables(self, *args):
+        raise NotImplementedError
+    
+    def connect(self, connect_string):
+        engine = create_engine(connect_string)
+        metadata = MetaData(engine)
+        tables = self.create_tables(metadata)
+        # If the tables do not exist yet - create them!
+        metadata.create_all()
+        # Map our classes to the tables.
+        self.map_tables(*tables)
+        
+        self.Session = sessionmaker(bind=engine, 
+                                    autoflush=True,
+                                    transactional=True)
+        
+    @property
+    def transaction(self):
+        return DatabaseConnection(self.Session)
 
 
 class DatabaseConnection(object):

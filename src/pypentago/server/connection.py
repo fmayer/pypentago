@@ -99,7 +99,7 @@ class Conn(Connection):
         self.remote_table[uid] = p
         b = g.random_beginner()
         self.send("INITGAME", uid)
-        g.other_player(self).conn.send("INITGAME", uid)
+        g.other_player(p).conn.send("INITGAME", uid)
         b.conn.send("GAME", [uid, "LOCALTURN"])
     
     @expose("REGISTER")
@@ -107,8 +107,8 @@ class Conn(Connection):
         d = evt['data']
         p = Player(d['login'], crypto.hash_pwd(d['passwd']),
                    d['real_name'], d['email'])
-        if db.login_available(d['login']):
-            with db.transaction() as session:
+        if self.factory.database.login_available(d['login']):
+            with self.factory.database.transaction as session:
                 session.save(p)
             self.send('REGISTERED')
         else:
@@ -117,7 +117,7 @@ class Conn(Connection):
     @expose("LOGIN")
     def login(self, evt):
         try:
-            p = db.player_by_login(evt['data']['login'])
+            p = self.factory.database.player_by_login(evt['data']['login'])
         except NotInDB:
             return "NOLOGIN"
         

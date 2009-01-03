@@ -30,12 +30,13 @@ from pypentago.exceptions import NoSuchRoom
 from pypentago.server import db
 
 class Factory(protocol.ServerFactory):
-    def __init__(self):
+    def __init__(self, database):
         self.games = {}
         self.clients = []
         self.rooms = []
         self.email_regex = re.compile(EMAIL_REGEX, re.IGNORECASE)
         self.next_id = -1
+        self.database = database
     
     def next_game_id(self):
         self.next_id += 1
@@ -50,8 +51,8 @@ class Factory(protocol.ServerFactory):
 
 def run_server(port=26500, connect_string='sqlite:///:memory:'):
     log = logging.getLogger("pypentago.server")
-    factory = Factory()
-    db.connect(connect_string)
+    database = db.PentagoDatabase(connect_string)
+    factory = Factory(database)
     log.info("Started server on port %d" % port)
     startServer(port, Conn, factory)
 
