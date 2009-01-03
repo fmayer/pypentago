@@ -18,14 +18,36 @@ from sqlalchemy.orm import sessionmaker, mapper
 from sqlalchemy import create_engine, MetaData
 
 class Database(object):
+    """ This class has to be sub-classed and needs the create_tables
+    and the map_tables methods overriden in order to work. """
     def __init__(self, connect_string=None):
         if connect_string is not None:
             self.connect(connect_string)        
     
     def create_tables(self, metadata):
+        """ Create and return your tables in here. The return value is
+        passed to map_tables. 
+        
+        For example:
+        
+        def create_tables(self, metadata):
+            spam = Table('SpamTable', metadata, ...)
+            eggs = Table('EggsTable', metadata, ...)
+            return spam, eggs
+        """
         raise NotImplementedError
     
     def map_tables(self, *args):
+        """ Define the mapping of the tables to classes here.
+        The tables are passed to it in the order that create_tables
+        returns them. 
+        
+        For example:
+        
+        def map_tables(self, spam, eggs):
+            mapper(Spam, spam)
+            mapper(Eggs, eggs)
+        """
         raise NotImplementedError
     
     def connect(self, connect_string):
@@ -43,6 +65,11 @@ class Database(object):
     
     @property
     def transaction(self):
+        """ Use this with the with keyword to get a transaction.
+        
+        >>> with database.transaction as session:
+        ...     session.save(obj)
+        """
         return DatabaseConnection(self.Session)
 
 
