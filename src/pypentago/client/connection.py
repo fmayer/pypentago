@@ -50,10 +50,10 @@ ID_REG = True
 ID_NOT_REG = False
 
 
-class Conn(Connection):
+class ClientConnection(Connection):
     def init(self):
         # This maps the game-id to the remote player.
-        self.factory.callback()
+        self.factory.callback(self)
         self.remote_table = {}
         log.info("Connection established")
         context.emmit_action('conn_established', self)
@@ -108,17 +108,15 @@ class Conn(Connection):
     @expose("REGFAILED")
     def reg_failed(self):
         pass
-
-
-def run_client(host, port, callback=None):
-    from twisted.internet import reactor, protocol
-    f = protocol.ClientFactory()
-    f.protocol = Conn
-    f.clients = []
-    f.callback = callback
-    reactor.connectTCP(host, port, f)
+    
+    @classmethod
+    def start_new(cls, host, port, callback=None):
+        from twisted.internet import reactor, protocol
+        f = protocol.ClientFactory()
+        f.protocol = cls
+        f.callback = callback
+        reactor.connectTCP(host, port, f)
 
 
 if __name__ == '__main__':
-    test = Conn()
-    print test.binds.keys()
+    test = ClientConnection()

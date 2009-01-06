@@ -22,6 +22,8 @@ import sys
 
 import actions
 
+import easy_twisted
+
 if sys.version_info[:2] > (2, 5):
     # In Python 2.6+, use built-in JSON support.
     from json import dumps, loads
@@ -63,6 +65,8 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
         actions.ActionHandler.__init__(self, self.context)
         self.auth = False
         self.construct()
+        # This only helps pylint and IDEs, not real use at all.
+        self.factory = None
 
     def lineReceived(self, income_data):
         """ This method handles received data and forwards it to the correct 
@@ -110,6 +114,7 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
         """ Send keyword to the other side. If data is passed, it can be 
         obtained by the other side using Event.arg_list """
         send = dumps([keyword, data]).encode(self.encoding)
+        self.sendLine(send)
         self.transport.write(send + self.delimiter)
     
     def _handle_return(self, ret):

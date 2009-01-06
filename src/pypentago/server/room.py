@@ -71,5 +71,3 @@ class Room:
     def open_game(self, player, game_name, ranked):
         """ Open a game visible in the room """
         self.games.append(Game(player, game_name, ranked))
-    
-    

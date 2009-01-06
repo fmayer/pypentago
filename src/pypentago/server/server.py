@@ -23,6 +23,7 @@ from twisted.internet import protocol
 from os.path import join, split
 
 from easy_twisted.server import startServer
+from easy_twisted.async import Server
 
 from pypentago import EMAIL_REGEX
 from pypentago.server.connection import Conn
