@@ -23,7 +23,7 @@ import sys
 from itertools import chain
 
 MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 
-           'server_test', 'elo_test']
+           'server_test', 'elo_test', 'db_test']
 
 mod = map(__import__, MODULES)
 
