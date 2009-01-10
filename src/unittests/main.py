@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+import sys
 
 from itertools import chain
 
@@ -30,4 +31,9 @@ if __name__ == '__main__':
     test_cases = chain(*[unittest.findTestCases(mod) for mod in mod])
     suite = unittest.TestSuite(test_cases)
     display = unittest.TextTestRunner()
-    display.run(suite)
+    result = display.run(suite)
+    if result.errors == 0 and result.failures == 0:
+        ret = 0
+    else:
+        ret = 1
+    sys.exit(ret)

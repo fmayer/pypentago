@@ -26,7 +26,8 @@ sys.path.append(abspath(join(dirname(__file__), "..")))
 
 import unittest
 from pypentago.core import Game, Player
-from pypentago.exceptions import SquareNotEmpty, NotYourTurn, GameFull
+from pypentago.exceptions import (SquareNotEmpty, NotYourTurn, GameFull,
+                                  InvalidTurn)
 
 class TestGame(unittest.TestCase):
     def setUp(self):
@@ -94,7 +95,14 @@ class TestGame(unittest.TestCase):
         one, other = self.players
         self.assert_(self.game.other_player(one) is other)
         self.assert_(self.game.other_player(other) is one)
-
+    
+    def test_invalid(self):
+        p_1, p_2 = self.players
+        self.assertRaises(InvalidTurn, p_1.do_turn, (42, 0, 0, "R", 1))
+        self.assertRaises(InvalidTurn, p_1.do_turn, (0, 42, 0, "R", 1))
+        self.assertRaises(InvalidTurn, p_1.do_turn, (0, 0, 42, "R", 1))
+        self.assertRaises(InvalidTurn, p_1.do_turn, (0, 0, 0, "cake", 1))
+        self.assertRaises(InvalidTurn, p_1.do_turn, (0, 0, 0, "R", 5))
 
 if __name__ == "__main__":
     unittest.main()

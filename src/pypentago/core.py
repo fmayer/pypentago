@@ -269,7 +269,9 @@ class Game(object):
     
     def rules(self, turn):
         """ Checks that need to be done before player can set the stone. """
-        field, row, col, rot_dir, rot_field = turn
+        quad, row, col, rot_dir, rot_field = turn
+        if not 0 <= quad <= 3:
+            raise InvalidTurn
         if not 0 <= row <= 2:
             raise InvalidTurn
         if not 0 <= col <= 2:
