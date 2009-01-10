@@ -78,12 +78,14 @@ class TestGame(unittest.TestCase):
         self.assertRaises(GameFull, self.game.new_id)
     
     def test_players(self):
+        class Called(Exception):
+            pass
         def fail(*args, **kw):
-            raise NotImplementedError
+            raise Called
         p_1, p_2 = self.players
         p_2.display_turn = fail
         # See if p_2.display_turn gets called
-        self.assertRaises(NotImplementedError, p_1.do_turn, (1, 0, 0, "R", 1))
+        self.assertRaises(Called, p_1.do_turn, (1, 0, 0, "R", 1))
     
     def test_beginner(self):
         beginner = self.game.random_beginner()
