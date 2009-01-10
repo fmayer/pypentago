@@ -113,8 +113,15 @@ class DatabaseObject(object):
         for key, kwarg in kwargs.items():
             setattr(self, key, kwarg)
     
-    def __cmp__(self, other):
-        return vars(self) == vars(other)
+    def __eq__(self, other):
+        one = [(key, value) for key, value in vars(self).iteritems()
+              if not key.startswith('_')]
+        other = [(key, value) for key, value in vars(other).iteritems()
+              if not key.startswith('_')]
+        return dict(one) == dict(other)
+    
+    def __neq__(self, other):
+        return not (one == other)
     
     def __repr__(self):
         attr = sorted(vars(self).items())
