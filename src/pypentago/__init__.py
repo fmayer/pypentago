@@ -43,6 +43,7 @@ __bugs__ = "https://gna.org/bugs/?func=additem&group=pypentago"
 
 PROTOCOL_VERSION = 1
 EMAIL_REGEX = r"""^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$"""
+DEFAULT_PORT = 26500
 
 
 class _CW:

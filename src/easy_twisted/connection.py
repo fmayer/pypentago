@@ -115,7 +115,6 @@ class Connection(actions.ActionHandler, LineOnlyReceiver):
         obtained by the other side using Event.arg_list """
         send = dumps([keyword, data]).encode(self.encoding)
         self.sendLine(send)
-        self.transport.write(send + self.delimiter)
     
     def _handle_return(self, ret):
         if ret is not None:
