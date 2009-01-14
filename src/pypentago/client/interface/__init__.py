@@ -41,5 +41,6 @@ def main(default_servers=[]):
     ot = GameWindow(game)
     dt.show()
     ot.show()
-    game.random_beginner()
+    b = game.random_beginner()
+    b.display_msg('System', 'You have been chosen as the beginner')
     app.exec_()

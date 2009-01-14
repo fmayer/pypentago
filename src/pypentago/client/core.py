@@ -34,3 +34,6 @@ class LocalPlayer(core.Player):
         else:
             self.gui_game.add_msg('System', 'You lost the game!')
         self.gui_game.board.setEnabled(False)
+    
+    def display_msg(self, author, msg):
+        self.gui_game.add_msg(author, msg)

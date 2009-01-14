@@ -425,12 +425,10 @@ class Game(QtGui.QWidget):
         hbox.addWidget(self.board, 40)
         
         self.player_list = QtGui.QListWidget()
-        self.player_list.addItem("name")
-        self.player_list.addItem("segfaulthunter")
+        self.player_list.addItem("Player 1")
+        self.player_list.addItem("Player 2")
         
         self.chat = QtGui.QListWidget()
-        self.add_msg('name', 'Hello!')
-        self.add_msg('segfaulthunter', 'Hello you!')
         
         self.chat_entry = QtGui.QLineEdit()
         self.chat_entry.connect(self.chat_entry, 
@@ -449,9 +447,8 @@ class Game(QtGui.QWidget):
     
     @QtCore.pyqtSignature('')
     def send_msg(self):
-        self.add_msg('name', self.chat_entry.text())
+        self.local_player.send_msg(self.chat_entry.text())
         self.chat_entry.clear()
-        # TODO: Send to opponent.
     
     def add_msg(self, author, msg, utc_time=None):
         format = "[%(time)s] <%(author)s> %(msg)s"

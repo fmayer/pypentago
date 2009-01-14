@@ -217,7 +217,9 @@ class Player(object):
     def __init__(self):
         self.game = None
         self.uid = None
-        self.cmd = {'TURN': self.do_turn}
+        self.cmd = {'TURN': self.do_turn,
+                    'WON': self.won,
+                    'MSG': self.display_msg}
     
     def your_turn(self):
         self.game.last_set = self.game.other_player(self)
@@ -243,8 +245,18 @@ class Player(object):
     def won(self, winner):
         pass
     
+    def display_msg(self, author, msg):
+        pass
+    
+    def send_msg(self, msg):
+        self.game.send_msg(self.name, msg)
+    
     def __repr__(self):
         return "<Player %d>" % (self.uid)
+    
+    @property
+    def name(self):
+        return "Player %d" % self.uid
 
 
 class RemotePlayer(Player):
@@ -341,3 +353,7 @@ class Game(object):
     
     def checksum(self):
         return self.board.checksum()
+    
+    def send_msg(self, author, msg):
+        for p in self.players:
+            p.display_msg(author, msg)
