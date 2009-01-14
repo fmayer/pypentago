@@ -53,11 +53,11 @@ class Database(object):
     def connect(self, connect_string):
         engine = create_engine(connect_string)
         metadata = MetaData(engine)
-        tables = self.create_tables(metadata)
+        self.tables = self.create_tables(metadata)
         # If the tables do not exist yet - create them!
         metadata.create_all()
         # Map our classes to the tables.
-        self.map_tables(*tables)
+        self.map_tables(*self.tables)
         
         self.Session = sessionmaker(bind=engine, 
                                     autoflush=True,

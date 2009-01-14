@@ -24,7 +24,7 @@ from pypentago.parser import Parser, State
 
 
 def to_pgn(field, row, column, rot_dir, rot_field):
-    """ Convert field, row, column, rot_dir, rot_field to a PGN string """
+    """ Convert (field, row, column, rot_dir, rot_field) to a PGN string """
     field = chr(ord("A")+int(field))
     row = chr(ord("a")+int(row))
     col = int(column)+1

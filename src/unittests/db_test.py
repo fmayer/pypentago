@@ -35,6 +35,8 @@ class TestPentagoDB(unittest.TestCase):
         self.database = PentagoDatabase('sqlite:///:memory:')
     
     def tearDown(self):
+        for table in self.database.tables:
+            table.drop()
         clear_mappers()
     
     def test_eq(self):
