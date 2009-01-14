@@ -269,11 +269,6 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         self.repaint()
         if user_done:
             self.prnt.do_turn(clockwise and CW or CCW, self.uid)
-        win, lose = self.prnt.prnt.game.get_winner()
-        if win is self.prnt.prnt.local_player:
-            self.prnt.prnt.add_msg('System', 'You won the game!')
-        elif lose is self.prnt.prnt.local_player:
-            self.prnt.prnt.add_msg('System', 'You lost the game!')
             
     def show_rot(self, clockwise, callafter=None):
         if clockwise:

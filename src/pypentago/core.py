@@ -240,6 +240,9 @@ class Player(object):
     def lookup(self, cmd):
         return self.cmd[cmd]
     
+    def won(self, winner):
+        pass
+    
     def __repr__(self):
         return "<Player %d>" % (self.uid)
 
@@ -297,6 +300,10 @@ class Game(object):
         for obs in self.observers:
             obs.display_turn(player, turn)
         self.last_set = player
+        winner, loser = self.get_winner()
+        if winner is not None:
+            winner.won(True)
+            loser.won(False)
     
     def get_winner(self):
         """ Return (winner, loser).

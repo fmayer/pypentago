@@ -27,3 +27,10 @@ class LocalPlayer(core.Player):
         quad, row, col, rot_dir, r_quad = turn
         self.gui_game.board.show_turn(p.uid, quad, row, col, r_quad,
                                       rot_dir == CW)
+    
+    def won(self, winner):
+        if winner:
+            self.gui_game.add_msg('System', 'You won the game!')
+        else:
+            self.gui_game.add_msg('System', 'You lost the game!')
+        self.gui_game.board.setEnabled(False)
