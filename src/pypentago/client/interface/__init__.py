@@ -34,8 +34,9 @@ def main(default_servers=[]):
     that it contains, opening ServerWindows for each of them. """
     # TODO: Implement what the docstring says
     app = QtGui.QApplication(sys.argv)
-    from easy_twisted import qt4reactor
-    qt4reactor.install()
+    # We don't need that until we implement network games:
+    # from easy_twisted import qt4reactor
+    # qt4reactor.install()
     game = core.Game()
     dt = GameWindow(game)
     ot = GameWindow(game)
