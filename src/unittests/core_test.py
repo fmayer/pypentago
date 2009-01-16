@@ -28,6 +28,10 @@ import unittest
 from pypentago.core import Game, Player
 from pypentago.exceptions import (SquareNotEmpty, NotYourTurn, GameFull,
                                   InvalidTurn)
+class Called(Exception):
+    pass
+def fail(*args, **kw):
+    raise Called
 
 class TestGame(unittest.TestCase):
     def setUp(self):
@@ -78,10 +82,6 @@ class TestGame(unittest.TestCase):
         self.assertRaises(GameFull, self.game.new_id)
     
     def test_players(self):
-        class Called(Exception):
-            pass
-        def fail(*args, **kw):
-            raise Called
         p_1, p_2 = self.players
         p_2.display_turn = fail
         # See if p_2.display_turn gets called
@@ -105,6 +105,11 @@ class TestGame(unittest.TestCase):
         self.assertRaises(InvalidTurn, p_1.do_turn, (0, 0, 42, "R", 1))
         self.assertRaises(InvalidTurn, p_1.do_turn, (0, 0, 0, "cake", 1))
         self.assertRaises(InvalidTurn, p_1.do_turn, (0, 0, 0, "R", 5))
+    
+    def test_quit(self):
+        p_1, p_2 = self.players
+        p_2.opponent_quit = fail
+        self.assertRaises(Called, p_1.quit_game)
 
 if __name__ == "__main__":
     unittest.main()
