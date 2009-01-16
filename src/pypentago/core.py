@@ -245,6 +245,12 @@ class Player(object):
     def won(self, winner):
         pass
     
+    def quit_game(self):
+        self.game.player_quit(self)
+    
+    def opponent_quit(self, opponent):
+        pass
+    
     def display_msg(self, author, msg):
         pass
     
@@ -357,3 +363,11 @@ class Game(object):
     def send_msg(self, author, msg):
         for p in self.players:
             p.display_msg(author, msg)
+    
+    def player_quit(self, player):
+        if player not in self.players:
+            raise ValueError
+        
+        quit = self.players.pop(player.uid - 1)
+        if self.players:
+            self.players[0].opponent_quit(quit)

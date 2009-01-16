@@ -37,3 +37,6 @@ class LocalPlayer(core.Player):
     
     def display_msg(self, author, msg):
         self.gui_game.add_msg(author, msg)
+    
+    def opponent_quit(self, opponent):
+        self.gui_game.close_window()

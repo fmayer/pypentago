@@ -417,6 +417,7 @@ class Board(QtGui.QWidget):
 class Game(QtGui.QWidget):
     def __init__(self, game, parent=None):
         QtGui.QWidget.__init__(self, parent)
+        self.prnt = parent
         self.board = Board(self)
         self.game = game
         self.local_player = c_core.LocalPlayer(self)
@@ -457,17 +458,26 @@ class Game(QtGui.QWidget):
         time_ = time.strftime('%H:%M', time.localtime(utc_time))
         self.chat.addItem(format % dict(time=time_, author=author, msg=msg))
         self.chat.scrollToBottom()
+    
+    def quit(self):
+        self.local_player.quit_game()
+    
+    def close_window(self):
+        self.prnt.close()
 
 
 class GameWindow(QtGui.QWidget):
     def __init__(self, game, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        game = Game(game, self)
+        self.game = Game(game, self)
         hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(game)
+        hbox.addWidget(self.game)
         self.setLayout(hbox)
         self.setWindowTitle("Python Pentago Game")
         self.setWindowIcon(
             QtGui.QIcon(pypentago.data['icon.png'])
         )
         self.resize(750, 480)
+    
+    def closeEvent(self, event):
+        self.game.quit()
