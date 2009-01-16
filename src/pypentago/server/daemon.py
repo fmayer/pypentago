@@ -43,9 +43,7 @@ def close_tty():
             try:
                 os.close(fd)
             except OSError, err:
-                if err.errno == errno.EBADF:
-                    pass
-                else:
+                if err.errno != errno.EBADF:
                     raise
 
 
