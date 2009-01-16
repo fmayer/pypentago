@@ -368,8 +368,6 @@ class Game(object):
         if player not in self.players:
             raise ValueError
         
-        if len(self.players) == 2:
-            quit = self.players.pop(player.uid - 1)
-            self.players[0].opponent_quit(quit)
-        else:
-            self.players[:] = []
+        self.players.remove(player)
+        for p in self.players:
+            p.opponent_quit(player)
