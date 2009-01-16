@@ -19,7 +19,7 @@ from __future__ import with_statement
 import logging
 import re
 
-from twisted.internet import protocol
+from twisted.internet import protocol, reactor
 from os.path import join, split
 
 from easy_twisted.server import startServer
@@ -38,6 +38,7 @@ class Factory(protocol.ServerFactory):
         self.email_regex = re.compile(EMAIL_REGEX, re.IGNORECASE)
         self.next_id = -1
         self.database = database
+        self.protocol = Conn
     
     def next_game_id(self):
         self.next_id += 1
@@ -55,7 +56,8 @@ def run_server(port=26500, connect_string='sqlite:///:memory:'):
     database = db.PentagoDatabase(connect_string)
     factory = Factory(database)
     log.info("Started server on port %d" % port)
-    startServer(port, Conn, factory)
+    reactor.listenTCP(port, factory)
+    reactor.run()
 
 
 if __name__ == "__main__":
