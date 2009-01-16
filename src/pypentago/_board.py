@@ -29,10 +29,10 @@ BLACK = 2
 
 class Turn(ctypes.Structure):
     _fields_ = [
-        ('row', ctypes.c_short),
-        ('col', ctypes.c_short),
-        ('quad', ctypes.c_short),
-        ('dir', ctypes.c_byte),
+        ('row', ctypes.c_ubyte),
+        ('col', ctypes.c_ubyte),
+        ('quad', ctypes.c_ubyte),
+        ('dir', ctypes.c_ubyte),
         ('value', ctypes.c_float)
     ]
     
