@@ -218,7 +218,7 @@ class Player(object):
         self.game = None
         self.uid = None
         self.cmd = {'TURN': self.do_turn,
-                    'WON': self.won,
+                    'GAMEOVER': self.game_over,
                     'MSG': self.display_msg}
     
     def your_turn(self):
@@ -242,7 +242,7 @@ class Player(object):
     def lookup(self, cmd):
         return self.cmd[cmd]
     
-    def won(self, winner):
+    def game_over(self, winner):
         pass
     
     def quit_game(self):
@@ -320,8 +320,8 @@ class Game(object):
         self.last_set = player
         winner, loser = self.get_winner()
         if winner is not None:
-            winner.won(True)
-            loser.won(False)
+            winner.game_over(True)
+            loser.game_over(False)
     
     def get_winner(self):
         """ Return (winner, loser).

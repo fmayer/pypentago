@@ -241,7 +241,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
                 paint.setOpacity(self.PREVIEW_OPACITY)
                 paint.drawImage(x_p+d_size, y_p+d_size, imgs[uid])
                 paint.setOpacity(1)
-            
+        
         if self.overlay:
             # Display rotation overlay.
             rot_cw = self.rot_cw.scaledToWidth(w / 2.0, s_mode)
@@ -328,7 +328,12 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
             x, y = event.x(), event.y()
             size = min([self.height(), self.width()]) / 3.0
             x, y = get_coord(size, x), get_coord(size, y)
-            self.preview_stone = x, y
+            if x > 3 or x < 0 or y > 3 or y < 0:
+                warnings.warn("Attempting out-of-range preview stone at "
+                              "row %r and col %r" % (y, x))
+                self.preview_stone = None
+            else:
+                self.preview_stone = x, y
             self.repaint()
             return
         else:
