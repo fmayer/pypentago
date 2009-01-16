@@ -1,4 +1,14 @@
-Thank you for downloading pypentago.
+pypentago is an implementation of the Pentago board game in Python.
+It is written by Florian Mayer(flormayer [AT-SIGN] aim {DOT} com).
+
+This version is in a really early state and only supports local games.
+Nevertheless, parts of the server have been implemented and you are asked
+to run all the unittests to test the functionality of pypentago on your
+platform. Run unittests/main.py to do so.
+
+FEATURE REQUESTS
+You are very encouraged to submit feature requests to the bug-tracker
+mentioned below.
 
 BUGS
 Please report any bugs or other issues you encounter at
@@ -10,3 +20,7 @@ Pentago is a trademark of MindTwisters.
 pypentago is licensed under the terms of the GPLv3, see COPYING for more 
 details.
 The artwork is licensed under different licenses. See pypentago/data/README.
+
+DEVELOPMENT
+If you are interested in developing pypentago, please contact me for more
+information.
