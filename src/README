@@ -6,6 +6,8 @@ Nevertheless, parts of the server have been implemented and you are asked
 to run all the unittests to test the functionality of pypentago on your
 platform. Run unittests/main.py to do so.
 
+To run the game, execute pypentago/client/main.py.
+
 FEATURE REQUESTS
 You are very encouraged to submit feature requests to the bug-tracker
 mentioned below.
