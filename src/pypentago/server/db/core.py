@@ -110,7 +110,7 @@ class DatabaseObject(object):
         if 'self' in kwargs:
             # We don't need the reference to self!
             del kwargs['self']
-        for key, kwarg in kwargs.items():
+        for key, kwarg in kwargs.iteritems():
             setattr(self, key, kwarg)
     
     def __eq__(self, other):
