@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: us-ascii -*-
 
-# pyPentago - a board game
+# pypentago - a board game
 # Copyright (C) 2008 Florian Mayer
 
 # This program is free software: you can redistribute it and/or modify

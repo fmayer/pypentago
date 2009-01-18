@@ -1,4 +1,4 @@
-# pyPentago - a board game
+# pypentago - a board game
 # Copyright (C) 2008 Florian Mayer
 
 # This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@ __artists__ = ["Kenichi \"XenoSilence\" Lei", ]
 __url__ = "http://bitbucket.org/segfaulthunter/pypentago/"
 __copyright__ = "(c) 2008 Florian Mayer"
 __license__ = "GNU General Public License version 3"
-__description__ = ("pyPentago is an open source effort "
+__description__ = ("pypentago is an open source effort "
                    "to recreate the boardgame Pentago.\n"
                    "It has a fully implemented "
                    "multiplayer modus.")
