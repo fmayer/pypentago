@@ -29,16 +29,15 @@ from random import randint, choice
 __version__ = "devel"
 __authors__ = [ "Florian Mayer <flormayer@aim.com>", 
                 u'Mathias "DarkKiller" K\xe6rlev']
-__retired__ = ["J. Kovacs", "Abishek Goda", "Hardik Metha", ]
 __artists__ = ["Kenichi \"XenoSilence\" Lei", ]
-__url__ = "https://gna.org/projects/pypentago/"
+__url__ = "http://bitbucket.org/segfaulthunter/pypentago/"
 __copyright__ = "(c) 2008 Florian Mayer"
 __license__ = "GNU General Public License version 3"
 __description__ = ("pyPentago is an open source effort "
                    "to recreate the boardgame Pentago.\n"
                    "It has a fully implemented "
                    "multiplayer modus.")
-__bugs__ = "https://gna.org/bugs/?func=additem&group=pypentago"
+__bugs__ = "http://bitbucket.org/segfaulthunter/pypentago/issues/"
 
 
 PROTOCOL_VERSION = 1
