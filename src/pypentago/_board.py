@@ -55,7 +55,7 @@ class BoardStruct(ctypes.Structure):
 
 class Board:
     def __init__(self, beginner=1):
-        self._ptr = board.new_board(1)
+        self._ptr = board.new_board(beginner)
         self._allocated = True
         self._struct = BoardStruct.from_address(self._ptr)
         self.has_set = False
@@ -90,10 +90,10 @@ class Board:
         board.free_turn(t)
 
     def __getitem__(self, i):
-        return self._struct.board[i[0], i[1]]
+        return self._struct.board[i[0]][i[1]]
     
     def __setitem__(self, i, v):
-        self._struct.board[i[0], i[1]] = v
+        self._struct.board[i[0]][i[1]] = v
     
     def _print(self):
         board.print_board(self._ptr)
@@ -101,6 +101,12 @@ class Board:
     def deallocate(self):
         board.free_board(self._ptr)
         self._allocated = False
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.deallocate()
 
 
 if __name__ == '__main__':
@@ -108,7 +114,6 @@ if __name__ == '__main__':
     b.set_stone(0, 0, 0)
     b.rotate_ccw(0)
     b.set_stone(0, 0, 1)
-    print b.get(0, 0)
     b._print()
     print
     b.do_best()
