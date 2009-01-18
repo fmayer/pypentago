@@ -35,8 +35,7 @@ from pypentago.client import context
 from pypentago.core import RemotePlayer
 from pypentago.client.interface import new_game
 
-from easy_twisted.connection import expose
-from easy_twisted.client import Connection
+from easy_twisted.connection import expose, Connection
 
 log = logging.getLogger("pypentago.connection")
 
