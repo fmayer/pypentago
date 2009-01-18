@@ -22,6 +22,7 @@ NONE = 0
 WHITE = 1
 BLACK = 2
 
+
 def _p_row(quad):
     return (quad >= 2)
 
@@ -41,16 +42,13 @@ class BoardStruct(ctypes.Structure):
 
 class Board:
     def __init__(self, beginner=1):
-        self._allocated = True
         self._struct = BoardStruct()
         for i in xrange(6):
             for j in xrange(6):
                 self._struct.board[i][j] = 0
+        self._struct.colour = beginner
         self.has_set = False
-
-    def set_colour(self, v):
-        self._struct.colour = v
-
+    
     def set_stone(self, quad, row, col):
         if self.has_set:
             raise ValueError
@@ -60,16 +58,10 @@ class Board:
 
     def get_stone(self, quad, row, col):
         return self._struct[_p_row(quad) + row][_p_col(quad) + col]
-
-    def set(self, row, col, value):
-        self._struct.board[row][col] = value
-
-    def get(self, row, col):
-        return self._struct.board[row][col]
-
+    
     def rotate(self, quad, cw):
-        row = 3 * _p_row(quad);
-        col = 3 * _p_col(quad);
+        row = 3 * _p_row(quad)
+        col = 3 * _p_col(quad)
         q = [self._struct.board[row + r][col: col+3] for r in xrange(3)]
 
         for r in xrange(3):
@@ -86,33 +78,37 @@ class Board:
 
     def rotate_ccw(self, quad):
         self.rotate(quad, False)
-
+    
     def find_best(self, depth=4):
-        raise NotImplementedError("Compile the goddamn C modules.")
-
+        raise NotImplementedError('Compile the goddamn C module.')
+    
     def win(self):
-        return board.won(self._ptr)
-
+        # TODO: Write me!
+        raise NotImplementedError
+    
     def do_best(self, depth=4):
-        raise NotImplementedError("Compile the goddamn C modules.")
+        raise NotImplementedError('Compile the goddamn C module.')
 
     def __getitem__(self, i):
-        return self.get(*i)
-
+        return self._struct.board[i[0]][i[1]]
+    
     def __setitem__(self, i, v):
-        self.set(i[0], i[1], v)
+        self._struct.board[i[0]][i[1]] = v
 
-    def win(self):
-        # FIXME: Write!
-        raise NotImplementedError("Write me, please!")
-
+    def deallocate(self):
+        pass
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.deallocate()
 
 if __name__ == '__main__':
     b = Board()
     b.set_stone(0, 0, 0)
     b.rotate_ccw(0)
     b.set_stone(0, 0, 1)
-    print b.get(0, 0)
     # b._print()
     print
     # b.do_best()
