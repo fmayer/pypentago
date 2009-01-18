@@ -17,9 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import ctypes
+import os
+
+import pypentago
 
 
-board = ctypes.CDLL('./lib/board.so')
+board = ctypes.CDLL(os.path.join(pypentago.LIB_PATH, 'board.so'))
 
 
 NONE = 0
@@ -44,7 +47,7 @@ class Turn(ctypes.Structure):
 
 class BoardStruct(ctypes.Structure):
     _fields_ = [
-        ("filled", ctypes.c_short),
+        ("filled", ctypes.c_byte),
         ("board",  ctypes.c_byte * 6 * 6),
         ("colour", ctypes.c_byte)
     ]
@@ -57,9 +60,6 @@ class Board:
         self._struct = BoardStruct.from_address(self._ptr)
         self.has_set = False
     
-    def set_colour(self, v):
-        board.set_colour(self._ptr, v)
-    
     def set_stone(self, quad, row, col):
         if self.has_set:
             raise ValueError
@@ -68,12 +68,6 @@ class Board:
 
     def get_stone(self, quad, row, col):
         return board.get_stone(self._ptr, quad, row, col)
-
-    def set(self, row, col, value):
-        return board.set(self._ptr, row, col, value)
-    
-    def get(self, row, col):
-        return board.get(self._ptr, row, col)
     
     def rotate_cw(self, quad):
         board.rotate_cw(self._ptr, quad)
@@ -96,19 +90,15 @@ class Board:
         board.free_turn(t)
 
     def __getitem__(self, i):
-        return self.get(*i)
+        return self._struct.board[i[0], i[1]]
     
     def __setitem__(self, i, v):
-        self.set(i[0], i[1], v)
-
-    def __del__(self):
-        if self._allocated:
-            self._deallocate()
+        self._struct.board[i[0], i[1]] = v
     
     def _print(self):
         board.print_board(self._ptr)
 
-    def _deallocate(self):
+    def deallocate(self):
         board.free_board(self._ptr)
         self._allocated = False
 
@@ -125,8 +115,9 @@ if __name__ == '__main__':
     b._print()
     print b[2, 0]
     b[2, 0] = 2
-    print b[2, 0]
-    print b._struct.board[2][0]
+    for x in xrange(6):
+        for y in xrange(6):
+            print b[x, y], '=', b._struct.board[x][y]
     b._struct.board[2][0] = 1
     print b._struct.board[2][0]
     #b.do_best_turn()

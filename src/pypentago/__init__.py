@@ -43,6 +43,9 @@ __bugs__ = "http://bitbucket.org/segfaulthunter/pypentago/issues/"
 PROTOCOL_VERSION = 1
 EMAIL_REGEX = r"""^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$"""
 DEFAULT_PORT = 26500
+LIB_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), os.pardir, 'lib/')
+)
 
 
 class _CW:
