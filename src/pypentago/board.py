@@ -120,14 +120,14 @@ class Board:
     def rotate_ccw(self, quad):
         self.rotate(quad, False)
     
-    def find_best(self, depth=4):
+    def find_best(self, player, depth=4):
         raise NotImplementedError('Compile the goddamn C module.')
     
     def win(self):
         # TODO: Write me!
         raise NotImplementedError
     
-    def do_best(self, depth=4):
+    def do_best(self, player, depth=4):
         raise NotImplementedError('Compile the goddamn C module.')
 
     def __getitem__(self, i):

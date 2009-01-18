@@ -118,14 +118,16 @@ class Board:
         board.rotate_ccw(self._ptr, quad)
         self.has_set = False
     
-    def find_best(self, depth=4):
+    def find_best(self, player, depth=4):
+        self._struct.colour = player.uid
         t = board.find_best(self._ptr, depth)
         return Turn.from_address(t)
     
     def win(self):
         return board.won(self._ptr)
     
-    def do_best(self, depth=4):
+    def do_best(self, player, depth=4):
+        self._struct.colour = player.uid
         t = board.find_best(self._ptr, depth)
         board.do_turn(self._ptr, t)
         board.free_turn(t)

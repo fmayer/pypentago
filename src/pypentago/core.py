@@ -225,6 +225,7 @@ class Game(object):
         """ Return (winner, loser).
         
         If no winner has been found (None, None) is returned. """
+        # TODO: Use optimized win-finding of C module.
         for player in self.players:           
             check = [player.uid]*5
             for line in itertools.chain(self.board.cols, self.board.rows,
