@@ -77,6 +77,9 @@ class Board:
         board.set(self._ptr, quad, row, col, player.uid)
         self._struct.colour = 3 - player.uid
         self.has_set = True
+    
+    def set_value(self, value, quad, row, col):
+        board.set(self._ptr, quad, row, col, value)
 
     def get_stone(self, quad, row, col):
         return board.get_stone(self._ptr, quad, row, col)
@@ -90,7 +93,7 @@ class Board:
             yield self._struct.board[i][col]
     
     def get_dia(self, r, c):
-        for x in xrange(5 - (r or c)):
+        for x in xrange(6 - (r or c)):
             yield self._struct.board[r+x][c+x]
     
     @property

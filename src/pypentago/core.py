@@ -28,6 +28,7 @@
 import sys
 import os
 import random
+import itertools
 
 script_path = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(script_path, os.pardir)))
@@ -39,37 +40,24 @@ from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn,
                                   GameFull)
 
 
+try:
+    from pypentago._board import Board
+    EXTENSION_MODULE = True
+except OSError:
+    from pypentago.board import Board
+    EXTENSION_MODULE = False
+
+
 def has_won(line, check):
     """ Check whether line contains 5 stones of the same player. """
     if len(line) < 5:
         # Doesn't seem to be a full line
         return False
-    return (list(line[0:5]) == list(check) or
-            list(line[1:6]) == list(check))
-
-
-def diagonal(inp, row, col):
-    """ Return the two diagonals going down from the position
-    (row, col) in inp """
-    rows = len(inp)
-    # Assume all rows have the same length!
-    cols = len(inp[0])
-    
-    # List containing starting position
-    coords = [[inp[row][col]]]
-    x, y = row, col
-    while x+1 < rows and y-1 >= 0:
-        x, y = x+1, y-1
-        coords[-1].append(inp[x][y])
-
-    # List containing starting position
-    coords.append([inp[row][col]])
-    x, y = row, col
-    while x+1 < rows and y+1 < cols:
-        x, y = x+1, y+1
-        coords[-1].append(inp[x][y])
-    
-    return coords
+    if len(line) == 6:
+        return (list(line[0:5]) == list(check) or
+                list(line[1:6]) == list(check))
+    else:
+        return list(line[0:5]) == list(check)
     
     
 class Quadrant(object):
@@ -120,96 +108,6 @@ class Quadrant(object):
     def checksum(self):
         return hash(tuple(map(tuple, self.field)))
 
-
-class Board(object):
-    """ The main pypentago board. 
-    
-    You can get the quadrants of it by getting items of the class. For instance
-    board[0] gets you the upper left quadrant, board[1], the upper right 
-    et cetera. 
-    
-    Please use the Game class for any real pypentago games as it offers a 
-    more abstracted design and is better for interacting with the players. """
-    def __init__(self):
-        self.quadrants = [Quadrant(x) for x in xrange(4)]
-    
-    def __getitem__(self, i):
-        return self.quadrants[i]
-    
-    def __setitem__(self, i, value):
-        self.quadrants[i] = value
-
-    def apply_turn(self, player, turn):
-        """ Apply turn of player to board. 
-        Turn is (quadrant, row, col, rot_dir, rot_field) """
-        field, row, col, rot_dir, rot_field = turn
-        self.set_stone(player, field, row, col)
-        if rot_dir == CW:
-            self[rot_field].rotate_cw()
-        elif rot_dir == CCW:
-            self[rot_field].rotate_ccw()
-        else:
-            self[field][row][col] = 0
-            raise InvalidTurn
-        
-    def set_stone(self, player, field, row, col):
-        """
-        Sets a stone of player.
-        """
-        if not self[field][row][col]:
-            self[field][row][col] = player.uid
-        else:
-            raise SquareNotEmpty(
-                  "Cannot set stone at quadrant %s row %s col %s" %
-                  (field, row, col))
-    
-    def get_row(self, row):
-        """ Get the row'th row starting from the top. """
-        field = 0
-        if row > 2:
-            field = 2
-            row = row - 3
-        return (list(self[field][row]) +
-                list(self[field+1][row]))
-    
-    def get_col(self, col):
-        """ Get the col'th row starting from the left. """
-        return self.cols[col]
-    
-    def get_diagonal(self, row, col):
-        """ Get diagonals starting from the point (row, col) """
-        return diagonal(self.rows, row, col)
-    
-    @property
-    def diagonals(self):
-        """ Get all diagonals of the board """
-        r = []
-        for x in xrange(6):
-            for y in xrange(6):
-                r.extend(self.get_diagonal(x, y))
-        return r
-    
-    @property
-    def rows(self):
-        """ Get all rows of the board """
-        return [self.get_row(elem) for elem in xrange(6)]
-    
-    @property
-    def cols(self):
-        """ Get all colums of the board """
-        return zip(*self.rows)
-
-    def __str__(self):
-        string = ""
-        for i, row in enumerate(self.rows):
-            r = map(str, row)
-            string+='%s  %s\n' % (' '.join(r[:3]), ' '.join(r[3:]))
-            if i == 2:
-                string+="\n"
-        return string
-    
-    def checksum(self):
-        return hash(tuple(q.checksum() for q in self.quadrants))
 
         
 class Player(object):
@@ -329,9 +227,9 @@ class Game(object):
         If no winner has been found (None, None) is returned. """
         for player in self.players:           
             check = [player.uid]*5
-            for line in (self.board.cols + self.board.rows + 
-                         self.board.diagonals):
-                if has_won(line, check):
+            for line in itertools.chain(self.board.cols, self.board.rows,
+                                        self.board.diagonals):
+                if has_won(list(line), check):
                     return player, self.other_player(player)
         return None, None
     

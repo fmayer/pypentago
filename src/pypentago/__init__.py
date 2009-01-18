@@ -47,13 +47,6 @@ LIB_PATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir, 'lib/')
 )
 
-try:
-    from pypentago._board import Board
-    EXTENSION_MODULE = True
-except OSError:
-    from pypentago.board import Board
-    EXTENSION_MODULE = False
-
 
 class _CW:
     """ Equals "CW" and "R" """

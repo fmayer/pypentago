@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import ctypes
+import pypentago
+from pypentago.exceptions import SquareNotEmpty
 
 NONE = 0
 WHITE = 1
@@ -49,15 +51,54 @@ class Board:
         self._struct.colour = beginner
         self.has_set = False
     
-    def set_stone(self, quad, row, col):
-        if self.has_set:
+    def apply_turn(self, player, turn):
+        quad, row, col, rot_dir, rot_quad = turn
+        self.set_stone(player, quad, row, col)
+        if rot_dir == pypentago.CW:
+            self.rotate_cw(rot_quad)
+        elif rot_dir == pypentago.CCW:
+            self.rotate_ccw(rot_quad)
+        else:
             raise ValueError
+    
+    def set_stone(self, player, quad, row, col):
+        if self.get_stone(quad, row, col):
+            raise SquareNotEmpty
         self._struct.board[_p_row(quad) + row][_p_col(quad) + col] = (
-            self._struct.colour)
+            player.uid)
         self._struct.colour = 3 - self._struct.colour
+    
+    def set_value(self, value, quad, row, col):
+        self._struct.board[3*_p_row(quad) + row][3*_p_col(quad) + col] = value
 
     def get_stone(self, quad, row, col):
-        return self._struct[_p_row(quad) + row][_p_col(quad) + col]
+        return self._struct.board[3*_p_row(quad) + row][3*_p_col(quad) + col]
+    
+    def get_row(self, row):
+        for i in xrange(6):
+            yield self._struct.board[row][i]
+    
+    def get_col(self, col):
+        for i in xrange(6):
+            yield self._struct.board[i][col]
+    
+    def get_dia(self, r, c):
+        for x in xrange(6 - (r or c)):
+            yield self._struct.board[r+x][c+x]
+    
+    @property
+    def diagonals(self):
+        yield self.get_dia(0, 0)
+        yield self.get_dia(0, 1)
+        yield self.get_dia(1, 0)
+    
+    @property
+    def rows(self):
+        return (self.get_row(i) for i in xrange(6))
+    
+    @property
+    def cols(self):
+        return (self.get_col(i) for i in xrange(6))
     
     def rotate(self, quad, cw):
         row = 3 * _p_row(quad)
@@ -103,6 +144,16 @@ class Board:
     
     def __exit__(self, exc_type, exc_value, exc_tb):
         self.deallocate()
+    
+    def __str__(self):
+        ret = []
+        for i, row in enumerate(map(list, self.rows)):
+            first = ' '.join(map(str, row[:3]))
+            second = ' '.join(map(str, row[3:]))
+            ret.append(first + '  ' + second)
+            if i == 2:
+                ret.append('')
+        return '\n'.join(ret)
 
 if __name__ == '__main__':
     b = Board()
