@@ -50,7 +50,8 @@ class _CW:
     def __eq__(self, other):
         return self is other or other == "CW" or other == "R"
     
-    def __str__(self):
+    @staticmethod
+    def __str__():
         # PGN needs that until it is changed.
         return "R"
 
@@ -60,7 +61,8 @@ class _CCW:
     def __eq__(self, other):
         return self is other or other == "CCW" or other == "L"
     
-    def __str__(self):
+    @staticmethod
+    def __str__():
         # PGN needs that until it is changed.
         return "L"
 
