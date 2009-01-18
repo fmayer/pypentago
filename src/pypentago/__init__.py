@@ -99,6 +99,13 @@ for file_ in os.listdir(IMGPATH):
     data[file_] = os.path.abspath(os.path.join(IMGPATH, file_))
 
 
+def except_hook(exctype, value, tceback):
+    log = logging.getLogger("pypentago.exception")
+    from traceback import format_exception
+    log.critical("Caught exception:\n"+''.join(format_exception(
+        exctype, value, tceback)))
+
+
 def init_logging(log_file, cnsl_verbosity):
     file_formatter = logging.Formatter(
         '%(asctime)s %(name)s %(levelname)s %(message)s'
@@ -124,15 +131,9 @@ def init_logging(log_file, cnsl_verbosity):
     logging.getLogger().addHandler(cnsl_handler)
     logging.getLogger().addHandler(file_handler)
     logging.getLogger().setLevel(0)
+    
+    sys.excepthook = except_hook
 
-
-def except_hook(exctype, value, tceback):
-    log = logging.getLogger("pypentago.exception")
-    from traceback import format_exception
-    # For debugging for exceptions thrown before log file generation:
-    # asd
-    log.critical("Caught exception:\n"+''.join(format_exception(
-        exctype, value, tceback)))
 # -----------------------------------------------------------------------------
 # BASIC FUNCTIONS NEEDED IN MANY MODULES FOLLOW
 # -----------------------------------------------------------------------------

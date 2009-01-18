@@ -92,7 +92,6 @@ def main():
     if not logfile:
         logfile = join(script_path, "server.log")
     pypentago.init_logging(logfile, verbosity)
-    sys.excepthook = pypentago.except_hook
     log = logging.getLogger("pypentago.server")
 
     if options.daemon:
