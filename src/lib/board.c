@@ -45,12 +45,12 @@ int get_colour(struct Board* b){
    return b->colour;
 }
 
-char get(struct Board* b, unsigned char row, unsigned char col){
-   return b->board[row][col];
-}
-
-void set(struct Board* b, unsigned char row, unsigned char col, char value){
-   b->board[row][col] = value;
+void set(struct Board* b, unsigned char quad, 
+         unsigned char row, unsigned char col, unsigned char v){
+   int r = 3 * quad_row(quad);
+   int c = 3 * quad_col(quad);
+   b->filled++;
+   b->board[r+row][c+col] = v;
 }
 
 /* End of helper functions */
