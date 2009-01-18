@@ -20,6 +20,7 @@ import ctypes
 import os
 
 import pypentago
+from pypentago.exceptions import SquareNotEmpty
 
 
 board = ctypes.CDLL(os.path.join(pypentago.LIB_PATH, 'board.so'))
@@ -60,14 +61,51 @@ class Board:
         self._struct = BoardStruct.from_address(self._ptr)
         self.has_set = False
     
-    def set_stone(self, quad, row, col):
-        if self.has_set:
+    def apply_turn(self, player, turn):
+        quad, row, col, rot_dir, rot_quad = turn
+        self.set_stone(player, quad, row, col)
+        if rot_dir == pypentago.CW:
+            self.rotate_cw(rot_quad)
+        elif rot_dir == pypentago.CCW:
+            self.rotate_ccw(rot_quad)
+        else:
             raise ValueError
-        board.set_stone(self._ptr, quad, row, col)
+    
+    def set_stone(self, player, quad, row, col):
+        if self.get_stone(quad, row, col):
+            raise SquareNotEmpty
+        board.set(self._ptr, quad, row, col, player.uid)
+        self._struct.colour = 3 - player.uid
         self.has_set = True
 
     def get_stone(self, quad, row, col):
         return board.get_stone(self._ptr, quad, row, col)
+    
+    def get_row(self, row):
+        for i in xrange(6):
+            yield self._struct.board[row][i]
+    
+    def get_col(self, col):
+        for i in xrange(6):
+            yield self._struct.board[i][col]
+    
+    def get_dia(self, r, c):
+        for x in xrange(5 - (r or c)):
+            yield self._struct.board[r+x][c+x]
+    
+    @property
+    def diagonals(self):
+        yield self.get_dia(0, 0)
+        yield self.get_dia(0, 1)
+        yield self.get_dia(1, 0)
+    
+    @property
+    def rows(self):
+        return (self.get_row(i) for i in xrange(6))
+    
+    @property
+    def cols(self):
+        return (self.get_col(i) for i in xrange(6))
     
     def rotate_cw(self, quad):
         board.rotate_cw(self._ptr, quad)
@@ -107,13 +145,30 @@ class Board:
     
     def __exit__(self, exc_type, exc_value, exc_tb):
         self.deallocate()
+    
+    def __str__(self):
+        ret = []
+        for i, row in enumerate(map(list, self.rows)):
+            first = ' '.join(map(str, row[:3]))
+            second = ' '.join(map(str, row[3:]))
+            ret.append(first + '  ' + second)
+            if i == 2:
+                ret.append('')
+        return '\n'.join(ret)
 
 
 if __name__ == '__main__':
+    class Player:
+        pass
+    
+    p1 = Player()
+    p2 = Player()
+    p1.uid = 1
+    p2.uid = 2
     b = Board()
-    b.set_stone(0, 0, 0)
+    b.set_stone(p1, 0, 0, 0)
     b.rotate_ccw(0)
-    b.set_stone(0, 0, 1)
+    b.set_stone(p2, 0, 0, 1)
     b._print()
     print
     b.do_best()
@@ -125,6 +180,7 @@ if __name__ == '__main__':
             print b[x, y], '=', b._struct.board[x][y]
     b._struct.board[2][0] = 1
     print b._struct.board[2][0]
+    print str(b)
     #b.do_best_turn()
     #b.do_best_turn()
     #board.print_board(b.ptr)
