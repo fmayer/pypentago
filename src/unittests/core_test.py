@@ -43,11 +43,11 @@ class TestGame(unittest.TestCase):
     def test_win_dia(self):
         board = self.game.board
         # Construct winning situation.
-        board[0][0][0] = 2
-        board[0][1][1] = 2
-        board[0][2][2] = 2
-        board[3][0][0] = 2
-        board[3][1][1] = 2
+        board.set_value(2, 0, 0, 0)
+        board.set_value(2, 0, 1, 1)
+        board.set_value(2, 0, 2, 2)
+        board.set_value(2, 3, 0, 0)
+        board.set_value(2, 3, 1, 1)
 
         # See whether the winner has been found.
         winner, loser = self.game.get_winner()
@@ -57,11 +57,11 @@ class TestGame(unittest.TestCase):
     def test_win_dia_sec(self):
         board = self.game.board
         # Construct winning situation.
-        board[0][0][1] = 2
-        board[0][1][2] = 2
-        board[1][2][0] = 2
-        board[3][0][1] = 2
-        board[3][1][2] = 2
+        board.set_value(2, 0, 0, 1)
+        board.set_value(2, 0, 1, 2)
+        board.set_value(2, 1, 2, 0)
+        board.set_value(2, 3, 0, 1)
+        board.set_value(2, 3, 1, 2)
 
         # See whether the winner has been found.
         winner, loser = self.game.get_winner()
