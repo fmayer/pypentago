@@ -22,8 +22,10 @@ import os
 import pypentago
 from pypentago.exceptions import SquareNotEmpty
 
-
-board = ctypes.CDLL(os.path.join(pypentago.LIB_PATH, 'board.so'))
+try:
+    board = ctypes.CDLL(os.path.join(pypentago.LIB_PATH, 'board.so'))
+except OSError:
+    raise ImportError
 
 
 NONE = 0

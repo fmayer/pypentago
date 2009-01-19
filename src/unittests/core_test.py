@@ -26,7 +26,7 @@ sys.path.append(abspath(join(dirname(__file__), "..")))
 
 import unittest
 from pypentago import core
-from pypentago import board, _board
+from pypentago import board
 from pypentago.exceptions import (SquareNotEmpty, NotYourTurn, GameFull,
                                   InvalidTurn)
 class Called(Exception):
@@ -112,11 +112,11 @@ class TestGame(unittest.TestCase):
         p_2.opponent_quit = fail
         self.assertRaises(Called, p_1.quit_game)
 
-
-class TestFallback(TestGame):
-    def setUp(self):
-        core.Board = board.Board
-        TestGame.setUp(self)
+if core.EXTENSION_MODULE:
+    class TestFallback(TestGame):
+        def setUp(self):
+            core.Board = board.Board
+            TestGame.setUp(self)
 
 
 if __name__ == "__main__":

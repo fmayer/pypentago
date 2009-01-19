@@ -43,7 +43,7 @@ from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn,
 try:
     from pypentago._board import Board
     EXTENSION_MODULE = True
-except OSError:
+except ImportError:
     from pypentago.board import Board
     EXTENSION_MODULE = False
 
