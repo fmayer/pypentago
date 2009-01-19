@@ -50,8 +50,10 @@ setup(
     license='GPL',
     zip_safe=False,
     packages=['pypentago', 'pypentago.server', 'pypentago.server.db.', 
-              'pypentago.client',  'easy_twisted', 'pygrade', 'actions', 
-              'depr', 'pypentago.client.interface'],
+              'pypentago.client',  'easy_twisted', 
+              # 'actions', 
+              # 'depr', 
+              'pypentago.client.interface'],
     package_data={'pypentago.data': ['*.png', "*.svg"]},
     scripts=[ ],
     entry_points = {

@@ -25,7 +25,8 @@ sys.path.append(abspath(join(dirname(__file__), "..")))
 # End of prefix for executable files.
 
 import unittest
-from pypentago.core import Game, Player
+from pypentago import core
+from pypentago import board, _board
 from pypentago.exceptions import (SquareNotEmpty, NotYourTurn, GameFull,
                                   InvalidTurn)
 class Called(Exception):
@@ -35,8 +36,8 @@ def fail(*args, **kw):
 
 class TestGame(unittest.TestCase):
     def setUp(self):
-        self.game = Game()
-        self.players = [Player() for _ in xrange(2)]
+        self.game = core.Game()
+        self.players = [core.Player() for _ in xrange(2)]
         for p in self.players:
             self.game.add_player(p)
     
@@ -110,6 +111,11 @@ class TestGame(unittest.TestCase):
         p_1, p_2 = self.players
         p_2.opponent_quit = fail
         self.assertRaises(Called, p_1.quit_game)
+
+class TestFallback(TestGame):
+    def setUp(self):
+        core.Board = board.Board
+        TestGame.setUp(self)
 
 if __name__ == "__main__":
     unittest.main()
