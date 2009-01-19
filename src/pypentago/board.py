@@ -123,10 +123,6 @@ class Board:
     def find_best(self, player, depth=4):
         raise NotImplementedError('Compile the goddamn C module.')
     
-    def win(self):
-        # TODO: Write me!
-        raise NotImplementedError
-    
     def do_best(self, player, depth=4):
         raise NotImplementedError('Compile the goddamn C module.')
 

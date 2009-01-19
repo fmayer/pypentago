@@ -142,6 +142,8 @@ class Board:
         board.print_board(self._ptr)
 
     def deallocate(self):
+        """ You must manually call this before throwing away the last
+        reference to the Board! """
         board.free_board(self._ptr)
         self._allocated = False
     

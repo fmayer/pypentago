@@ -225,7 +225,12 @@ class Game(object):
         """ Return (winner, loser).
         
         If no winner has been found (None, None) is returned. """
-        # TODO: Use optimized win-finding of C module.
+        if hasattr(self.board, 'win'):
+            winner = self.board.win()
+            if winner:
+                return self.players[winner - 1], self.players[2 - winner]
+            else:
+                return None, None
         for player in self.players:           
             check = [player.uid]*5
             for line in itertools.chain(self.board.cols, self.board.rows,
