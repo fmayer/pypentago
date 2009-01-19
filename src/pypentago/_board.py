@@ -61,7 +61,6 @@ class Board:
         self._ptr = board.new_board(beginner)
         self._allocated = True
         self._struct = BoardStruct.from_address(self._ptr)
-        self.has_set = False
     
     def apply_turn(self, player, turn):
         quad, row, col, rot_dir, rot_quad = turn
@@ -114,16 +113,16 @@ class Board:
     
     def rotate_cw(self, quad):
         board.rotate_cw(self._ptr, quad)
-        self.has_set = False
     
     def rotate_ccw(self, quad):
         board.rotate_ccw(self._ptr, quad)
-        self.has_set = False
     
     def find_best(self, player, depth=4):
         self._struct.colour = player.uid
         t = board.find_best(self._ptr, depth)
-        return Turn.from_address(t)
+        turn = Turn.from_address(t)
+        ret = (turn.quad, turn.row, turn.col, turn.dir)
+        board.free_turn(t)
     
     def win(self):
         return board.won(self._ptr)

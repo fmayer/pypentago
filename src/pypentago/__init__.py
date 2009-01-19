@@ -19,6 +19,7 @@ pypentago such as version, protocol version or the regex the email
 addresses have to match. """
 
 import os
+import sys
 import time
 import logging
 import logging.handlers
