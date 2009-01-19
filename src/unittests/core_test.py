@@ -112,10 +112,12 @@ class TestGame(unittest.TestCase):
         p_2.opponent_quit = fail
         self.assertRaises(Called, p_1.quit_game)
 
+
 class TestFallback(TestGame):
     def setUp(self):
         core.Board = board.Board
         TestGame.setUp(self)
+
 
 if __name__ == "__main__":
     unittest.main()
