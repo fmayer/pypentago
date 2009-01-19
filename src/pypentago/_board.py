@@ -77,7 +77,6 @@ class Board:
             raise SquareNotEmpty
         board.set(self._ptr, quad, row, col, player.uid)
         self._struct.colour = 3 - player.uid
-        self.has_set = True
     
     def set_value(self, value, quad, row, col):
         board.set(self._ptr, quad, row, col, value)
