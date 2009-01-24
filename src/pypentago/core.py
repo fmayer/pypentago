@@ -46,18 +46,6 @@ try:
 except ImportError:
     from pypentago.board import Board
     EXTENSION_MODULE = False
-
-
-def has_won(line, check):
-    """ Check whether line contains 5 stones of the same player. """
-    if len(line) < 5:
-        # Doesn't seem to be a full line
-        return False
-    if len(line) == 6:
-        return (list(line[0:5]) == list(check) or
-                list(line[1:6]) == list(check))
-    else:
-        return list(line[0:5]) == list(check)
     
     
 class Quadrant(object):
@@ -225,19 +213,11 @@ class Game(object):
         """ Return (winner, loser).
         
         If no winner has been found (None, None) is returned. """
-        if hasattr(self.board, 'win'):
-            winner = self.board.win()
-            if winner:
-                return self.players[winner - 1], self.players[2 - winner]
-            else:
-                return None, None
-        for player in self.players:           
-            check = [player.uid]*5
-            for line in itertools.chain(self.board.cols, self.board.rows,
-                                        self.board.diagonals):
-                if has_won(list(line), check):
-                    return player, self.other_player(player)
-        return None, None
+        winner = self.board.win()
+        if winner:
+            return self.players[winner - 1], self.players[2 - winner]
+        else:
+            return None, None
     
     def new_id(self):
         players = len(self.players)

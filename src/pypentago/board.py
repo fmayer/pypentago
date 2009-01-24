@@ -25,6 +25,18 @@ WHITE = 1
 BLACK = 2
 
 
+def has_won(line, check):
+    """ Check whether line contains 5 stones of the same player. """
+    if len(line) < 5:
+        # Doesn't seem to be a full line
+        return False
+    if len(line) == 6:
+        return (list(line[0:5]) == list(check) or
+                list(line[1:6]) == list(check))
+    else:
+        return list(line[0:5]) == list(check)
+
+
 def _p_row(quad):
     return (quad >= 2)
 
@@ -125,6 +137,15 @@ class Board:
 
     def deallocate(self):
         pass
+    
+    def win(self):
+        for player in self.players:           
+            check = [player.uid]*5
+            for line in itertools.chain(self.cols, self.rows,
+                                        self.diagonals):
+                if has_won(list(line), check):
+                    return check
+        return 0
     
     def __enter__(self):
         return self
