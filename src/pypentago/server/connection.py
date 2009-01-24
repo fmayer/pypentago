@@ -35,8 +35,7 @@ from pypentago.server.mailing import Email
 from pypentago.server.db.dbobjs import Player
 from pypentago.exceptions import NoSuchRoom, NotInDB
 
-from easy_twisted.server import Connection
-from easy_twisted.connection import expose, require_auth
+from easy_twisted.connection import expose, require_auth, Connection
 
 
 conf = get_conf_obj('server')
