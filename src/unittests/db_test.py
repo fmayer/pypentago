@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import with_statement
+
 # Fix the PYTHONPATH so we needn't have src in it.
 import sys
 from os.path import dirname, abspath, join
