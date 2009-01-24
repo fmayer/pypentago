@@ -29,7 +29,10 @@ import socket
 import select
 import errno
 import time
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import multiprocessing
 
 from pypentago.server.server import run_server
