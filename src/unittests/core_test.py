@@ -113,10 +113,14 @@ class TestGame(unittest.TestCase):
         self.assertRaises(Called, p_1.quit_game)
 
 if core.EXTENSION_MODULE:
+    from pypentago import _board
     class TestFallback(TestGame):
         def setUp(self):
             core.Board = board.Board
             TestGame.setUp(self)
+        
+        def tearDown(self):
+            core.Board = _board.Board
 
 
 if __name__ == "__main__":

@@ -49,9 +49,11 @@ int quad_row(int quad);
 void print_turn(struct Turn *x);
 void set_colour(struct Board* b, char v);
 int get_colour(struct Board* b);
-char get(struct Board* b, unsigned char row, unsigned char col);
-void set(struct Board* b, unsigned char quad, unsigned char row,
-         unsigned char col, unsigned char v);
+unsigned char get(struct Board* b, unsigned char row, unsigned char col);
+void set(struct Board* b, unsigned char row, unsigned char col,
+         unsigned char v);
+void set_value(struct Board* b, unsigned char quad, 
+               unsigned char row, unsigned char col, unsigned char v);
 char get_stone(struct Board* b, unsigned char quad, unsigned char row,
                 unsigned char col);
 void free_turn(struct Turn* t);

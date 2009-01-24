@@ -62,6 +62,12 @@ class Board:
         self._allocated = True
         self._struct = BoardStruct.from_address(self._ptr)
     
+    def get(self, row, col):
+        return board.get(self._ptr, row, col)
+    
+    def set(self, row, col, v):
+        board.set(self._ptr, row, col, v)
+    
     def apply_turn(self, player, turn):
         quad, row, col, rot_dir, rot_quad = turn
         self.set_stone(player, quad, row, col)
@@ -75,26 +81,26 @@ class Board:
     def set_stone(self, player, quad, row, col):
         if self.get_stone(quad, row, col):
             raise SquareNotEmpty
-        board.set(self._ptr, quad, row, col, player.uid)
+        board.set_value(self._ptr, quad, row, col, player.uid)
         self._struct.colour = 3 - player.uid
     
     def set_value(self, value, quad, row, col):
-        board.set(self._ptr, quad, row, col, value)
+        board.set_value(self._ptr, quad, row, col, value)
 
     def get_stone(self, quad, row, col):
         return board.get_stone(self._ptr, quad, row, col)
     
     def get_row(self, row):
         for i in xrange(6):
-            yield self._struct.board[row][i]
+            yield self.get(row, i)
     
     def get_col(self, col):
         for i in xrange(6):
-            yield self._struct.board[i][col]
+            yield self.get(i, col)
     
     def get_dia(self, r, c):
         for x in xrange(6 - (r or c)):
-            yield self._struct.board[r+x][c+x]
+            yield self.get(r+x, c+x)
     
     @property
     def diagonals(self):
@@ -124,6 +130,7 @@ class Board:
         board.free_turn(t)
     
     def win(self):
+        print 'win!'
         return board.won(self._ptr)
     
     def do_best(self, player, depth=4):
@@ -133,10 +140,10 @@ class Board:
         board.free_turn(t)
 
     def __getitem__(self, i):
-        return self._struct.board[i[0]][i[1]]
+        return self.get(i[0], i[1])
     
     def __setitem__(self, i, v):
-        self._struct.board[i[0]][i[1]] = v
+        self.set(i[0], i[1], v)
     
     def _print(self):
         board.print_board(self._ptr)
