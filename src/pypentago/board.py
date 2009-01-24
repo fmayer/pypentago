@@ -134,9 +134,6 @@ class Board:
     
     def __setitem__(self, i, v):
         self.board[i[0]][i[1]] = v
-
-    def deallocate(self):
-        pass
     
     def win(self):
         for player in self.players:           
@@ -146,12 +143,6 @@ class Board:
                 if has_won(list(line), check):
                     return check
         return 0
-    
-    def __enter__(self):
-        return self
-    
-    def __exit__(self, exc_type, exc_value, exc_tb):
-        self.deallocate()
     
     def __str__(self):
         ret = []
