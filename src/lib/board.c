@@ -117,7 +117,7 @@ char won_dia(struct Board* b, unsigned char r, unsigned char c){
          break;
       if(!r && !c)
          r = c = 1;
-      for(x=0; x <= (4 - (r && c)); x++){
+      for(x=0; x <= (5 - (r && c)); x++){
          if(b->board[x+r][x+c] != check){
             winner = 0;
             break;

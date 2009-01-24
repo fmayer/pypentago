@@ -27,7 +27,7 @@ sys.path.append(abspath(join(dirname(__file__), "..")))
 import unittest
 import tempfile
 
-from itertools import permutations, imap
+from itertools import imap
 
 from random import choice, randint, sample
 
@@ -41,7 +41,8 @@ def random_turn():
 
 class CheckPGN(unittest.TestCase):
     """ Check the PGN functions """
-    all_turns = tuple(permutations([0,1,2] * 4, 4))
+    all_turns = [(a, b, c, d) for a in xrange(3) for b in xrange(3)
+                              for c in xrange(3) for d in xrange(3)]
     def test_pgn(self):                    
         """ check if pgn functions are okay """
         for coords in self.all_turns:
