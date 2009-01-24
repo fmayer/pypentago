@@ -19,8 +19,14 @@
 
 import unittest
 import sys
+import os
+
+import twisted
+import pypentago
+import sqlalchemy
 
 from itertools import chain
+from pypentago import core
 
 MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 
            'server_test', 'elo_test', 'db_test']
@@ -28,6 +34,14 @@ MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test',
 mod = map(__import__, MODULES)
 
 if __name__ == '__main__':
+    print "os.name: %s" % os.name
+    print "sys.platform: %s" % sys.platform
+    print "Python: %s" % sys.version.replace('\n', '    ')
+    print str(twisted.version)[1:-1].replace(', version', ':')
+    print "sqlalchemy: %s" % sqlalchemy.__version__
+    print "speedup: %s" % (core.EXTENSION_MODULE and 'yes' or 'no')
+    print "path: %s" % os.path.abspath(os.path.dirname(pypentago.__file__))
+    print 
     test_cases = chain(*[unittest.findTestCases(mod) for mod in mod])
     suite = unittest.TestSuite(test_cases)
     display = unittest.TextTestRunner()
