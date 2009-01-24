@@ -130,7 +130,6 @@ class Board:
         board.free_turn(t)
     
     def win(self):
-        print 'win!'
         return board.won(self._ptr)
     
     def do_best(self, player, depth=4):
