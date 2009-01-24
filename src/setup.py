@@ -20,7 +20,7 @@
 and the main scripts into /usr/bin. This script is only usable for POSIX 
 compatible systems. We will supply a separate installer for Windows. """
 
-from setuptools import setup
+from setuptools import setup, Extension, Feature
 
 dep = []
 
@@ -51,10 +51,19 @@ setup(
     zip_safe=False,
     packages=['pypentago', 'pypentago.server', 'pypentago.server.db.', 
               'pypentago.client',  'easy_twisted', 
-              # 'actions', 
-              # 'depr', 
               'pypentago.client.interface'],
-    package_data={'pypentago.data': ['*.png', "*.svg"]},
+    py_modules=['actions', 'depr'],
+    features=dict(
+        speedups=Feature('optional C speed-enhancements',
+            standard=True,
+            ext_modules=[
+                Extension('pypentago._board',
+                    ['pypentago/_board.c', 'lib/board.c', 'lib/ai.c'],
+                    include_dirs=['lib'])
+            ],
+        )
+    ),
+    package_data={'pypentago': ['data/*.png', 'data/*.svg']},
     scripts=[ ],
     entry_points = {
         'console_scripts': [
