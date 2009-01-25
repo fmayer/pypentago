@@ -20,7 +20,37 @@
 and the main scripts into /usr/bin. This script is only usable for POSIX 
 compatible systems. We will supply a separate installer for Windows. """
 
+import sys
+import optparse
+
 from setuptools import setup, Extension, Feature
+from distutils import sysconfig
+
+known = {
+    'gcc': ['--std=c99']
+}
+
+def get_compiler():
+    parser = optparse.OptionParser()
+    parser.add_option("-c", "--compiler", action="store", type='str',
+                     dest="compiler", default=sysconfig.get_config_var('CC'))
+    options, args = parser.parse_args()
+    cc = options.compiler
+    if cc == 'unix':
+        cc = sysconfig.get_config_var('CC')
+    return cc
+
+
+def get_default_opts(c_string):
+    for compiler, opts in known.iteritems():
+        if c_string.startswith(compiler):
+            return opts
+    return []
+
+
+cc = get_compiler()
+enable_speedups = cc is not None
+opts = get_default_opts(cc)
 
 dep = []
 
@@ -38,6 +68,15 @@ try:
 except ImportError:
     dep.append('twisted')
 
+try:
+    import sqlalchemy
+except ImportError:
+    dep.append('sqlalchemy')
+
+
+board_speedup = Extension('pypentago._board',
+              ['pypentago/_board.c', 'lib/board.c', 'lib/ai.c'],
+              include_dirs=['lib'], extra_compile_args=opts)
 
 setup(
     name='pypentago',
@@ -55,12 +94,8 @@ setup(
     py_modules=['actions', 'depr'],
     features=dict(
         speedups=Feature('optional C speed-enhancements',
-            standard=True,
-            ext_modules=[
-                Extension('pypentago._board',
-                    ['pypentago/_board.c', 'lib/board.c', 'lib/ai.c'],
-                    include_dirs=['lib'])
-            ],
+            standard=enable_speedups,
+            ext_modules=[board_speedup],
         )
     ),
     package_data={'pypentago': ['data/*.png', 'data/*.svg']},
