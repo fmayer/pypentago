@@ -49,6 +49,7 @@ def free_port(min_, max_):
                 avail = False
             else:
                 raise
+        s.close()
         if avail:
             return p
 
