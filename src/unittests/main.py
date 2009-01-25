@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+import optparse
 import sys
 import os
 
@@ -31,9 +32,11 @@ from pypentago import core
 MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 
            'server_test', 'elo_test', 'db_test']
 
-mod = map(__import__, MODULES)
-
 if __name__ == '__main__':
+    for elem in sys.argv[1:]:
+        if elem.strip() in MODULES:
+            MODULES.remove(elem)
+    mod = map(__import__, MODULES)
     print "os.name: %s" % os.name
     print "sys.platform: %s" % sys.platform
     print "Python: %s" % sys.version.replace('\n', '    ')

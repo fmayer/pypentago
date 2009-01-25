@@ -41,33 +41,120 @@ class TestGame(unittest.TestCase):
         for p in self.players:
             self.game.add_player(p)
     
-    def test_win_dia(self):
+    def test_api(self):
+        self.assert_(hasattr(self.game.board, 'set_pos'))
+        self.assert_(hasattr(self.game.board, 'get_pos'))
+        self.assert_(hasattr(self.game.board, 'rotate_cw'))
+        self.assert_(hasattr(self.game.board, 'rotate_ccw'))
+        self.assert_(hasattr(self.game.board, '__getitem__'))
+        self.assert_(hasattr(self.game.board, '__setitem__'))
+    
+    def test_rotate_cw(self):
+        board = self.game.board
+        board[0, 0] = 1
+        board.rotate_cw(0)
+        self.assertEquals(board[0, 2], 1)
+        
+        board[0, 3] = 2
+        board.rotate_cw(1)
+        self.assertEquals(board[0, 5], 2)
+
+    def test_rotate_ccw(self):
+        board = self.game.board
+        board[0, 2] = 1
+        board.rotate_ccw(0)
+        self.assertEquals(board[0, 0], 1)
+        
+        board[0, 5] = 2
+        board.rotate_ccw(1)
+        self.assertEquals(board[0, 3], 2)
+    
+    def test_win_dia(self, p=1, x=0):
         board = self.game.board
         # Construct winning situation.
-        board.set_value(2, 0, 0, 0)
-        board.set_value(2, 0, 1, 1)
-        board.set_value(2, 0, 2, 2)
-        board.set_value(2, 3, 0, 0)
-        board.set_value(2, 3, 1, 1)
+        board[0 + x, 0 + x] = p
+        board[1 + x, 1 + x] = p
+        board[2 + x, 2 + x] = p
+        board[3 + x, 3 + x] = p
+        board[4 + x, 4 + x] = p
 
         # See whether the winner has been found.
         winner, loser = self.game.get_winner()
         self.assertNotEqual(winner, None)
-        self.assertEqual(winner.uid, 2)
+        self.assertEqual(winner.uid, p)
+    
+    def test_win_dia_p2(self):
+        self.test_win_dia(2)
+    
+    def test_win_dia_four(self, p=1):
+        self.test_win_dia(p, 1)
+    
+    def test_win_dia_four_p2(self):
+        self.test_win_dia(2)
 
-    def test_win_dia_sec(self):
+    def test_win_dia_sec(self, p=1):
         board = self.game.board
         # Construct winning situation.
-        board.set_value(2, 0, 0, 1)
-        board.set_value(2, 0, 1, 2)
-        board.set_value(2, 1, 2, 0)
-        board.set_value(2, 3, 0, 1)
-        board.set_value(2, 3, 1, 2)
+        board[0, 1] = p
+        board[1, 2] = p
+        board[2, 3] = p
+        board[3, 4] = p
+        board[4, 5] = p
 
         # See whether the winner has been found.
         winner, loser = self.game.get_winner()
         self.assertNotEqual(winner, None)
-        self.assertEqual(winner.uid, 2)
+        self.assertEqual(winner.uid, p)
+    
+    def test_win_dia_sec_p2(self):
+        self.test_win_dia_sec(2)
+
+    def test_win_dia_tert(self, p=1):
+        board = self.game.board
+        # Construct winning situation.
+        board[1, 0] = p
+        board[2, 1] = p
+        board[3, 2] = p
+        board[4, 3] = p
+        board[5, 4] = p
+
+        # See whether the winner has been found.
+        winner, loser = self.game.get_winner()
+        self.assertNotEqual(winner, None)
+        self.assertEqual(winner.uid, p)
+    
+    def test_win_dia_tert_p2(self):
+        self.test_win_dia_tert(2)
+    
+    def test_win_row(self, p=1):
+        for row in xrange(6):
+            for x in xrange(2):
+                # reset board
+                self.setUp()
+                b = self.game.board
+                for col in xrange(5):
+                    b[row, col + x] = p
+                winner, loser = self.game.get_winner()
+                self.assertNotEqual(winner, None)
+                self.assertEqual(winner.uid, p)
+    
+    def test_win_row_p2(self):
+        self.test_win_row(2)
+    
+    def test_win_col(self, p=1):
+        for col in xrange(6):
+            for x in xrange(2):
+                # reset board
+                self.setUp()
+                b = self.game.board
+                for row in xrange(5):
+                    b[row + x, col] = p
+                winner, loser = self.game.get_winner()
+                self.assertNotEqual(winner, None)
+                self.assertEqual(winner.uid, p)
+    
+    def test_win_col_p2(self):
+        self.test_win_col(2)
 
     def test_square_not_empty(self):
         self.players[0].do_turn((0, 0, 0, "R", 1))
