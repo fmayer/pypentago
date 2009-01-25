@@ -18,6 +18,7 @@
 
 import ctypes
 import pypentago
+import itertools
 from pypentago.exceptions import SquareNotEmpty
 
 NONE = 0
@@ -66,16 +67,14 @@ class Board:
             raise ValueError
     
     def set_stone(self, player, quad, row, col):
-        if self.get_stone(quad, row, col):
+        if self.get_pos(quad, row, col):
             raise SquareNotEmpty
-        self.board[_p_row(quad) + row][_p_col(quad) + col] = (
-            player.uid)
-        self.colour = 3 - self.colour
+        self.set_pos(quad, row, col, player.uid)
     
-    def set_value(self, value, quad, row, col):
+    def set_pos(self, quad, row, col, value):
         self.board[3*_p_row(quad) + row][3*_p_col(quad) + col] = value
 
-    def get_stone(self, quad, row, col):
+    def get_pos(self, quad, row, col):
         return self.board[3*_p_row(quad) + row][3*_p_col(quad) + col]
     
     def get_row(self, row):
@@ -128,20 +127,14 @@ class Board:
     
     def do_best(self, player, depth=4):
         raise NotImplementedError('Compile the goddamn C module.')
-
-    def __getitem__(self, i):
-        return self.board[i[0]][i[1]]
-    
-    def __setitem__(self, i, v):
-        self.board[i[0]][i[1]] = v
     
     def win(self):
-        for player in self.players:           
-            check = [player.uid]*5
+        for player in (1, 2):           
+            check = [player]*5
             for line in itertools.chain(self.cols, self.rows,
                                         self.diagonals):
                 if has_won(list(line), check):
-                    return check
+                    return player
         return 0
     
     def __str__(self):
@@ -153,6 +146,15 @@ class Board:
             if i == 2:
                 ret.append('')
         return '\n'.join(ret)
+    
+    def __setitem__(self, i, v):
+        r, c = i
+        self.board[r][c] = v
+    
+    def __getitem__(self, i):
+        r, c = i
+        return self.board[r][c]
+    
 
 if __name__ == '__main__':
     b = Board()
