@@ -18,12 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Fix the PYTHONPATH so we needn't have src in it.
-import sys
-from os.path import dirname, abspath, join
-sys.path.append(abspath(join(dirname(__file__), "..")))
-# End of prefix for executable files.
-
 import unittest
 from pypentago import core
 from pypentago import board
@@ -90,7 +84,7 @@ class TestGame(unittest.TestCase):
         self.test_win_dia(p, 1)
     
     def test_win_dia_four_p2(self):
-        self.test_win_dia(2)
+        self.test_win_dia_four(2)
 
     def test_win_dia_sec(self, p=1):
         board = self.game.board

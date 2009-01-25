@@ -23,10 +23,6 @@ from functools import partial
 import sys
 import logging
 
-if __name__ == '__main__':
-    from os.path import dirname, join
-    sys.path.append(join(dirname(__file__), '..', '..'))
-
 import actions
 
 from pypentago import PROTOCOL_VERSION, could_int, int_all

@@ -25,11 +25,6 @@ from os.path import join, dirname, abspath, expanduser
 from optparse import OptionParser
 from ConfigParser import ConfigParser, NoOptionError
 
-script_path = abspath(dirname(__file__))
-# Extend the PYTHONPATH so the place where the main module
-# is in is in it so we can directly import from there.
-sys.path.insert(0, abspath(join(script_path, "..", "..")))
-
 import pypentago
 # Imports that need PYTHONPATH set.
 from pypentago.get_conf import get_conf_obj

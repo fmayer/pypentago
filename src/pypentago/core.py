@@ -20,9 +20,6 @@ import os
 import random
 import itertools
 
-script_path = os.path.dirname(__file__)
-sys.path.insert(0, os.path.abspath(os.path.join(script_path, os.pardir)))
-
 import depr
 
 from pypentago import CW, CCW

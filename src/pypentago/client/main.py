@@ -28,11 +28,6 @@ from ConfigParser import ConfigParser
 from os.path import join, dirname, expanduser, abspath, exists
 
 
-# Sets the PYTHONPATH if this file is not on its own, meaning that the rest is 
-# in site-packages.
-script_path = abspath(dirname(__file__))
-sys.path.insert(0, abspath(join(script_path, "..", "..")))
-
 import pypentago
 
 from pypentago.get_conf import get_conf_obj, str_to_bool

@@ -18,12 +18,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Fix the PYTHONPATH so we needn't have src in it.
-import sys
-from os.path import dirname, abspath, join
-sys.path.append(abspath(join(dirname(__file__), "..")))
-# End of prefix for executable files.
-
 """ This module defines the tests and the behaviour of actions """
 
 import unittest
