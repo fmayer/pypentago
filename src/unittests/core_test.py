@@ -99,7 +99,7 @@ class TestGame(unittest.TestCase):
         winner, loser = self.game.get_winner()
         self.assertNotEqual(winner, None)
         self.assertEqual(winner.uid, p)
-    
+   
     def test_win_dia_sec_p2(self):
         self.test_win_dia_sec(2)
 
@@ -205,6 +205,21 @@ class TestGame(unittest.TestCase):
         winner, loser = self.game.get_winner()
         self.assertEqual(winner, None)
     
+    def test_win_dia_with_other(self, p=1):
+        board = self.game.board
+        # Construct winning situation.
+        board[0, 0] = 1 if p == 2 else 2
+        board[1, 1] = p
+        board[2, 2] = p
+        board[3, 3] = p
+        board[4, 4] = p
+        board[5, 5] = p
+
+        # See whether the winner has been found.
+        winner, loser = self.game.get_winner()
+        self.assertNotEqual(winner, None)
+        self.assertEqual(winner.uid, p)
+
     def test_set(self):
         i = 1
         board = self.game.board

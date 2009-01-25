@@ -233,7 +233,7 @@ board_print(BoardObject *self)
 
 
 static PyObject *
-board_get_stone(BoardObject *self, PyObject *args, PyObject *kwargs)
+board_get_pos(BoardObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"quad", "row", "col", NULL};
     unsigned char quad, row, col;
@@ -245,7 +245,7 @@ board_get_stone(BoardObject *self, PyObject *args, PyObject *kwargs)
 
 
 static PyObject *
-board_set_stone(BoardObject *self, PyObject *args, PyObject *kwargs)
+board_set_pos(BoardObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"player", "quad", "row", "col", NULL};
     PyObject *player;
@@ -306,8 +306,8 @@ static PyMethodDef board_methods[] = {
     {"rotate_cw", (PyCFunction)board_rotate_cw, METH_KEYWORDS, ""},
     {"rotate_ccw", (PyCFunction)board_rotate_ccw, METH_KEYWORDS, ""},
     {"_print", (PyCFunction)board_print, METH_NOARGS, ""},
-    {"get_stone", (PyCFunction)board_get_stone, METH_KEYWORDS, ""},
-    {"set_stone", (PyCFunction)board_set_stone, METH_KEYWORDS, ""},
+    {"get_pos", (PyCFunction)board_get_pos, METH_KEYWORDS, ""},
+    {"set_pos", (PyCFunction)board_set_pos, METH_KEYWORDS, ""},
     {"set_value", (PyCFunction)board_set_value, METH_KEYWORDS, ""},
     {"win", (PyCFunction)board_win, METH_NOARGS, ""},
     {NULL, NULL}

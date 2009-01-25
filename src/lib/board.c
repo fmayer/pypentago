@@ -110,27 +110,19 @@ char won_col(struct Board* b, unsigned char c){
 }
 
 char won_dia(struct Board* b, unsigned char r, unsigned char c){
-   unsigned char x, check, winner, imp_set;
-   winner = imp_set = 0;
-   for(check=1; check <= 2; check++){
-      if(imp_set)
-         break;
-      if(!r && !c)
-         r = c = 1;
-      for(x=0; x <= (5 - (r && c)); x++){
-         if(b->board[x+r][x+c] != check){
-            winner = 0;
-            break;
-         }
-         else{
-            imp_set = 1;
-            winner = check;
-         }
-      }
-      if(r && c && b->board[0][0] != check && b->board[5][5] != check)
-         return 0;
-   }
-   return winner;
+    int match=0, x;
+    for (x=0; x != 6-(r ? r : c); ++x)
+        match |= (b->board[r+x][c+x] << (2*x + 1));
+    /* 682 == 1010101010 */
+    if (!(match ^ 682) ||
+        /* 2728 == 101010101000
+           First three bits may differ and we still have 5 */
+        (match ^ 2728) < 8)
+        return 1;
+    else if (!(match ^ 1364) || (match ^ 5460) < 8)
+        return 2;
+    else
+        return 0;
 }
 
 char won(struct Board* b){
