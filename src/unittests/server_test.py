@@ -45,7 +45,7 @@ def free_port(min_, max_):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.bind(('', p))
         except socket.error, e:
-            if e.errno == errno.EADDRINUSE:
+            if e[0] == errno.EADDRINUSE:
                 avail = False
             else:
                 raise
@@ -72,7 +72,7 @@ class ServerTest(unittest.TestCase):
                 self.client.connect(('', PORT))
                 conn = True
             except socket.error, e:
-                if e.errno == errno.ECONNREFUSED:
+                if e[0] == errno.ECONNREFUSED:
                     time.sleep(0.1)
                 else:
                     raise
