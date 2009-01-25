@@ -192,6 +192,19 @@ class TestGame(unittest.TestCase):
         p_1, p_2 = self.players
         p_2.opponent_quit = fail
         self.assertRaises(Called, p_1.quit_game)
+    
+    def test_no_win(self):
+        board = self.game.board
+        board[0, 0] = 1
+        board[0, 1] = 1
+        board[0, 2] = 1
+        board[0, 3] = 1
+        board[0, 5] = 1
+        board[1, 4] = 2
+        
+        winner, loser = self.game.get_winner()
+        self.assertEqual(winner, None)
+
 
 if core.EXTENSION_MODULE:
     from pypentago import _board
@@ -202,7 +215,10 @@ if core.EXTENSION_MODULE:
         
         def tearDown(self):
             core.Board = _board.Board
-
+else:
+    class TestFallback(TestGame):
+        pass
+    del TestGame
 
 if __name__ == "__main__":
     unittest.main()
