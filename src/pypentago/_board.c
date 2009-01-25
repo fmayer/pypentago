@@ -22,7 +22,7 @@ typedef struct {
 static PyTypeObject BoardType;
 
 
-int get_player_uid(PyObject *player)
+signed char get_player_uid(PyObject *player)
 {
     long ival;
     PyObject *uid = PyObject_GetAttrString(player, "uid");
@@ -31,7 +31,7 @@ int get_player_uid(PyObject *player)
     else if (!PyInt_Check(uid))
     {
         Py_DECREF(uid);
-        PyErr_SetString(PyExc_TypeError, "expectend an integer");
+        PyErr_SetString(PyExc_TypeError, "expected an integer as player.uid");
         return -1;
     }
     ival = PyInt_AsLong(uid);
@@ -41,7 +41,7 @@ int get_player_uid(PyObject *player)
         PyErr_SetString(PyExc_ValueError, "illegal uid");
         return -1;
     }
-    return (int)ival;
+    return (signed char)ival;
 };
 
 
@@ -65,19 +65,19 @@ new_boardobject(PyTypeObject *type, PyObject *args, PyObject *kwargs)
 static PyObject *
 board_subscript(BoardObject *self, PyObject *key)
 {
-    int row, col;
+    signed char row, col;
     if (!PyTuple_Check(key))
     {
         PyErr_SetString(PyExc_TypeError, "key must be a (row, col) tuple");
         return NULL;
     }
-    else if (!PyArg_ParseTuple(key, "ii;key must be a (row, col) tuple",
+    else if (!PyArg_ParseTuple(key, "bb;key must be a (row, col) tuple",
                                &row, &col))
         return NULL;
     else if (row < 0 || row > 5 || col < 0 || col > 5)
     {
         PyErr_SetString(PyExc_ValueError,
-                        "value not in range 0 <= arg < 6");
+                        "value not in range(6)");
         return NULL;
     }
 
@@ -88,20 +88,20 @@ board_subscript(BoardObject *self, PyObject *key)
 static int
 board_ass_subscript(BoardObject *self, PyObject *key, PyObject *value)
 {
-    int row, col;
+    signed char row, col;
     long ivalue;
     if (!PyTuple_Check(key))
     {
         PyErr_SetString(PyExc_TypeError, "key must be a (row, col) tuple");
         return -1;
     }
-    else if (!PyArg_ParseTuple(key, "ii;key must be a (x,y) tuple",
+    else if (!PyArg_ParseTuple(key, "bb;key must be a (row, col) tuple",
              &row, &col))
         return -1;
     else if (row < 0 || row > 5 || col < 0 || col > 5)
     {
         PyErr_SetString(PyExc_ValueError,
-                        "value not in range 0 <= arg < 6");
+                        "value not in range(6)");
         return -1;
     }
     else if (!PyInt_Check(value))
@@ -112,11 +112,11 @@ board_ass_subscript(BoardObject *self, PyObject *key, PyObject *value)
     ivalue = PyInt_AsLong(value);
     if (ivalue < 0 || ivalue > 3)
     {
-        PyErr_SetString(PyExc_ValueError, "value not in range 0 <= arg < 4");
+        PyErr_SetString(PyExc_ValueError, "value not in range(4)");
         return -1;
     }
 
-    self->board->board[row][col] = (int)ivalue;
+    self->board->board[row][col] = (char)ivalue;
 
     return 0;
 }
@@ -127,15 +127,14 @@ board_apply_turn(BoardObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"player", "turn", NULL};
     PyObject *player, *turn, *turn_tuple, *rot_dir;
-    int rot_quad;
-    unsigned char quad, row, col;
+    unsigned char quad, row, col, rot_quad;
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO", kwlist, &player,
                                      &turn))
         return NULL;
     turn_tuple = PySequence_Tuple(turn);
     if (turn_tuple == NULL)
         return NULL;
-    else if (!PyArg_ParseTuple(turn_tuple, "bbbOb:invalid turn argument", &quad,
+    else if (!PyArg_ParseTuple(turn_tuple, "bbbOb;invalid turn argument", &quad,
                                &row, &col, &rot_dir, &rot_quad))
     {
         Py_DECREF(turn_tuple);
@@ -143,7 +142,7 @@ board_apply_turn(BoardObject *self, PyObject *args, PyObject *kwargs)
     }
     Py_DECREF(turn_tuple);
 
-    int uid = get_player_uid(player);
+    signed char uid = get_player_uid(player);
     if (uid < 0)
         return NULL;
 
@@ -180,7 +179,7 @@ board_apply_turn(BoardObject *self, PyObject *args, PyObject *kwargs)
 static PyObject *
 board_do_best(BoardObject *self, PyObject *args, PyObject *kwargs)
 {
-    static char *kwlist[] = {"player", "uid", NULL};
+    static char *kwlist[] = {"player", "depth", NULL};
     int depth;
     PyObject *player;
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Oi", kwlist, &player,
@@ -205,8 +204,8 @@ static PyObject *
 board_rotate_cw(BoardObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"quad", NULL};
-    int quad;
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i", kwlist, &quad))
+    unsigned char quad;
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "b", kwlist, &quad))
         return NULL;
     rotate_cw(self->board, quad);
     Py_RETURN_NONE;
@@ -217,8 +216,8 @@ static PyObject *
 board_rotate_ccw(BoardObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {"quad", NULL};
-    int quad;
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "i", kwlist, &quad))
+    unsigned char quad;
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "b", kwlist, &quad))
         return NULL;
     rotate_ccw(self->board, quad);
     Py_RETURN_NONE;
@@ -255,7 +254,7 @@ board_set_stone(BoardObject *self, PyObject *args, PyObject *kwargs)
                                      &quad, &row, &col))
         return NULL;
 
-    int uid = get_player_uid(player);
+    signed char uid = get_player_uid(player);
     if (uid < 0)
         return NULL;
 
