@@ -111,15 +111,21 @@ char won_col(struct Board* b, unsigned char c){
 
 char won_dia(struct Board* b, unsigned char r, unsigned char c){
     int match=0, x;
+    /* Create a bit mask of stones. Player 1's stones set odd bits to 1,
+       player 2's stones set even bits to 1. Bit 0 is always 0. */
     for (x=0; x != 6-(r ? r : c); ++x)
         match |= (b->board[r+x][c+x] << (2*x + 1));
-    /* 682 == 1010101010 */
-    if (!(match ^ 682) ||
-        /* 2728 == 101010101000
-           First three bits may differ and we still have 5 */
-        (match ^ 2728) < 8)
+    /* 2730 == 101010101010 (6 stones of player 1 in a row) */
+    x = (match & 2730);
+    /* x > 2727 checks for 5 or 6 stones of player 1 at the end
+       x == 682  checks for 5 stones of player 1 at the beginning */
+    if (x > 2727 || x == 682)
         return 1;
-    else if (!(match ^ 1364) || (match ^ 5460) < 8)
+    /* 5460 == 1010101010100 (6 stones of player 2 in a row) */
+    x = (match & 5460);
+    /* x > 5455 checks for 5 or 6 stones of player 2 at the end
+       x == 1364 checks for 5 stones of player 2 at the beginning */
+    if (x > 5455 || x == 1364)
         return 2;
     else
         return 0;
