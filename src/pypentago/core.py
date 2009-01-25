@@ -15,16 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-##########################################################
-## About this file                                      ##
-## ==================================================== ##
-## This file is ongoing work of reimplementing the core ##
-## of pypentago. It is currently not used at all, but   ##
-## will be integrated into the pypentago project.       ##
-## This will replace the pypentago.server.field module  ##
-##########################################################
-
-
 import sys
 import os
 import random
