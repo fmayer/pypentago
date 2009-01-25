@@ -204,6 +204,18 @@ class TestGame(unittest.TestCase):
         
         winner, loser = self.game.get_winner()
         self.assertEqual(winner, None)
+    
+    def test_set(self):
+        i = 1
+        board = self.game.board
+        for r in xrange(6):
+            for c in xrange(6):
+                board[r, c] = i
+                self.assertEquals(board[r, c], i)
+                if i == 2:
+                    i = 0
+                else:
+                    i += 1
 
 
 if core.EXTENSION_MODULE:

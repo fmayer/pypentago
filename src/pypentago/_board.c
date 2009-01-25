@@ -110,9 +110,9 @@ board_ass_subscript(BoardObject *self, PyObject *key, PyObject *value)
         return -1;
     }
     ivalue = PyInt_AsLong(value);
-    if (ivalue < 0 || ivalue > 3)
+    if (ivalue < 0 || ivalue > 2)
     {
-        PyErr_SetString(PyExc_ValueError, "value not in range(4)");
+        PyErr_SetString(PyExc_ValueError, "value not in range(3)");
         return -1;
     }
 
