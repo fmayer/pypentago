@@ -147,10 +147,7 @@ char won(struct Board* b){
    w = won_dia(b, 0, 1);
    if(w != 0)
       return w;
-   w = won_dia(b, 1, 0);
-   if(w != 0)
-      return w;
-   return 0;
+   return won_dia(b, 1, 0);
 }
 
 void rotate_cw(struct Board* b, int quad){
