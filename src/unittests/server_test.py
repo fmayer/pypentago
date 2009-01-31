@@ -113,6 +113,15 @@ class ServerTest(unittest.TestCase):
         keyword, data = json.loads(recvs[0])
         self.assertEqual(keyword, "AUTH")
     
+    def test_logout(self):
+        self.test_login()
+        self.client.send(json.dumps(["LOGOUT", None]) + '\0')
+        recv = self.client.recv(100)
+        recvs = recv.split('\0')
+        keyword, data = json.loads(recvs[0])
+        self.assertEqual(keyword, "LOGGEDOUT")
+        self.test_nauth()
+    
     def test_auth(self):
         self.test_login()
         self.client.send(json.dumps(['OPEN', 'foo']) + '\0')
