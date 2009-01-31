@@ -19,14 +19,16 @@
 import sys
 from PyQt4 import QtGui, QtCore
 
-# from pypentago.client.connection import ClientConnection
-# from pypentago import DEFAULT_PORT
+from pypentago.client.connection import ClientConnection
+from pypentago import DEFAULT_PORT
 
-DEFAULT_PORT = 29560
 
 class ServerWindow(QtGui.QMainWindow):
-    def __init__(self, host, port):
+    def __init__(self, host, port, login_user=None, login_pwd=None):
         QtGui.QMainWindow.__init__(self)
+        
+        self.login_user = login_user
+        self.login_pwd = login_pwd
         
         self.connection = None
         self.attempts = 5
@@ -71,24 +73,22 @@ class ServerWindow(QtGui.QMainWindow):
         self.init_conn()
     
     def init_conn(self):
-        # DEBUG:
-        self.connected(None)
-        # Real Code:
-        # ClientConnection.start_new(host, port, self.connected,
-        #                            self.conn_failed)
+        ClientConnection.start_new(host, port, self.connected)
     
     @classmethod
-    def from_string(cls, string):
+    def from_string(cls, string, login_user=None, login_pwd=None):
         h = string.split(':')
         if len(h) == 1:
-            return cls(string, DEFAULT_PORT)
+            return cls(string, DEFAULT_PORT, login_user, login_pwd)
         elif len(h) == 2:
-            return cls(h[0], h[1])
+            return cls(h[0], h[1], login_user, login_pwd)
         else:
             raise ValueError("Cannot interpret %r as server connect string!"
                              % string)
     
     def connected(self, conn):
+        if self.login_user and self.login_pwd:
+            conn.authenticate(self.login_user, self.login_pwd)
         self.connection = conn
         self.statusBar().showMessage("Connection to server established", 10000)
         for widg in self.need_connected:
@@ -109,15 +109,6 @@ class ServerWindow(QtGui.QMainWindow):
     @QtCore.pyqtSignature('')
     def join_game(self):
         pass
-    
-    def conn_failed(self, connector):
-        if self.attempts >= 0:
-            self.attempts -= 1
-            # Retry
-            connector.connect()
-        else:
-            # Inform user connection cannot be established and die.
-            pass        
 
 
 if __name__ == '__main__':

@@ -52,7 +52,8 @@ def modal_buttons(ok_label='Okay', cancel_label='Cancel'):
         lay.addWidget(cancel)
         lay.addWidget(ok)
     return ok, cancel, lay
-        
+
+
 class ConnectDialog(QtGui.QDialog):
     """ Dialog to get connection and login information.
     
