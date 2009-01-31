@@ -84,7 +84,7 @@ setup(
     description='Pentago board game',
     author='Florian Mayer',
     author_email='flormayer@aim.com',
-    url='https://gna.org/projects/pypentago/',
+    url='http://bitbucket.org/segfaulthunter/pypentago-mainline',
     keywords='pentago game board',
     license='GPL',
     zip_safe=False,

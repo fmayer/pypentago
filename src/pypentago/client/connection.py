@@ -80,8 +80,7 @@ class ClientConnection(Connection):
         rest = evt['data'][1:]
         
         if game_id not in self.remote_table:
-            # Notify other side that the game is not known
-            pass
+            send.send("INVGAME")
         else:
             remote = self.remote_table[game_id]
             cmd = rest[0]
