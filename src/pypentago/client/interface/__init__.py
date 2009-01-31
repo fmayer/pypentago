@@ -38,7 +38,6 @@ def modal_buttons(ok_label='Okay', cancel_label='Cancel'):
     ok and cancel are the button objects in layout.
     """
     lay = QtGui.QHBoxLayout()
-    offset = 0
     ok = QtGui.QPushButton(QtGui.QIcon(OK_ICON), ok_label)
     cancel = QtGui.QPushButton(QtGui.QIcon(CANCEL_ICON), cancel_label)
     if os.name == 'nt':
