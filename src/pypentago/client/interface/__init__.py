@@ -18,11 +18,150 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import os
+import pypentago
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 from pypentago.client.interface.game import GameWindow
+from pypentago.client.interface.server import ServerWindow
 from pypentago import core
+
+servers = []
+
+OK_ICON = pypentago.data['success.png']
+CANCEL_ICON = pypentago.data['fail.png']
+
+def modal_buttons(ok_label='Okay', cancel_label='Cancel'):
+    """ Return ok, cancel, layout.
+    
+    ok and cancel are the button objects in layout.
+    """
+    lay = QtGui.QHBoxLayout()
+    offset = 0
+    ok = QtGui.QPushButton(QtGui.QIcon(OK_ICON), ok_label)
+    cancel = QtGui.QPushButton(QtGui.QIcon(CANCEL_ICON), cancel_label)
+    if os.name == 'nt':
+        # Left-aligned, OK first.
+        lay.addStretch(0)
+        lay.addWidget(ok)
+        lay.addWidget(cancel)
+    else:
+        # Right-aligned, Cancel first.
+        lay.addStretch(1)
+        lay.addWidget(cancel)
+        lay.addWidget(ok)
+    return ok, cancel, lay
+        
+class ConnectDialog(QtGui.QDialog):
+    """ Dialog to get connection and login information.
+    
+    >>> d = ConnectDialog()
+    >>> if d.show():
+    ...     user = d.user.text()
+    ...     passwd = d.passwd.text()
+    ...     server = d.server.text()
+    >>>
+    """
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        self.setModal(True)
+        self.setWindowTitle('Python Pentago - Login')
+        
+        self.server = QtGui.QLineEdit()
+        self.user = QtGui.QLineEdit()
+        self.passwd = QtGui.QLineEdit()
+        self.passwd.setEchoMode(QtGui.QLineEdit.Password)
+        
+        grid = QtGui.QGridLayout()
+        
+        layout = [
+            (QtGui.QLabel('Server:'), self.server),
+            (QtGui.QLabel('User:'), self.user),
+            (QtGui.QLabel('Password:'), self.passwd),
+        ]
+        for i, elem in enumerate(layout):
+            for j, widg in enumerate(elem):
+                grid.addWidget(widg, i, j)
+        
+        ok, cancel, lay = modal_buttons()
+        register = QtGui.QPushButton('Register')
+        
+        self.connect(ok, QtCore.SIGNAL('clicked()'),
+                     self, QtCore.SLOT('accept()'))
+        self.connect(cancel, QtCore.SIGNAL('clicked()'),
+                     self, QtCore.SLOT('reject()'))
+        
+        button_line = QtGui.QHBoxLayout()
+        button_line.addWidget(register)
+        # FIXME: Use following code and figure out how to insert
+        # icons and how not to localise the buttons to the OS.
+        # but = QtGui.QDialogButtonBox()
+        # but.addButton(QtGui.QDialogButtonBox.Ok)
+        # but.addButton(QtGui.QDialogButtonBox.Cancel)
+        button_line.addLayout(lay)
+        
+        main = QtGui.QVBoxLayout()
+        main.addLayout(grid)
+        main.addLayout(button_line)
+        # Align all widget on the top.
+        main.addStretch(1)
+        
+        self.setLayout(main)
+
+
+class RegisterDialog(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog.__init__(self)
+        self.setModal(True)
+        
+        grid = QtGui.QGridLayout()
+        
+        self.user = QtGui.QLineEdit()
+        self.passwd = QtGui.QLineEdit()
+        self.passwd.setEchoMode(QtGui.QLineEdit.Password)
+        self.real_name = QtGui.QLineEdit()
+        self.email = QtGui.QLineEdit()
+        
+        ok, cancel, but = modal_buttons()
+        self.connect(ok, QtCore.SIGNAL('clicked()'),
+            self, QtCore.SLOT('accept()'))
+        self.connect(cancel, QtCore.SIGNAL('clicked()'),
+            self, QtCore.SLOT('reject()'))
+        # FIXME: Use following code and figure out how to insert
+        # icons and how not to localise the buttons to the OS.
+        # but = QtGui.QDialogButtonBox()
+        # but.addButton(QtGui.QDialogButtonBox.Ok)
+        # but.addButton(QtGui.QDialogButtonBox.Cancel)
+        
+        layout = [
+            (QtGui.QLabel('Username:'), self.user),
+            (QtGui.QLabel('Password:'), self.passwd),
+            (QtGui.QLabel('Real Name:'), self.real_name),
+            (QtGui.QLabel('Email:'), self.email),
+        ]
+        for i, elem in enumerate(layout):
+            for j, widg in enumerate(elem):
+                grid.addWidget(widg, i, j)
+        
+        main = QtGui.QVBoxLayout()
+        main.addLayout(grid)
+        main.addWidget(but)
+        main.addStretch(1)
+        self.setLayout(main)
+
+
+class MainWindow(QtGui.QMainWindow):
+    def __init__(self):
+        QtGui.QMainWindow(self)
+        
+        self.setWindowTitle("Python Pentago")
+        
+        connect = QtGui.QAction('&Disconnect', self)
+        connect.setShortcut('Ctrl+Q')
+        connect.setStatusTip('Disconnect from server')
+        self.connect(connect, QtCore.SIGNAL('triggered()'),
+                     QtCore.SLOT('connect()'))
 
 
 def main(default_servers=[]):
