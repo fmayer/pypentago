@@ -154,27 +154,3 @@ class Board:
     def __getitem__(self, i):
         r, c = i
         return self.board[r][c]
-    
-
-if __name__ == '__main__':
-    b = Board()
-    b.set_stone(0, 0, 0)
-    b.rotate_ccw(0)
-    b.set_stone(0, 0, 1)
-    # b._print()
-    print
-    # b.do_best()
-    # b._print()
-    print b[2, 0]
-    b[2, 0] = 2
-    print b[2, 0]
-    print b._struct.board[2][0]
-    b._struct.board[2][0] = 1
-    print b._struct.board[2][0]
-    #b.do_best_turn()
-    #b.do_best_turn()
-    #board.print_board(b.ptr)
-    #print ord(Board.from_address(b.ptr).colour)
-    #b.do_best_turn()
-    #print ord(Board.from_address(b.ptr).colour)
-

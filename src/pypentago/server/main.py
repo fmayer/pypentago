@@ -64,7 +64,7 @@ verbosity = verbosity_levels[options.verbose]
 try:
     def_pid = config.get("default", "pidfile", {"{port}": str(options.port)})
 except NoOptionError:
-    def_pid = abspath(join(script_path, "pid"))
+    def_pid = join(abspath(dirname(__file__)), "pid")
 pid_filename = abspath(def_pid)
 
 db_driver = config.get('database','dbdriver')
@@ -85,7 +85,7 @@ def main():
     logfile = expanduser(str(options.logfile))
     logfile = logfile.replace("{port}", str(options.port))
     if not logfile:
-        logfile = join(script_path, "server.log")
+        logfile = join(abspath(dirname(__file__)), "server.log")
     pypentago.init_logging(logfile, verbosity)
     log = logging.getLogger("pypentago.server")
 

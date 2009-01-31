@@ -29,7 +29,6 @@ from pypentago import PROTOCOL_VERSION, could_int, int_all
 from pypentago.core import Game
 from pypentago.client import context
 from pypentago.core import RemotePlayer
-from pypentago.client.interface import new_game
 
 from easy_twisted.connection import expose, Connection
 
@@ -69,7 +68,7 @@ class ClientConnection(Connection):
     @expose("INITGAME")
     def init_game(self, evt):
         game = Game()
-        new_game(game)
+        self.factory.parent.show_game(game)
         r = RemotePlayer(self)
         self.remote_table[evt['data'][0]] = r
         game.add_player(r)
@@ -80,7 +79,7 @@ class ClientConnection(Connection):
         rest = evt['data'][1:]
         
         if game_id not in self.remote_table:
-            send.send("INVGAME")
+            self.send("INVGAME")
         else:
             remote = self.remote_table[game_id]
             cmd = rest[0]
@@ -104,11 +103,12 @@ class ClientConnection(Connection):
         pass
     
     @classmethod
-    def start_new(cls, host, port, callback=None):
+    def start_new(cls, host, port, parent, callback=None):
         from twisted.internet import reactor, protocol
         f = protocol.ClientFactory()
         f.protocol = cls
         f.callback = callback
+        f.parent = parent
         reactor.connectTCP(host, port, f)
 
 

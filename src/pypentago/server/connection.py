@@ -60,6 +60,9 @@ class Conn(Connection):
         self.name = "Player"
         self.remote_table = {}
         self.expect_response = None
+    
+    def destruct(self, reason):
+        self.logout(answer=False)
         
     @expose("GAME")
     @require_auth
@@ -74,6 +77,16 @@ class Conn(Connection):
             cmd = rest[0]
             arg = rest[1:]
             remote.lookup(cmd)(*arg)
+    
+    @expose("LOGOUT")
+    @require_auth
+    def logout(self, evt=None, answer=True):
+        for p in self.remote_table.itervalues():
+            p.quit_game()
+        self.auth = False
+        self.db_player = None
+        if answer:
+            self.send("LOGGEDOUT")
     
     @expose("OPEN")
     @require_auth

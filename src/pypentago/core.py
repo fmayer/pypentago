@@ -60,14 +60,6 @@ class Quadrant(object):
         # Reverse newfield.
         self.field[:] = newfield[::-1]
     
-    @depr.deprecated_alias(rotate_ccw)
-    def rotleft(*args, **kwargs):
-        pass
-    
-    @depr.deprecated_alias(rotate_cw)
-    def rotright(*args, **kwargs):
-        pass
-        
     def rotate(self, clockwise):
         if clockwise:
             self.rotate_cw()

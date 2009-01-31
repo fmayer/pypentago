@@ -20,6 +20,8 @@ import sys
 from PyQt4 import QtGui, QtCore
 
 from pypentago.client.connection import ClientConnection
+from pypentago.client.interface import modal_buttons
+from pypentago.client.interface.game import GameWindow
 from pypentago import DEFAULT_PORT
 
 
@@ -168,10 +170,10 @@ class ServerWindow(QtGui.QMainWindow):
         self.need_connected = [disconnect]
         for widg in self.need_connected:
             widg.setEnabled(False)
-        self.init_conn()
+        self.init_conn(host, port)
     
-    def init_conn(self):
-        ClientConnection.start_new(host, port, self.connected)
+    def init_conn(self, host, port):
+        ClientConnection.start_new(host, port, self, self.connected)
     
     @classmethod
     def from_string(cls, string, login_user=None, login_pwd=None):
@@ -207,6 +209,9 @@ class ServerWindow(QtGui.QMainWindow):
     @QtCore.pyqtSignature('')
     def join_game(self):
         pass
+    
+    def show_game(self, game):
+        g = GameWindow(game)
 
 
 if __name__ == '__main__':

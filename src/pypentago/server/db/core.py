@@ -121,7 +121,7 @@ class DatabaseObject(object):
         return dict(one) == dict(other)
     
     def __neq__(self, other):
-        return not (one == other)
+        return not (self == other)
     
     def __repr__(self):
         attr = sorted(vars(self).items())

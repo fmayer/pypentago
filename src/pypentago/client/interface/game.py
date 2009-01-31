@@ -235,7 +235,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         
         if self.preview_stone is not None:
             x_c, y_c = self.preview_stone
-            if not self.field[y_c][x_c]:
+            if 0 <= x_c <= 2 and 0 <= y_c <= 2 and not self.field[y_c][x_c]:
                 uid = self.prnt.prnt.local_player.uid
                 x_p, y_p = x_c * size, y_c * size
                 paint.setOpacity(self.PREVIEW_OPACITY)
