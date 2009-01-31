@@ -22,6 +22,7 @@ import os
 import sys
 import time
 import logging
+import __builtin__
 import logging.handlers
 
 from string import ascii_letters
@@ -44,15 +45,17 @@ __bugs__ = "http://bitbucket.org/segfaulthunter/pypentago/issues/"
 PROTOCOL_VERSION = 1
 EMAIL_REGEX = r"""^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$"""
 DEFAULT_PORT = 26500
-LIB_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), os.pardir, 'lib/')
-)
 
+# Dummy gettext.
+__builtin__._ = lambda x: x
 
 class _CW:
     """ Equals "CW" and "R" """
     def __eq__(self, other):
         return self is other or other == "CW" or other == "R"
+    
+    def __neq__(self, other):
+        return not self == other
     
     @staticmethod
     def __str__():
@@ -64,6 +67,9 @@ class _CCW:
     """ Equals "CCW" and "L" """
     def __eq__(self, other):
         return self is other or other == "CCW" or other == "L"
+    
+    def __neq__(self, other):
+        return not self == other
     
     @staticmethod
     def __str__():
