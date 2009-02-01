@@ -32,26 +32,6 @@ servers = []
 OK_ICON = pypentago.data['success.png']
 CANCEL_ICON = pypentago.data['fail.png']
 
-def modal_buttons(ok_label='Okay', cancel_label='Cancel'):
-    """ Return ok, cancel, layout.
-    
-    ok and cancel are the button objects in layout.
-    """
-    lay = QtGui.QHBoxLayout()
-    ok = QtGui.QPushButton(QtGui.QIcon(OK_ICON), ok_label)
-    cancel = QtGui.QPushButton(QtGui.QIcon(CANCEL_ICON), cancel_label)
-    if os.name == 'nt':
-        # Left-aligned, OK first.
-        lay.addStretch(0)
-        lay.addWidget(ok)
-        lay.addWidget(cancel)
-    else:
-        # Right-aligned, Cancel first.
-        lay.addStretch(1)
-        lay.addWidget(cancel)
-        lay.addWidget(ok)
-    return ok, cancel, lay
-
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):

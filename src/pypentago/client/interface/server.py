@@ -20,9 +20,29 @@ import sys
 from PyQt4 import QtGui, QtCore
 
 from pypentago.client.connection import ClientConnection
-from pypentago.client.interface import modal_buttons
 from pypentago.client.interface.game import GameWindow
 from pypentago import DEFAULT_PORT
+
+
+def modal_buttons(ok_label='Okay', cancel_label='Cancel'):
+    """ Return ok, cancel, layout.
+    
+    ok and cancel are the button objects in layout.
+    """
+    lay = QtGui.QHBoxLayout()
+    ok = QtGui.QPushButton(QtGui.QIcon(OK_ICON), ok_label)
+    cancel = QtGui.QPushButton(QtGui.QIcon(CANCEL_ICON), cancel_label)
+    if os.name == 'nt':
+        # Left-aligned, OK first.
+        lay.addStretch(0)
+        lay.addWidget(ok)
+        lay.addWidget(cancel)
+    else:
+        # Right-aligned, Cancel first.
+        lay.addStretch(1)
+        lay.addWidget(cancel)
+        lay.addWidget(ok)
+    return ok, cancel, lay
 
 
 class ConnectDialog(QtGui.QDialog):

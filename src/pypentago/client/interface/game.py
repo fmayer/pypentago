@@ -434,7 +434,8 @@ class Game(QtGui.QWidget):
         self.player_list.addItem("Player 1")
         self.player_list.addItem("Player 2")
         
-        self.chat = QtGui.QListWidget()
+        self.chat = QtGui.QPlainTextEdit()
+        self.chat.setReadOnly(True)
         
         self.chat_entry = QtGui.QLineEdit()
         self.chat_entry.connect(self.chat_entry, 
@@ -461,8 +462,12 @@ class Game(QtGui.QWidget):
         if utc_time is None:
             utc_time = time.time()
         time_ = time.strftime('%H:%M', time.localtime(utc_time))
-        self.chat.addItem(format % dict(time=time_, author=author, msg=msg))
-        self.chat.scrollToBottom()
+        self.chat.appendPlainText(format % dict(time=time_, author=author, 
+                                                msg=msg)
+                                  )
+        # Following code scrolls to bottom.
+        self.chat.moveCursor(QtGui.QTextCursor.End)
+        self.chat.ensureCursorVisible()
     
     def quit(self):
         self.local_player.quit_game()
