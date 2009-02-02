@@ -28,17 +28,11 @@ import sqlalchemy
 
 from itertools import chain
 from pypentago import core
-from qtest import QTestRunner, QTestResult, QtGui, QTestWindow, call_init
-
 
 MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 
            'server_test', 'elo_test', 'db_test']
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
-    win = QTestWindow()
-    result = win.result
-    win.show()
     for elem in sys.argv[1:]:
         if elem.strip() in MODULES:
             MODULES.remove(elem)
@@ -53,13 +47,10 @@ if __name__ == '__main__':
     print 
     test_cases = chain(*[unittest.findTestCases(mod) for mod in mod])
     suite = unittest.TestSuite(test_cases)
-    display = QTestRunner(result)
-    call_init(lambda: display.run(suite))
-    #if result.errors == 0 and result.failures == 0:
-    #    ret = 0
-    #else:
-    #    ret = 1
-    #print 'foo'
-    app.exec_()
-    #print 'bar'
-    #sys.exit(ret)
+    display = unittest.TextTestRunner()
+    result = display.run(suite)
+    if result.errors == 0 and result.failures == 0:
+        ret = 0
+    else:
+        ret = 1
+    sys.exit(ret)
