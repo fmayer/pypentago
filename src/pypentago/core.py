@@ -113,7 +113,7 @@ class Player(object):
     def quit_game(self):
         self.game.player_quit(self)
     
-    def opponent_quit(self, opponent):
+    def player_quit(self, opponent):
         pass
     
     def display_msg(self, author, msg):
@@ -233,4 +233,4 @@ class Game(object):
         
         self.players.remove(player)
         for p in self.players:
-            p.opponent_quit(player)
+            p.player_quit(player)

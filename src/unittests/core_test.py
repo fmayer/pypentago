@@ -190,7 +190,7 @@ class TestGame(unittest.TestCase):
     
     def test_quit(self):
         p_1, p_2 = self.players
-        p_2.opponent_quit = fail
+        p_2.player_quit = fail
         self.assertRaises(Called, p_1.quit_game)
     
     def test_no_win(self):
