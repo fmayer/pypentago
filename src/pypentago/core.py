@@ -76,7 +76,23 @@ class Quadrant(object):
         return hash(tuple(map(tuple, self.field)))
 
 
-        
+class Observer(object):
+    def display_turn(self, turn):
+        pass
+    
+    def game_over(winner, loser):
+        pass
+    
+    def display_msg(self, author, msg):
+        pass
+    
+    def player_quit(self, opponent):
+        pass
+    
+    def player_joined(self, player):
+        pass
+
+
 class Player(object):
     """ The Player is the one that is interacting with the Game. """
     def __init__(self):
@@ -107,13 +123,16 @@ class Player(object):
     def lookup(self, cmd):
         return self.cmd[cmd]
     
-    def game_over(self, winner):
+    def game_over(self, winner, loser):
         pass
     
     def quit_game(self):
         self.game.player_quit(self)
     
     def player_quit(self, opponent):
+        pass
+    
+    def player_joined(self, player):
         pass
     
     def display_msg(self, author, msg):
@@ -185,8 +204,8 @@ class Game(object):
         self.last_set = player
         winner, loser = self.get_winner()
         if winner is not None:
-            winner.game_over(True)
-            loser.game_over(False)
+            for p in self.people():
+                p.game_over(winner, loser)
     
     def get_winner(self):
         """ Return (winner, loser).
@@ -205,11 +224,17 @@ class Game(object):
         return players + 1
     
     def add_player(self, p):
+        # FIXME: Should we really get the ID here?
         if len(self.players) == 2:
             raise GameFull
         p.uid = self.new_id()
         p.game = self
+        for person in self.people():
+            person.player_joined(p)
         self.players.append(p)
+    
+    def add_observer(self, o):
+        self.observers.append(o)
     
     def random_beginner(self):
         """ Determine and return random beginner """
@@ -224,7 +249,7 @@ class Game(object):
         return self.board.checksum()
     
     def send_msg(self, author, msg):
-        for p in self.players:
+        for p in self.people():
             p.display_msg(author, msg)
     
     def player_quit(self, player):
@@ -232,5 +257,10 @@ class Game(object):
             raise ValueError
         
         self.players.remove(player)
-        for p in self.players:
+        for p in self.people():
             p.player_quit(player)
+    
+    def people(self, but=None):
+        for item in itertools.chain(self.players, self.observers):
+            if item != but:
+                yield item

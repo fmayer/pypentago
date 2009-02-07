@@ -28,8 +28,8 @@ class LocalPlayer(core.Player):
         self.gui_game.board.show_turn(p.uid, quad, row, col, r_quad,
                                       rot_dir == CW)
     
-    def game_over(self, winner):
-        if winner:
+    def game_over(self, winner, loser):
+        if self is winner:
             self.gui_game.add_msg('System', 'You won the game!')
         else:
             self.gui_game.add_msg('System', 'You lost the game!')
