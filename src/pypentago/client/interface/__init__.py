@@ -23,27 +23,38 @@ import pypentago
 
 from PyQt4 import QtGui, QtCore
 
+from pypentago.client.connection import ClientConnection
 from pypentago.client.interface.game import GameWindow
-from pypentago.client.interface.server import ServerWindow
-from pypentago import core
+from pypentago.client.interface.server import (
+    ServerWindow, ConnectDialog, RegisterDialog
+)
+from pypentago import core, parse_ip
 
 servers = []
-
-OK_ICON = pypentago.data['success.png']
-CANCEL_ICON = pypentago.data['fail.png']
 
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
-        QtGui.QMainWindow(self)
+        QtGui.QMainWindow.__init__(self)
         
         self.setWindowTitle("Python Pentago")
         
-        connect = QtGui.QAction('&Disconnect', self)
-        connect.setShortcut('Ctrl+Q')
-        connect.setStatusTip('Disconnect from server')
+        connect = QtGui.QAction('&Connect', self)
+        connect.setShortcut('Ctrl+O')
+        connect.setStatusTip('Connect to server')
         self.connect(connect, QtCore.SIGNAL('triggered()'),
-                     QtCore.SLOT('connect()'))
+                     QtCore.SLOT('connect_to()'))
+        
+        menubar = self.menuBar()
+        file_menu = menubar.addMenu('&File')
+        file_menu.addAction(connect)
+        file_menu.addAction(register)
+    
+    @QtCore.pyqtSignature('')
+    def connect_to(self):
+        # TODO: Finish writing me.
+        dia = ConnectDialog()
+        dia.exec_()
 
 
 def main(default_servers=[]):
@@ -59,8 +70,10 @@ def main(default_servers=[]):
     # from easy_twisted import qt4reactor
     # qt4reactor.install()
     game = core.Game()
-    dt = GameWindow(game)
-    ot = GameWindow(game)
+    p_1 = core.PlayerData('Player 1', game)
+    p_2 = core.PlayerData('Player 2', game)
+    dt = GameWindow(p_1)
+    ot = GameWindow(p_2)
     dt.show()
     ot.show()
     b = game.random_beginner()

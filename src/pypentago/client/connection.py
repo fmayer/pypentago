@@ -28,7 +28,7 @@ import actions
 from pypentago import PROTOCOL_VERSION, could_int, int_all
 from pypentago.core import Game
 from pypentago.client import context
-from pypentago.core import RemotePlayer
+from pypentago.core import RemotePlayer, PlayerData
 
 from easy_twisted.connection import expose, Connection
 
@@ -51,12 +51,16 @@ class ClientConnection(Connection):
         self.remote_table = {}
         log.info("Connection established")
         context.emmit_action('conn_established', self)
+        self.name = None
+        self.login_as = None
+        self.server_window = self.factory.parent
     
     def register(self, login, passwd, real_name, email):
         self.send("REGISTER", {'login': login, 'passwd': passwd,
                                'real_name': real_name, 'email': email})
     
     def authenticate(self, login, passwd):
+        self.login_as = login
         self.send("LOGIN", {'login': login, 'passwd': passwd})
     
     def open_game(self, name):
@@ -65,13 +69,23 @@ class ClientConnection(Connection):
     def join_game(self, uid):
         self.send("JOIN", uid)
     
+    @expose("OPENGAME")
+    def open_game(self, evt):
+        gid = evt['data']
+        pass
+    
     @expose("INITGAME")
     def init_game(self, evt):
+        di = evt['data']
         game = Game()
-        self.factory.parent.show_game(game)
-        r = RemotePlayer(self)
-        self.remote_table[evt['data'][0]] = r
-        game.add_player(r)
+        
+        local_player = PlayerData(self.name, game, di['p_id'])
+        r = RemotePlayer(self, di['opponent_name'])
+        r.uid = 2 - di['p_id']
+        self.remote_table[di['game_id']] = r
+        game.add_player_with_uid(r)
+        
+        self.server_window.show_game(local_player)
     
     @expose("GAME")
     def remote_dispatcher(self, evt):
@@ -88,7 +102,7 @@ class ClientConnection(Connection):
     
     @expose("AUTH")
     def auths(self):
-        pass
+        self.name = self.login_as
     
     @expose("AUTHF")
     def authf(self):
@@ -100,6 +114,10 @@ class ClientConnection(Connection):
     
     @expose("REGFAILED")
     def reg_failed(self):
+        pass
+    
+    @expose("GAMES")
+    def games(self, evt):
         pass
     
     @classmethod

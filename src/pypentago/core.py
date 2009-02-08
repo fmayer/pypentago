@@ -33,8 +33,9 @@ try:
 except ImportError:
     from pypentago.board import Board
     EXTENSION_MODULE = False
-    
-    
+
+
+# FIXME: This belongs to the GUI!
 class Quadrant(object):
     def __init__(self, uid):
         self.uid = uid
@@ -93,14 +94,36 @@ class Observer(object):
         pass
 
 
+class PlayerData:
+    def __init__(self, name, game, uid=None):
+        self.name = name
+        self.uid = uid
+        self.game = game
+    
+    def make_player(self, cls, *args, **kwargs):
+        obj = cls(*args, **kwargs)
+        obj.name = self.name
+        obj.uid = self.uid
+        return obj
+    
+    def make_join_game(self, cls, *args, **kwargs):
+        obj = self.make_player(cls, *args, **kwargs)
+        if self.uid is not None:
+            self.game.add_player_with_uid(obj)
+        else:
+            self.game.add_player(obj)
+        return obj
+
+        
 class Player(object):
     """ The Player is the one that is interacting with the Game. """
-    def __init__(self):
+    def __init__(self, name=None):
         self.game = None
         self.uid = None
         self.cmd = {'TURN': self.do_turn,
                     'GAMEOVER': self.game_over,
                     'MSG': self.display_msg}
+        self.name = name
     
     def your_turn(self):
         self.game.last_set = self.game.other_player(self)
@@ -141,22 +164,20 @@ class Player(object):
     def send_msg(self, msg):
         self.game.send_msg(self.name, msg)
     
+    def in_game(self):
+        return self.game and self in self.game.players
+    
+    def serialize(self):
+        return {'name': self.name}
+    
     def __repr__(self):
         return "<Player %d>" % (self.uid)
-    
-    @property
-    def name(self):
-        return "Player %d" % self.uid
 
 
 class RemotePlayer(Player):
-    def __init__(self, conn=None):
-        Player.__init__(self)
-        self.cmd.update({'LOCALTURN': self.local_turn})
+    def __init__(self, conn=None, name=None):
+        Player.__init__(self, name)
         self.conn = conn
-    
-    def local_turn(self):
-        self.game.last_set = self
     
     def display_turn(self, player, turn):
         self.conn.send('GAME', [self.game.uid, 'TURN', turn])
@@ -232,6 +253,14 @@ class Game(object):
         for person in self.people():
             person.player_joined(p)
         self.players.append(p)
+    
+    def add_player_with_uid(self, p):
+        if len(self.players) == 2:
+            raise GameFull
+        p.game = self
+        for person in self.people():
+            person.player_joined(p)
+        self.players.insert(p.uid - 1, p)
     
     def add_observer(self, o):
         self.observers.append(o)

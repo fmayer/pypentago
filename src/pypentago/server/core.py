@@ -5,3 +5,9 @@ class ServerGame(core.Game):
         core.Game.__init__(self)
         self.name = name
     
+    def serialize(self):
+        return {
+            'name': self.name,
+            'players': [p.serialize() for p in self.players],
+        }
+    

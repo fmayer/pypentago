@@ -96,7 +96,7 @@ class Conn(Connection):
         name = evt['data']
         game = s_core.ServerGame(name)
         uid = self.server.next_game_id()
-        p = core.RemotePlayer(self)
+        p = core.RemotePlayer(self, self.db_player.player_name)
         game.uid = uid
         self.remote_table[uid] = p
         self.server.games[uid] = game
@@ -106,15 +106,29 @@ class Conn(Connection):
     @expose("JOIN")
     @require_auth
     def join_game(self, evt):
-        uid = evt['data']
-        p = core.RemotePlayer(self)
-        g = self.server.games[uid]
-        g.add_player(p)
-        self.remote_table[uid] = p
-        b = g.random_beginner()
-        self.send("INITGAME", uid)
-        g.other_player(p).conn.send("INITGAME", uid)
-        b.conn.send("GAME", [uid, "LOCALTURN"])
+        gid = evt['data']
+        player = core.RemotePlayer(self, self.db_player.player_name)
+        game = self.server.games[gid]
+        game.add_player(player)
+        self.remote_table[gid] = player
+        beginner = game.random_beginner()
+        for player in game.players:
+            player.conn.send(
+                "INITGAME", 
+                {'game_id': gid,
+                 'player_id': player.uid,
+                 'beginner': player is beginner,
+                 'opponent_name': game.other_player(player).name
+                 }
+            )
+    
+    @expose("GAMELIST")
+    @require_auth
+    def game_list(self, evt=None):
+        self.send(
+            "GAMES", 
+            [game.serialize() for game in self.server.games.itervalues()]
+        )
     
     @expose("REGISTER")
     def register(self, evt):
@@ -138,7 +152,8 @@ class Conn(Connection):
         if crypto.check_pwd(p.passwd_hash, evt['data']['passwd']):
             self.auth = True
             self.db_player = p
-            return "AUTH"
+            self.send("AUTH")
+            self.game_list()
         else:
             return "AUTHF"
     

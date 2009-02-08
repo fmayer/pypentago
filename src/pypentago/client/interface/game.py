@@ -420,13 +420,11 @@ class Board(QtGui.QWidget):
         
 
 class Game(QtGui.QWidget):
-    def __init__(self, game, parent=None):
+    def __init__(self, player_data, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.prnt = parent
         self.board = Board(self)
-        self.game = game
-        self.local_player = c_core.LocalPlayer(self)
-        self.game.add_player(self.local_player)
+        self.local_player = player_data.make_join_game(c_core.LocalPlayer, self)
         hbox = QtGui.QHBoxLayout()
         hbox.addWidget(self.board, 40)
         
@@ -477,9 +475,9 @@ class Game(QtGui.QWidget):
 
 
 class GameWindow(QtGui.QWidget):
-    def __init__(self, game, parent=None):
+    def __init__(self, player_data, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.game = Game(game, self)
+        self.game = Game(player_data, self)
         hbox = QtGui.QHBoxLayout()
         hbox.addWidget(self.game)
         self.setLayout(hbox)
