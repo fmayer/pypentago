@@ -178,7 +178,14 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(keyword, "GAME")
         self.assertEqual(data, [uid, "TURN", turn])
         return a
-        
+    
+    def test_malformed(self):
+        self.client.send("BROKENJSON1423sa" + '\0')
+        recv = self.client.recv(100)
+        recvs = recv.split('\0')
+        keyword, data = json.loads(recvs[0])
+        self.assertEqual(keyword, "MALFORMED")
+
 
 if __name__ == "__main__":
     unittest.main()

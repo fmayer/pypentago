@@ -17,6 +17,7 @@
 from __future__ import with_statement
 
 import sys
+import time
 import logging
 
 import actions
@@ -39,6 +40,7 @@ from easy_twisted.connection import expose, require_auth, Connection
 
 
 conf = get_conf_obj('server')
+exception_log = logging.getLogger("pypentago.exception")
 
 email_text = ("Dear %(real_name)s,\n"
               "Thank you for registering with pypentago.\n"
@@ -139,3 +141,31 @@ class Conn(Connection):
             return "AUTH"
         else:
             return "AUTHF"
+    
+    def internal_error(self, request):
+        exception_log.critical(
+            "Internal server error handling request %r" % request,
+            exc_info=True
+        )
+        self.send("INTERNALERROR", (time.time(), request))
+    
+    def bad_input(self, request):
+        exception_log.critical(
+            "Bad input at request %r" % request,
+            exc_info=True
+        )
+        self.send("BADINPUT", (time.time(), request))
+    
+    def malformed_request(self, request):
+        exception_log.critical(
+            "Malformed request %r" % request,
+            exc_info=True
+        )
+        self.send("MALFORMED", (time.time(), request))
+    
+    def no_handler(self, request):
+        exception_log.critical(
+            "No handler found for request %r" % request,
+            exc_info=True
+        )
+        self.send("NOHANDLER", (time.time(), request))

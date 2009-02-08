@@ -19,10 +19,9 @@ client without modifications. It should be passed to server.startServer or to
 client.run_client as the prot attribute """
 
 import sys
+import inspect
 
-import actions
-
-import easy_twisted
+from collections import defaultdict
 
 if sys.version_info[:2] > (2, 5):
     # In Python 2.6+, use built-in JSON support.
@@ -33,7 +32,35 @@ else:
 
 from twisted.protocols.basic import LineOnlyReceiver
 
-expose = actions.register_method
+
+def getmembers(object, predicate=None):
+    """Return all members of an object as (name, value) pairs sorted by name.
+    Optionally, only return members that satisfy a given predicate."""
+    # I am aware that this is already implemented in inspect, but
+    # a) It's better when it's a generator
+    # b) I need it to swallow exceptions, some frameworks raise them
+    #    when getting attributes. Don't ask me...
+    for key in dir(object):
+        try:
+            value = getattr(object, key)
+        except Exception:
+            # Yes. That happens! I'm looking at you, wxPython!
+            # We shouldn't need these members anyway. Go on.
+            continue
+        if not predicate or predicate(value):
+            yield (key, value)
+
+
+def expose(*actions):
+    def decorate(exc):
+        if not actions:
+            exc._bind_to.append(exc.__name__)
+        else:
+            if not hasattr(exc, '_bind_to'):
+                exc._bind_to = []
+            exc._bind_to.extend(actions)
+        return exc
+    return decorate
 
 
 def require_auth(f):
@@ -41,62 +68,96 @@ def require_auth(f):
     return f
 
 
-class Connection(actions.ActionHandler, LineOnlyReceiver):
+class BadInput(Exception):
+    pass
+
+
+class Connection(LineOnlyReceiver):
     delimiter = "\0"
     encoding = "utf-8"
     """ The Connection class. Please do not overwrite anything unless you 
     really know what you are doing or otherwise stated """
     
     def construct(self):
-        pass
+        """ This is called when the Connection
+        instance's __init__ is called """
     
     def init(self):
         """ This method is called once connection is established. Feel free to 
         overwrite it to your needs """
-        pass
     
     def destruct(self, reason):
         """ This method is called once the connection is lost. Feel free to 
         overwrite it """
-        pass
+    
+    def internal_error(self, request):
+        """ This is called when a handler raises an exception.
+        Get the information about the exception using sys.exc_info(). """
+    
+    def bad_input(self, request):
+        """ This is called when a handler raises BadInput.
+        Get the information about the exception using sys.exc_info(). """
+    
+    def malformed_request(self, request):
+        """ This is called when there is an error while parsing the JSON
+        received. """
+    
+    def no_handler(self, evt):
+        """ This is called when a keyword is received that no handler is
+        registered for. """
     
     def __init__(self):
-        self.context = actions.Context()
-        actions.ActionHandler.__init__(self, self.context)
+        self.binds = defaultdict(list)
         self.auth = False
         self.construct()
-        # This only helps pylint and IDEs, not real use at all.
+        # This only helps pylint and IDEs, no real use at all.
         self.factory = None
-
+        for name, method in getmembers(self):
+            if hasattr(method, '_bind_to'):
+                for bind_to in method._bind_to:
+                    self.binds[bind_to].append(method) 
+    
     def lineReceived(self, income_data):
         """ This method handles received data and forwards it to the correct 
         event handlers """
+        # NOTE: All exceptions that appear unhandled in here cause the
+        # connection to be closed.
         income_data = income_data.decode(self.encoding)
         if not income_data:
             return
-    
-        keyword, data = loads(income_data)
+        
+        try:
+            keyword, data = loads(income_data)
+        except Exception:
+            self.malformed_request(income_data)
+            return
         event = {'keyword': keyword, 'data': data}
         
-        if not self.auth and any(getattr(h, 'auth', False) for h in
-                                 self.context.actions[keyword]):
+        funs = self.binds[keyword]
+        
+        if not self.auth and any(getattr(h, 'auth', False) for h in funs):
             self.send("AUTHREQ")
             return
-            
-        if keyword in self.context:
-            for ret in self.context.emmit_action(keyword, event):
-                self._handle_return(ret)
-        elif hasattr(self, 'on_any'):
-            self._handle_return(self.on_any(event))
+        
+        if funs:
+            for fun in funs:
+                # We swallow the exception here. The handlers are responsible
+                # for reporting (e.g. logging) them.
+                try:
+                    self._handle_return(fun(event))
+                except BadInput:
+                    self._handle_return(self.bad_input(income_data))
+                except Exception:
+                    self._handle_return(self.interal_error(income_data))
         else:
-            raise NotImplementedError
+            self._handle_return(self.no_handler(event))
     
-    def bind(self, keyword, function, *args, **kwargs):
+    def bind(self, keyword, function):
         """ Bind the keyword to the function, this function has to accept one 
         attribute being the event """
         if not callable(function):
             raise TypeError("Function has to be callable")
-        self.context.register_handler(keyword, function, *args, **kwargs)
+        self.binds[keyword].append(function)
     
     def connectionMade(self):
         """ Internal function that appends this connection to the client list 
