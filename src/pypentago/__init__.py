@@ -27,6 +27,7 @@ import logging.handlers
 
 from string import ascii_letters
 from random import randint, choice
+from traceback import format_exception
 
 __version__ = "devel"
 __authors__ = [ "Florian Mayer <flormayer@aim.com>", 
@@ -109,11 +110,13 @@ for file_ in os.listdir(IMGPATH):
     data[file_] = os.path.abspath(os.path.join(IMGPATH, file_))
 
 
-def except_hook(exctype, value, tceback):
+def log_exception(err):
     log = logging.getLogger("pypentago.exception")
-    from traceback import format_exception
-    log.critical("Caught exception:\n"+''.join(format_exception(
-        exctype, value, tceback)))
+    log.critical("Caught exception:\n"+''.join(format_exception(*err)))
+
+
+def except_hook(exctype, value, tceback):
+    log_exception((exctype, value, tceback))
 
 
 def init_logging(log_file, cnsl_verbosity):
