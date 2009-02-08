@@ -35,6 +35,44 @@ def get_coord(size, x):
     return int(x / size)
 
 
+class Quadrant(object):
+    def __init__(self, uid):
+        self.uid = uid
+        self.field = [
+            [0, 0, 0], 
+            [0, 0, 0],
+            [0, 0, 0]
+        ]
+    
+    def __repr__(self):
+        return "<Quadrant(%s)>" % self.field
+    
+    def rotate_ccw(self):
+        """ Rotate quadrant counter-clockwise. """
+        newfield = [[self.field[k][i] for k in xrange(3)] for i in xrange(3)]
+        # Reverse newfield.
+        self.field[:] = newfield[::-1]
+    
+    def rotate_cw(self):
+        """ Rotate quadrant clockwise. """
+        newfield = [[self.field[2-k][2-i] for k in xrange(3)]
+                    for i in xrange(3)]
+        # Reverse newfield.
+        self.field[:] = newfield[::-1]
+    
+    def rotate(self, clockwise):
+        if clockwise:
+            self.rotate_cw()
+        else:
+            self.rotate_ccw()
+
+    def __getitem__(self, i):
+        return self.field[i]
+
+    def __setitem__(self, i, value):
+        self.field[i] = value
+
+
 class OverlayBlink(Blinker):
     def __init__(self, overlay, repaint, callafter=None):
         Blinker.__init__(self, 0.2, 0.5, 0.05, callback=repaint)

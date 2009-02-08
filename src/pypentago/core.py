@@ -35,48 +35,6 @@ except ImportError:
     EXTENSION_MODULE = False
 
 
-# FIXME: This belongs to the GUI!
-class Quadrant(object):
-    def __init__(self, uid):
-        self.uid = uid
-        self.field = [
-            [0, 0, 0], 
-            [0, 0, 0],
-            [0, 0, 0]
-        ]
-    
-    def __repr__(self):
-        return "<Quadrant(%s)>" % self.field
-    
-    def rotate_ccw(self):
-        """ Rotate quadrant counter-clockwise. """
-        newfield = [[self.field[k][i] for k in xrange(3)] for i in xrange(3)]
-        # Reverse newfield.
-        self.field[:] = newfield[::-1]
-    
-    def rotate_cw(self):
-        """ Rotate quadrant clockwise. """
-        newfield = [[self.field[2-k][2-i] for k in xrange(3)]
-                    for i in xrange(3)]
-        # Reverse newfield.
-        self.field[:] = newfield[::-1]
-    
-    def rotate(self, clockwise):
-        if clockwise:
-            self.rotate_cw()
-        else:
-            self.rotate_ccw()
-
-    def __getitem__(self, i):
-        return self.field[i]
-
-    def __setitem__(self, i, value):
-        self.field[i] = value
-    
-    def checksum(self):
-        return hash(tuple(map(tuple, self.field)))
-
-
 class Observer(object):
     def display_turn(self, turn):
         pass
