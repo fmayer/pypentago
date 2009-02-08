@@ -30,7 +30,11 @@ except ImportError:
 import multiprocessing
 
 from pypentago.server.server import run_server
-from pypentago import crypto
+from pypentago import crypto, init_logging, get_conf
+
+def start_server(port):
+    init_logging(get_conf.get_conf_obj('server')['default', 'logfile'], 0)
+    run_server(port)
 
 def free_port(min_, max_):
     for p in xrange(min_, max_):
@@ -51,7 +55,7 @@ PORT = free_port(20000, 65000)
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
-        self.p = multiprocessing.Process(target=run_server, args=(PORT, ))
+        self.p = multiprocessing.Process(target=start_server, args=(PORT, ))
         self.p.start()
         # Give the server some time to get up.
         time.sleep(0.05)
@@ -152,18 +156,13 @@ class ServerTest(unittest.TestCase):
         recvs = recv.split('\0')
         keyword, data = json.loads(recvs[0])
         self.assertEqual(keyword, "INITGAME")
+        b_1 = data['beginner']
         o_recv = self.client.recv(100)
         o_recvs = o_recv.split('\0')
         keyword, data = json.loads(o_recvs[0])
         self.assertEqual(keyword, "INITGAME")
-        rest = recvs[1] or o_recvs[1]
-        r, w, e = select.select([self.client, other_client], [], [], 0)
-        if r:
-            rest += r[0].recv(100)
-        keyword, data = json.loads(rest)
-        self.assertEqual(keyword, "GAME")
-        self.assertEqual(data, [opened_game, 'LOCALTURN'])
-        return opened_game, other_client, recvs[1]
+        b_2 = data['beginner']
+        return opened_game, other_client, b_1
     
     def test_turn(self):
         turn = [0, 0, 0, 'L', 0]
