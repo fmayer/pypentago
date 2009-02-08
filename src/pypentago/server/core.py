@@ -9,5 +9,6 @@ class ServerGame(core.Game):
         return {
             'name': self.name,
             'players': [p.serialize() for p in self.players],
+            'uid': uid
         }
     
