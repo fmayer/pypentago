@@ -148,7 +148,7 @@ class Connection(LineOnlyReceiver):
                 except BadInput:
                     self._handle_return(self.bad_input(income_data))
                 except Exception:
-                    self._handle_return(self.interal_error(income_data))
+                    self._handle_return(self.internal_error(income_data))
         else:
             self._handle_return(self.no_handler(event))
     
