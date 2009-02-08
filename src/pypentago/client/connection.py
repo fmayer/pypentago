@@ -46,8 +46,8 @@ ID_NOT_REG = False
 
 class ClientConnection(Connection):
     def init(self):
-        # This maps the game-id to the remote player.
         self.factory.callback(self)
+        #: This maps the game-id to the remote player.
         self.remote_table = {}
         log.info("Connection established")
         context.emmit_action('conn_established', self)
