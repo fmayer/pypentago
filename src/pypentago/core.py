@@ -232,9 +232,6 @@ class Game(object):
         """ Get the player that is not player that is in the game """
         return self.players[2 - player.uid]
     
-    def checksum(self):
-        return self.board.checksum()
-    
     def send_msg(self, author, msg):
         for p in self.people():
             p.display_msg(author, msg)
