@@ -12,3 +12,5 @@
     * Add/Remove users from friend list.
     * Join chat channels.
 
+* Write client_test
+   This should test all the methods of ClientConnection.
