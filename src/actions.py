@@ -352,7 +352,7 @@ def register_method(*actions):
         """ Append action to functions _bind_to attribute, if that does
         not exist, set it to an empty list and append to that one. """
         if not actions:
-            exc._bind_to = [exc.__name__]
+            exc._bind_to.append(exc.__name__)
         else:
             if not hasattr(exc, '_bind_to'):
                 exc._bind_to = []
