@@ -17,11 +17,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import os
+
 from PyQt4 import QtGui, QtCore
 
 from pypentago.client.connection import ClientConnection
 from pypentago.client.interface.game import GameWindow
-from pypentago import DEFAULT_PORT
+from pypentago import DEFAULT_PORT, data, parse_ip
+
+
+OK_ICON = data['success.png']
+CANCEL_ICON = data['fail.png']
 
 
 def modal_buttons(ok_label='Okay', cancel_label='Cancel'):
@@ -138,13 +144,14 @@ class RegisterDialog(QtGui.QDialog):
         
         main = QtGui.QVBoxLayout()
         main.addLayout(grid)
-        main.addWidget(but)
+        main.addLayout(but)
         main.addStretch(1)
         self.setLayout(main)
 
 
 class ServerWindow(QtGui.QMainWindow):
-    def __init__(self, host, port, login_user=None, login_pwd=None):
+    def __init__(self, host=None, port=None, login_user=None, login_pwd=None,
+                 conn=None):
         QtGui.QMainWindow.__init__(self)
         
         self.login_user = login_user
@@ -190,21 +197,19 @@ class ServerWindow(QtGui.QMainWindow):
         self.need_connected = [disconnect]
         for widg in self.need_connected:
             widg.setEnabled(False)
-        self.init_conn(host, port)
+        
+        if conn is not None:
+            self.connection = conn
+        elif host and port:
+            self.init_conn(host, port)
     
     def init_conn(self, host, port):
         ClientConnection.start_new(host, port, self, self.connected)
     
     @classmethod
     def from_string(cls, string, login_user=None, login_pwd=None):
-        h = string.split(':')
-        if len(h) == 1:
-            return cls(string, DEFAULT_PORT, login_user, login_pwd)
-        elif len(h) == 2:
-            return cls(h[0], h[1], login_user, login_pwd)
-        else:
-            raise ValueError("Cannot interpret %r as server connect string!"
-                             % string)
+        host, port = parse_ip(string)
+        return cls(host, port, login_user, login_pwd)
     
     def connected(self, conn):
         if self.login_user and self.login_pwd:

@@ -208,3 +208,12 @@ def flatten(x):
         else:
             result.append(el)
     return result
+
+def parse_ip(string):
+    h = string.split(':')
+    if len(h) == 1:
+        return string, DEFAULT_PORT
+    elif len(h) == 2:
+        return h[0], h[1]
+    else:
+        raise ValueError("Cannot interpret %r as IP!" % string)
