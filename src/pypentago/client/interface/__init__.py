@@ -71,7 +71,6 @@ def main(default_servers=[]):
     from easy_twisted import qt4reactor
     qt4reactor.install()
     from twisted.internet import reactor
-    # print reactor
     main = MainWindow()
     main.show()
     reactor.run()
