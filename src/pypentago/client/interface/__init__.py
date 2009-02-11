@@ -29,6 +29,7 @@ from pypentago.client.interface.server import (
     ServerWindow, ConnectDialog, RegisterDialog
 )
 from pypentago import core, parse_ip
+from pypentago.client.core import LocalPlayer
 
 servers = []
 
@@ -45,9 +46,16 @@ class MainWindow(QtGui.QMainWindow):
         self.connect(connect, QtCore.SIGNAL('triggered()'),
                      self.connect_to)
         
+        hotseat = QtGui.QAction('&Hotseat', self)
+        hotseat.setShortcut('Ctrl+H')
+        hotseat.setStatusTip('Play a local hotseat game')
+        self.connect(hotseat, QtCore.SIGNAL('triggered()'),
+                     self.local_game)
+        
         menubar = self.menuBar()
         file_menu = menubar.addMenu('&File')
         file_menu.addAction(connect)
+        file_menu.addAction(hotseat)
     
     def connect_to(self):
         dia = ConnectDialog()
@@ -57,6 +65,19 @@ class MainWindow(QtGui.QMainWindow):
         pwd = dia.passwd.text() or None
         g = ServerWindow.from_string(server, user, pwd)
         g.show()
+    
+    def local_game(self):
+        game = core.Game()
+        p_1 = LocalPlayer()
+        p_2 = LocalPlayer()
+        game.add_player(p_1)
+        game.add_player(p_2)
+        game.random_beginner()
+        w1 = GameWindow(p_1)
+        w2 = GameWindow(p_2)
+        
+        w1.show()
+        w2.show()
 
 
 def main(default_servers=[]):
