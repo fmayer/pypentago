@@ -155,6 +155,8 @@ class ServerWindow(QtGui.QMainWindow):
                  conn=None):
         QtGui.QMainWindow.__init__(self)
         
+        self.setWindowTitle("Python Pentago - %s:%s" % (str(host), str(port)))
+        
         self.login_user = login_user
         self.login_pwd = login_pwd
         
