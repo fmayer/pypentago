@@ -35,7 +35,7 @@ def get_coord(size, x):
     return int(x / size)
 
 
-class Quadrant(object):
+class BackendQuadrant(object):
     def __init__(self, uid):
         self.uid = uid
         self.field = [
@@ -167,11 +167,11 @@ class Overlay(QtCore.QObject):
         return self.value + self.add_cw, self.value + self.add_ccw
 
 
-class Quadrant(QtGui.QLabel, core.Quadrant):
+class Quadrant(QtGui.QLabel, BackendQuadrant):
     PREVIEW_OPACITY = 0.4
     def __init__(self, parent, uid):
         QtGui.QLabel.__init__(self, parent)
-        core.Quadrant.__init__(self, uid)
+        BackendQuadrant.__init__(self, uid)
         
         self.prnt = parent
         
@@ -300,7 +300,7 @@ class Quadrant(QtGui.QLabel, core.Quadrant):
         paint.end()
 
     def rotate(self, clockwise, user_done=True):
-        core.Quadrant.rotate(self, clockwise)
+        BackendQuadrant.rotate(self, clockwise)
         
         self.prnt.may_rot = False
         self.overlay.hide()
