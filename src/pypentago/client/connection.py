@@ -25,10 +25,12 @@ import logging
 
 import actions
 
+from twisted.internet import protocol
+
 from pypentago import PROTOCOL_VERSION, could_int, int_all
 from pypentago.core import Game
 from pypentago.client import context
-from pypentago.core import RemotePlayer, PlayerData
+from pypentago.core import RemotePlayer
 
 from easy_twisted.connection import expose, Connection
 
@@ -63,7 +65,7 @@ class ClientConnection(Connection):
         self.login_as = login
         self.send("LOGIN", {'login': login, 'passwd': passwd})
     
-    def open_game(self, name):
+    def new_game(self, name):
         self.send("OPEN", name)
     
     def join_game(self, uid):
@@ -71,19 +73,28 @@ class ClientConnection(Connection):
     
     @expose("OPENGAME")
     def open_game(self, evt):
+        # TODO: Debug code follows.
         gid = evt['data']
-        pass
+        print "Opened game with id %d" % gid
     
     @expose("INITGAME")
     def init_game(self, evt):
         di = evt['data']
         game = Game()
+        game.uid = di['game_id']
         
-        local_player = PlayerData(self.name, game, di['p_id'])
+        local_player = self.server_window.player_cls()
+        local_player.name = self.name
+        local_player.uid = di['player_id']
         r = RemotePlayer(self, di['opponent_name'])
-        r.uid = 2 - di['p_id']
+        r.uid = 3 - di['player_id']
         self.remote_table[di['game_id']] = r
         game.add_player_with_uid(r)
+        game.add_player_with_uid(local_player)
+        if di['beginner']:
+            game.last_set = r
+        else:            
+            game.last_set = local_player
         
         self.server_window.show_game(local_player)
     
@@ -122,12 +133,39 @@ class ClientConnection(Connection):
     
     @classmethod
     def start_new(cls, host, port, parent, callback=None):
-        from twisted.internet import reactor, protocol
+        from twisted.internet import reactor
+        host = str(host)
+        port = int(port)
         f = protocol.ClientFactory()
         f.protocol = cls
         f.callback = callback
         f.parent = parent
+        f.clients = []
         reactor.connectTCP(host, port, f)
+    
+    def internal_error(self, request):
+        exception_log.critical(
+            "Internal server error handling request %r" % request,
+            exc_info=True
+        )
+    
+    def bad_input(self, request):
+        exception_log.critical(
+            "Bad input at request %r" % request,
+            exc_info=True
+        )
+    
+    def malformed_request(self, request):
+        exception_log.critical(
+            "Malformed request %r" % request,
+            exc_info=True
+        )
+    
+    def no_handler(self, request):
+        exception_log.critical(
+            "No handler found for request %r" % request,
+            exc_info=True
+        )
 
 
 if __name__ == '__main__':

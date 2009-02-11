@@ -306,7 +306,7 @@ class Quadrant(QtGui.QLabel, BackendQuadrant):
         self.overlay.hide()
         self.repaint()
         if user_done:
-            self.prnt.do_turn(clockwise and CW or CCW, self.uid)
+            self.prnt.do_turn(clockwise and "CW" or "CCW", self.uid)
             
     def show_rot(self, clockwise, callafter=None):
         if clockwise:
@@ -462,7 +462,8 @@ class Game(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.prnt = parent
         self.board = Board(self)
-        self.local_player = player_data.make_join_game(c_core.LocalPlayer, self)
+        player_data.gui_game = self
+        self.local_player = player_data
         hbox = QtGui.QHBoxLayout()
         hbox.addWidget(self.board, 40)
         

@@ -62,6 +62,12 @@ class Conn(Connection):
         self.name = "Player"
         self.remote_table = {}
         self.expect_response = None
+        
+        # DEBUG:
+        self.auth = True
+        self.db_player = Player(
+            'Test Player', '', 'Test Player', 'none@mail.com'
+        )
     
     def destruct(self, reason):
         self.logout(answer=False)

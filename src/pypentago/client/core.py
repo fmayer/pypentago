@@ -19,7 +19,7 @@
 from pypentago import core, CW, CCW
 
 class LocalPlayer(core.Player):
-    def __init__(self, gui_game, name="Local Player"):
+    def __init__(self, gui_game=None, name="Local Player"):
         core.Player.__init__(self, name)
         self.gui_game = gui_game
     

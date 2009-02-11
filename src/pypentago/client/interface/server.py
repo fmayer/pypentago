@@ -21,6 +21,7 @@ import os
 
 from PyQt4 import QtGui, QtCore
 
+from pypentago.client.core import LocalPlayer
 from pypentago.client.connection import ClientConnection
 from pypentago.client.interface.game import GameWindow
 from pypentago import DEFAULT_PORT, data, parse_ip
@@ -160,6 +161,8 @@ class ServerWindow(QtGui.QMainWindow):
         self.connection = None
         self.attempts = 5
         
+        self.player_cls = LocalPlayer
+        
         disconnect = QtGui.QAction('&Disconnect', self)
         disconnect.setShortcut('Ctrl+Q')
         disconnect.setStatusTip('Disconnect from server')
@@ -223,19 +226,25 @@ class ServerWindow(QtGui.QMainWindow):
         self.close()
     
     def new_game(self):
-        name = str(
+        name, ok = (
             QtGui.QInputDialog.getText(self, "Enter game name", "Game name:")
         )
-        self.connection.open_game(name)
+        if ok:
+            self.connection.new_game(str(name))
     
     def settings(self):
         pass
     
     def join_game(self):
-        pass
+        name, ok = (
+            QtGui.QInputDialog.getInteger(self, "Enter game id", "Game id:")
+        )
+        if ok:
+            self.connection.join_game(int(name))
     
     def show_game(self, game):
         g = GameWindow(game)
+        g.show()
 
 
 if __name__ == '__main__':

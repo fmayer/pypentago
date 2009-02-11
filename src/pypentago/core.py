@@ -51,27 +51,6 @@ class Observer(object):
     def player_joined(self, player):
         pass
 
-
-class PlayerData:
-    def __init__(self, name, game, uid=None):
-        self.name = name
-        self.uid = uid
-        self.game = game
-    
-    def make_player(self, cls, *args, **kwargs):
-        obj = cls(*args, **kwargs)
-        obj.name = self.name
-        obj.uid = self.uid
-        return obj
-    
-    def make_join_game(self, cls, *args, **kwargs):
-        obj = self.make_player(cls, *args, **kwargs)
-        if self.uid is not None:
-            self.game.add_player_with_uid(obj)
-        else:
-            self.game.add_player(obj)
-        return obj
-
         
 class Player(object):
     """ The Player is the one that is interacting with the Game. """
