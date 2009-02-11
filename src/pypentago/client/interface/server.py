@@ -164,24 +164,24 @@ class ServerWindow(QtGui.QMainWindow):
         disconnect.setShortcut('Ctrl+Q')
         disconnect.setStatusTip('Disconnect from server')
         self.connect(disconnect, QtCore.SIGNAL('triggered()'),
-                     QtCore.SLOT('disconnect()'))
+                     self.disconnect)
         
         new_game = QtGui.QAction('&New Game', self)
         new_game.setShortcut('Ctrl+N')
         new_game.setStatusTip('Open a new game')
         self.connect(new_game, QtCore.SIGNAL('triggered()'),
-                     QtCore.SLOT('new_game()'))
+                     self.new_game)
         
         join_game = QtGui.QAction('&Join Game', self)
         join_game.setShortcut('Ctrl+J')
         join_game.setStatusTip('Join a game.')
         self.connect(join_game, QtCore.SIGNAL('triggered()'),
-                     QtCore.SLOT('join_game()'))
+                     self.join_game)
         
         settings = QtGui.QAction('&Settings', self)
         settings.setStatusTip('Adjust settings')
         self.connect(new_game, QtCore.SIGNAL('triggered()'),
-                     QtCore.SLOT('settings()'))
+                     self.settings)
         
         menubar = self.menuBar()
         
@@ -194,7 +194,7 @@ class ServerWindow(QtGui.QMainWindow):
         edit_menu = menubar.addMenu('&Edit')
         edit_menu.addAction(settings)
         
-        self.need_connected = [disconnect]
+        self.need_connected = [disconnect, new_game, join_game]
         for widg in self.need_connected:
             widg.setEnabled(False)
         
@@ -219,19 +219,18 @@ class ServerWindow(QtGui.QMainWindow):
         for widg in self.need_connected:
             widg.setEnabled(True)
     
-    @QtCore.pyqtSignature('')
     def disconnect(self):
         self.close()
     
-    @QtCore.pyqtSignature('')
     def new_game(self):
-        pass
+        name = str(
+            QtGui.QInputDialog.getText(self, "Enter game name", "Game name:")
+        )
+        self.connection.open_game(name)
     
-    @QtCore.pyqtSignature('')
     def settings(self):
         pass
     
-    @QtCore.pyqtSignature('')
     def join_game(self):
         pass
     

@@ -43,18 +43,20 @@ class MainWindow(QtGui.QMainWindow):
         connect.setShortcut('Ctrl+O')
         connect.setStatusTip('Connect to server')
         self.connect(connect, QtCore.SIGNAL('triggered()'),
-                     QtCore.SLOT('connect_to()'))
+                     self.connect_to)
         
         menubar = self.menuBar()
         file_menu = menubar.addMenu('&File')
         file_menu.addAction(connect)
-        file_menu.addAction(register)
     
-    @QtCore.pyqtSignature('')
     def connect_to(self):
-        # TODO: Finish writing me.
         dia = ConnectDialog()
         dia.exec_()
+        server = dia.server.text()
+        user = dia.user.text() or None
+        pwd = dia.passwd.text() or None
+        g = ServerWindow.from_string(server, user, pwd)
+        g.show()
 
 
 def main(default_servers=[]):
@@ -67,8 +69,12 @@ def main(default_servers=[]):
     # TODO: Implement what the docstring says
     app = QtGui.QApplication(sys.argv)
     # We don't need that until we implement network games:
-    # from easy_twisted import qt4reactor
-    # qt4reactor.install()
+    from easy_twisted import qt4reactor
+    qt4reactor.install()
+    main = MainWindow()
+    main.show()
+    app.exec_()
+    return 
     game = core.Game()
     p_1 = core.PlayerData('Player 1', game)
     p_2 = core.PlayerData('Player 2', game)
