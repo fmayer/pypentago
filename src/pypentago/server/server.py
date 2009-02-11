@@ -16,6 +16,7 @@
 
 from __future__ import with_statement
 
+import weakref
 import logging
 import re
 
@@ -31,7 +32,7 @@ from pypentago.server import db
 
 class Factory(protocol.ServerFactory):
     def __init__(self, database):
-        self.games = {}
+        self.games = weakref.WeakValueDictionary()
         self.clients = []
         self.rooms = []
         self.email_regex = re.compile(EMAIL_REGEX, re.IGNORECASE)
@@ -48,6 +49,10 @@ class Factory(protocol.ServerFactory):
             if room.name == name:
                 return room
         raise NoSuchRoom
+    
+    def sync_games(self):
+        for c in self.clients:
+            c.game_list()
 
 
 def run_server(port=26500, connect_string='sqlite:///:memory:'):

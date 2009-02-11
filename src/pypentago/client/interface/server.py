@@ -52,6 +52,37 @@ def modal_buttons(ok_label='Okay', cancel_label='Cancel'):
     return ok, cancel, lay
 
 
+class GameList(QtGui.QWidget):
+    def __init__(self, join):
+        QtGui.QWidget.__init__(self)
+        self.data = []
+        self.join = join
+        self.gamelist = QtGui.QListWidget()
+        layout = QtGui.QHBoxLayout()
+        layout.addWidget(self.gamelist)
+        self.setLayout(layout)
+        self.connect(
+            self.gamelist,
+            QtCore.SIGNAL("itemDoubleClicked ( QListWidgetItem * )"),
+            self.select_item
+        )
+    
+    def clear(self):
+        self.data = []
+        self.gamelist.clear()
+    
+    def select_item(self, item):
+        indx = self.gamelist.indexFromItem(item).row()
+        self.join(self.data[indx])
+    
+    def set_games(self, games):
+        self.clear()
+        for game in games:
+            item = QtGui.QListWidgetItem(game['name'])
+            self.gamelist.addItem(item)
+            self.data.append(game['uid'])
+
+
 class ConnectDialog(QtGui.QDialog):
     """ Dialog to get connection and login information.
     
@@ -157,6 +188,9 @@ class ServerWindow(QtGui.QMainWindow):
         
         self.setWindowTitle("Python Pentago - %s:%s" % (str(host), str(port)))
         
+        self.gamelist = GameList(None)
+        self.setCentralWidget(self.gamelist)
+        
         self.login_user = login_user
         self.login_pwd = login_pwd
         
@@ -199,7 +233,7 @@ class ServerWindow(QtGui.QMainWindow):
         edit_menu = menubar.addMenu('&Edit')
         edit_menu.addAction(settings)
         
-        self.need_connected = [disconnect, new_game, join_game]
+        self.need_connected = [disconnect, new_game, join_game, self.gamelist]
         for widg in self.need_connected:
             widg.setEnabled(False)
         
@@ -223,6 +257,7 @@ class ServerWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("Connection to server established", 10000)
         for widg in self.need_connected:
             widg.setEnabled(True)
+        self.gamelist.join = conn.join_game
     
     def disconnect(self):
         self.close()
@@ -247,6 +282,9 @@ class ServerWindow(QtGui.QMainWindow):
     def show_game(self, game):
         g = GameWindow(game)
         g.show()
+    
+    def show_games(self, games):
+        self.gamelist.set_games(games)
 
 
 if __name__ == '__main__':

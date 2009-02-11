@@ -118,6 +118,9 @@ class RemotePlayer(Player):
     
     def display_turn(self, player, turn):
         self.conn.send('GAME', [self.game.uid, 'TURN', turn])
+    
+    def display_msg(self, author, msg):
+        self.conn.send('MSG', [self.game.uid, 'TURN', turn])
 
 
 class Game(object):

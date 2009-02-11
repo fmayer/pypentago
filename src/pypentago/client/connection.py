@@ -35,6 +35,7 @@ from pypentago.core import RemotePlayer
 from easy_twisted.connection import expose, Connection
 
 log = logging.getLogger("pypentago.connection")
+exception_log = logging.getLogger("pypentago.exception")
 
 ID_WIN = 1
 ID_DRAW = 0.5
@@ -129,7 +130,7 @@ class ClientConnection(Connection):
     
     @expose("GAMES")
     def games(self, evt):
-        pass
+        self.server_window.show_games(evt['data'])
     
     @classmethod
     def start_new(cls, host, port, parent, callback=None):

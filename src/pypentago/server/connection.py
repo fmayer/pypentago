@@ -34,7 +34,7 @@ from pypentago.get_conf import get_conf_obj
 from pypentago.server import db
 from pypentago.server.mailing import Email
 from pypentago.server.db.dbobjs import Player
-from pypentago.exceptions import NoSuchRoom, NotInDB
+from pypentago.exceptions import NoSuchRoom, NotInDB, GameFull
 
 from easy_twisted.connection import expose, require_auth, Connection
 
@@ -70,7 +70,11 @@ class Conn(Connection):
         )
     
     def destruct(self, reason):
+        for player in self.remote_table.values():
+            player.quit_game()
+        self.server.clients.remove(self)
         self.logout(answer=False)
+        self.server.sync_games()
         
     @expose("GAME")
     @require_auth
@@ -107,6 +111,7 @@ class Conn(Connection):
         self.remote_table[uid] = p
         self.server.games[uid] = game
         game.add_player(p)
+        self.server.sync_games()
         return "OPENGAME", uid
     
     @expose("JOIN")
@@ -115,7 +120,10 @@ class Conn(Connection):
         gid = evt['data']
         player = core.RemotePlayer(self, self.db_player.player_name)
         game = self.server.games[gid]
-        game.add_player(player)
+        try:
+            game.add_player(player)
+        except GameFull:
+            return "GAMEFULL", gid
         self.remote_table[gid] = player
         beginner = game.random_beginner()
         for player in game.players:
