@@ -68,26 +68,25 @@ class Conn(Connection):
         self.db_player = Player(
             'Test Player', '', 'Test Player', 'none@mail.com'
         )
+        
+        self.game_list()
     
     def destruct(self, reason):
         for player in self.remote_table.values():
             player.quit_game()
-        self.server.clients.remove(self)
         self.logout(answer=False)
         self.server.sync_games()
         
     @expose("GAME")
     @require_auth
     def remote_dispatcher(self, evt):
-        game_id = evt['data'][0]
-        rest = evt['data'][1:]
+        game_id, cmd, args = evt['data']
         
         if game_id not in self.remote_table:
             self.send("INVGAME")
         else:
             remote = self.remote_table[game_id]
-            cmd = rest[0]
-            arg = rest[1:]
+            arg = remote.game.unrpcialize(args)
             remote.lookup(cmd)(*arg)
     
     @expose("LOGOUT")

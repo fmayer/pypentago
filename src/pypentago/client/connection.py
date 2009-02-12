@@ -101,15 +101,13 @@ class ClientConnection(Connection):
     
     @expose("GAME")
     def remote_dispatcher(self, evt):
-        game_id = evt['data'][0]
-        rest = evt['data'][1:]
+        game_id, cmd, args = evt['data']
         
         if game_id not in self.remote_table:
             self.send("INVGAME")
         else:
             remote = self.remote_table[game_id]
-            cmd = rest[0]
-            arg = rest[1:]
+            arg = remote.game.unrpcialize(args)
             remote.lookup(cmd)(*arg)
     
     @expose("AUTH")

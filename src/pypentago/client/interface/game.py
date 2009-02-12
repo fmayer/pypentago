@@ -468,8 +468,8 @@ class Game(QtGui.QWidget):
         hbox.addWidget(self.board, 40)
         
         self.player_list = QtGui.QListWidget()
-        self.player_list.addItem("Player 1")
-        self.player_list.addItem("Player 2")
+        for player in player_data.game.players:
+            self.player_list.addItem(player.name)
         
         self.chat = QtGui.QPlainTextEdit()
         self.chat.setReadOnly(True)
@@ -491,7 +491,7 @@ class Game(QtGui.QWidget):
     
     @QtCore.pyqtSignature('')
     def send_msg(self):
-        self.local_player.send_msg(self.chat_entry.text())
+        self.local_player.send_msg(str(self.chat_entry.text()))
         self.chat_entry.clear()
     
     def add_msg(self, author, msg, utc_time=None):

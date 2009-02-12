@@ -22,7 +22,7 @@ import itertools
 
 import depr
 
-from pypentago import CW, CCW
+from pypentago import CW, CCW, rpcializer
 from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn, 
                                   GameFull)
 
@@ -57,13 +57,8 @@ class Player(object):
     def __init__(self, name=None):
         self.game = None
         self.uid = None
-        self.cmd = {'TURN': self.do_turn,
-                    'GAMEOVER': self.game_over,
-                    'MSG': self.display_msg}
+        self.cmd = {}
         self.name = name
-    
-    def your_turn(self):
-        self.game.last_set = self.game.other_player(self)
     
     def do_turn(self, turn):
         """ turn is (field, row, col, rot_dir, rot_field) """
@@ -114,13 +109,30 @@ class Player(object):
 class RemotePlayer(Player):
     def __init__(self, conn=None, name=None):
         Player.__init__(self, name)
+        self.cmd.update(
+            {
+                'TURN': self.do_turn,
+                'GAMEOVER': self.game_over,
+                'MSG': self.send_msg,
+                'QUIT': self.quit_game,
+            }
+        )
         self.conn = conn
     
     def display_turn(self, player, turn):
-        self.conn.send('GAME', [self.game.uid, 'TURN', turn])
+        self.conn.send(
+            *rpcializer.game(self.game, 'TURN', rpcializer.raw(turn))
+        )
     
     def display_msg(self, author, msg):
-        self.conn.send('MSG', [self.game.uid, 'TURN', turn])
+        self.conn.send(
+            *rpcializer.game(self.game, 'MSG', rpcializer.raw(msg))
+        )
+    
+    def player_quit(self, player):
+        self.conn.send(
+            *rpcializer.game(self.game, 'QUIT')
+        )
 
 
 class Game(object):
@@ -131,7 +143,21 @@ class Game(object):
         self.players = []
         self.observers = []
         
+        self.rpcialize_table = {
+            '': lambda x: x,
+            'player_by_id': self.player_by_id,
+        }
+            
+        
         self.last_set = None
+    
+    def player_by_id(self, uid):
+        return self.players[uid - 1]
+    
+    def unrpcialize(self, args):
+        for arg in args:
+            e, d = arg
+            yield self.rpcialize_table[e](d)
     
     def rules(self, turn):
         """ Checks that need to be done before player can set the stone. """
@@ -215,7 +241,7 @@ class Game(object):
         return self.players[2 - player.uid]
     
     def send_msg(self, author, msg):
-        for p in self.people():
+        for p in self.people(author):
             p.display_msg(author, msg)
     
     def player_quit(self, player):
