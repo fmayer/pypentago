@@ -140,7 +140,8 @@ class Conn(Connection):
     def game_list(self, evt=None):
         self.send(
             "GAMES", 
-            [game.serialize() for game in self.server.games.itervalues()]
+            [game.serialize() for game in self.server.games.itervalues()
+             if not game.over]
         )
     
     @expose("REGISTER")

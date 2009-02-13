@@ -32,7 +32,7 @@ from pypentago.server import db
 
 class Factory(protocol.ServerFactory):
     def __init__(self, database):
-        self.games = {}
+        self.games = weakref.WeakValueDictionary()
         self.clients = []
         self.rooms = []
         self.email_regex = re.compile(EMAIL_REGEX, re.IGNORECASE)

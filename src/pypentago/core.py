@@ -83,6 +83,7 @@ class Player(object):
     
     def quit_game(self):
         self.game.player_quit(self)
+        self.game = None
     
     def player_quit(self, opponent):
         pass
@@ -133,6 +134,15 @@ class RemotePlayer(Player):
         self.conn.send(
             *rpcializer.game(self.game, 'QUIT')
         )
+    
+    def quit_game(self):
+        del self.conn.remote_table[self.game.uid]
+        
+        a = len(self.game.players) == 2
+
+        Player.quit_game(self)
+        if a and hasattr(self.conn, 'server'):
+            self.conn.server.sync_games()
 
 
 class Game(object):
@@ -142,6 +152,7 @@ class Game(object):
         self.board = board or Board()
         self.players = []
         self.observers = []
+        self.over = False
         
         self.rpcialize_table = {
             '': lambda x: x,
@@ -191,6 +202,7 @@ class Game(object):
         self.last_set = player
         winner, loser = self.get_winner()
         if winner is not None:
+            self.game_over()
             for p in self.people():
                 p.game_over(winner, loser)
     
@@ -248,6 +260,8 @@ class Game(object):
         if player not in self.players:
             raise ValueError
         
+        self.over = True
+        
         self.players.remove(player)
         for p in self.people():
             p.player_quit(player)
@@ -256,3 +270,7 @@ class Game(object):
         for item in itertools.chain(self.players, self.observers):
             if item != but:
                 yield item
+    
+    def game_over(self, winner, loser):
+        self.over = True
+        
