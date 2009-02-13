@@ -95,7 +95,7 @@ class Player(object):
         pass
     
     def send_msg(self, msg):
-        self.game.send_msg(self.name, msg)
+        self.game.send_msg(self, msg)
     
     def in_game(self):
         return self.game and self in self.game.players
@@ -254,7 +254,7 @@ class Game(object):
     
     def send_msg(self, author, msg):
         for p in self.people(author):
-            p.display_msg(author, msg)
+            p.display_msg(author.name, msg)
     
     def player_quit(self, player):
         if player not in self.players:
