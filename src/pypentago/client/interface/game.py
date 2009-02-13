@@ -491,7 +491,7 @@ class Game(QtGui.QWidget):
     
     @QtCore.pyqtSignature('')
     def send_msg(self):
-        self.local_player.send_msg(str(self.chat_entry.text()))
+        self.local_player.send_msg(unicode(self.chat_entry.text()))
         self.chat_entry.clear()
     
     def add_msg(self, author, msg, utc_time=None):

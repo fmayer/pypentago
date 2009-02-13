@@ -95,7 +95,8 @@ class Player(object):
         pass
     
     def send_msg(self, msg):
-        self.game.send_msg(self, msg)
+        if msg.strip():
+            self.game.send_msg(self, msg)
     
     def in_game(self):
         return self.game and self in self.game.players
@@ -202,7 +203,7 @@ class Game(object):
         self.last_set = player
         winner, loser = self.get_winner()
         if winner is not None:
-            self.game_over()
+            self.game_over(winner, loser)
             for p in self.people():
                 p.game_over(winner, loser)
     
