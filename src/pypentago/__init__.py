@@ -157,11 +157,11 @@ def could_int(string):
     Check if a string can be converted to an int or not.
     
     >>> could_int('4')
-    ... True
+    True
     >>> could_int('3.5')
-    ... True
+    True
     >>> could_int('foobar')
-    ... False
+    False
     """
     try:
         int(string)
@@ -245,7 +245,9 @@ def parse_ip(string, default_port=DEFAULT_PORT):
     pypentago.DEFAULT_PORT is used.
     
     >>> parse_ip('127.0.0.1:1234')
-    ... ('127.0.0.1', 1234)
+    ('127.0.0.1', 1234)
+    >>> parse_ip('[2001:0db8:85a3:08d3:1319:8a2e:0370:7344]:443')
+    ('2001:0db8:85a3:08d3:1319:8a2e:0370:7344', 443)
     """
     if string.count(':') > 1:
         return parse_ipv6(string, default_port)
