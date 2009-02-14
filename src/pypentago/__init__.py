@@ -239,7 +239,8 @@ def parse_ipv6(string, default_port=DEFAULT_PORT):
         raise ValueError("Cannot interpret %r as IPv6 address!" % string)
 
 def parse_ip(string, default_port=DEFAULT_PORT):
-    """ Return (host, port) from input string.
+    """ Return (host, port) from input string. This tries to automatically
+    determine whether the address is IPv4 or IPv6.
     
     If not port is found default_port, which defaults to
     pypentago.DEFAULT_PORT is used.
