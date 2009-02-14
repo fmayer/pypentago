@@ -219,7 +219,7 @@ def flatten(x):
 
 
 def parse_ipv4(string, default_port=DEFAULT_PORT):
-    h = string.rsplit(':', 1)
+    h = string.split(':')
     if len(h) == 1:
         return string, default_port
     elif len(h) == 2:
