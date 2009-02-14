@@ -217,6 +217,7 @@ def flatten(x):
             result.append(el)
     return result
 
+
 def parse_ipv4(string, default_port=DEFAULT_PORT):
     h = string.rsplit(':', 1)
     if len(h) == 1:
@@ -225,6 +226,7 @@ def parse_ipv4(string, default_port=DEFAULT_PORT):
         return h[0], int(h[1])
     else:
         raise ValueError("Cannot interpret %r as IPv4 address!" % string)
+
 
 def parse_ipv6(string, default_port=DEFAULT_PORT):
     if '[' in string and ']' in string:
@@ -237,6 +239,7 @@ def parse_ipv6(string, default_port=DEFAULT_PORT):
         return string, default_port
     else:
         raise ValueError("Cannot interpret %r as IPv6 address!" % string)
+
 
 def parse_ip(string, default_port=DEFAULT_PORT):
     """ Return (host, port) from input string. This tries to automatically
