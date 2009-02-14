@@ -30,18 +30,25 @@ known = {
     'gcc': ['--std=c99']
 }
 
+def parse_compiler(argv):
+    for i, opt in enumerate(argv):
+        if opt == '-c' or opt == '--compiler':
+            return sys.argv[i + 1]
+        elif opt.startswith('--compiler='):
+            return opt[len('--compiler='):]
+    return None
+
+
 def get_compiler():
-    parser = optparse.OptionParser()
-    parser.add_option("-c", "--compiler", action="store", type='str',
-                     dest="compiler", default=sysconfig.get_config_var('CC'))
-    options, args = parser.parse_args()
-    cc = options.compiler
-    if cc == 'unix':
+    cc = parse_compiler(sys.argv[1:])
+    if cc == 'unix' or cc is None:
         cc = sysconfig.get_config_var('CC')
     return cc
 
 
 def get_default_opts(c_string):
+    if c_string is None:
+        return []
     for compiler, opts in known.iteritems():
         if c_string.startswith(compiler):
             return opts
@@ -80,7 +87,7 @@ board_speedup = Extension('pypentago._board',
 
 setup(
     name='pypentago',
-    version='0.1',
+    version='alpha1',
     description='Pentago board game',
     author='Florian Mayer',
     author_email='flormayer@aim.com',
@@ -110,7 +117,7 @@ setup(
         
         'setuptools.installation': [
             'eggsecutable = pypentago.client.main:main',
-        ]
+            ],
     },
 
 
