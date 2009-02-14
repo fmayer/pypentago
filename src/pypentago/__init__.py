@@ -154,7 +154,15 @@ def init_logging(log_file, cnsl_verbosity):
 def could_int(string):
     """ could_int(string) -> bool
     
-    Check if a string can be converted to an int or not """
+    Check if a string can be converted to an int or not.
+    
+    >>> could_int('4')
+    ... True
+    >>> could_int('3.5')
+    ... True
+    >>> could_int('foobar')
+    ... False
+    """
     try:
         int(string)
         return True
@@ -209,11 +217,37 @@ def flatten(x):
             result.append(el)
     return result
 
-def parse_ip(string):
-    h = string.split(':')
+def parse_ipv4(string, default_port=DEFAULT_PORT):
+    h = string.rsplit(':', 1)
     if len(h) == 1:
-        return string, DEFAULT_PORT
+        return string, default_port
     elif len(h) == 2:
-        return h[0], h[1]
+        return h[0], int(h[1])
     else:
-        raise ValueError("Cannot interpret %r as IP!" % string)
+        raise ValueError("Cannot interpret %r as IPv4 address!" % string)
+
+def parse_ipv6(string, default_port=DEFAULT_PORT):
+    if '[' in string and ']' in string:
+        h = string.split(']:')
+        if len(h) == 1:
+            return string[1: -1], default_port
+        else:
+            return h[0][1:], int(h[1])
+    elif not '[' in string and not ']' in string:
+        return string, default_port
+    else:
+        raise ValueError("Cannot interpret %r as IPv6 address!" % string)
+
+def parse_ip(string, default_port=DEFAULT_PORT):
+    """ Return (host, port) from input string.
+    
+    If not port is found default_port, which defaults to
+    pypentago.DEFAULT_PORT is used.
+    
+    >>> parse_ip('127.0.0.1:1234')
+    ... ('127.0.0.1', 1234)
+    """
+    if string.count(':') > 1:
+        return parse_ipv6(string, default_port)
+    else:
+        return parse_ipv4(string, default_port)
