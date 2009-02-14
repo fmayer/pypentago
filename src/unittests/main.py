@@ -30,7 +30,7 @@ from itertools import chain
 from pypentago import core
 
 MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 
-           'server_test', 'elo_test', 'db_test']
+           'elo_test', 'db_test']
 
 if __name__ == '__main__':
     for elem in sys.argv[1:]:
