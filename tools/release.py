@@ -75,6 +75,7 @@ def hg_tag(name, local=True):
     if local:
         cmd.append('-l')
     cmd.append(name)
+    dispatch(cmd)
 
 
 def release(version):
