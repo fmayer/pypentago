@@ -136,7 +136,7 @@ def main():
                       help="Do not update version setup file.")
     
     parser.add_option("-p", "--no-packages", action="store_false",
-                      dest="setup", default=True,
+                      dest="packages", default=True,
                       help="Do not create archives.")    
     
     options, args = parser.parse_args()
