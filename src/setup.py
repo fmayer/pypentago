@@ -89,7 +89,7 @@ class FixedDistribution(Distribution):
     def _include_misc(self, name, value):
         if name == 'entry_points':
             old = getattr(self, name)
-            for (group, entries) in value:
+            for (group, entries) in value.iteritems():
                 self.entry_points.setdefault(group, list()).extend(entries)
         else:
             Distribution._include_misc(self, name, value)
@@ -97,7 +97,7 @@ class FixedDistribution(Distribution):
     def _exclude_misc(self, name, value):
         if name == 'entry_points':
             old = getattr(self, name)
-            for (group, entries) in value:
+            for (group, entries) in value.iteritems():
                 old_entries = set(self.entry_points.get(group, list()))
                 self.entry_points[group] = list(old_entries - set(entries))
 
@@ -118,20 +118,23 @@ setup(
     features=dict(
         client=Feature('GUI client',
             standard=True,
-            entry_points=[
-                ('gui_scripts',
-                 ['pypentago = pypentago.client.main:main']),
-                ('setuptools.installation',
-                 ['eggsecutable = pypentago.client.main:main'])
-            ],
+            entry_points={
+                'gui_scripts': [
+                    'pypentago = pypentago.client.main:main'
+                ],
+                'setuptools.installation': [
+                    'eggsecutable = pypentago.client.main:main'
+                ]
+            },
             packages=['pypentago.client', 'pypentago.client.interface']
         ),
         server=Feature('network server',
             standard=False,
-            entry_points=[
-                ('console_scripts',
-                 ['pypentagod = pypentago.server.main:main']),
-            ],
+            entry_points={
+                'console_scripts': [
+                    'pypentagod = pypentago.server.main:main'
+                ],
+            },
             packages=['pypentago.server', 'pypentago.server.db']
         ),
         speedups=Feature('optional C speed-enhancements',
