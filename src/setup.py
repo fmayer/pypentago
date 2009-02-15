@@ -22,7 +22,7 @@ and the main scripts into /usr/bin. """
 import sys
 import optparse
 
-from setuptools import setup, Extension, Feature
+from setuptools import setup, Extension, Distribution, Feature
 from distutils import sysconfig
 
 known = {
@@ -84,21 +84,56 @@ board_speedup = Extension('pypentago._board',
               ['pypentago/_board.c', 'lib/board.c', 'lib/ai.c'],
               include_dirs=['lib'], extra_compile_args=opts)
 
+
+class FixedDistribution(Distribution):
+    def _include_misc(self, name, value):
+        if name == 'entry_points':
+            old = getattr(self, name)
+            for (group, entries) in value:
+                self.entry_points.setdefault(group, list()).extend(entries)
+        else:
+            Distribution._include_misc(self, name, value)
+
+    def _exclude_misc(self, name, value):
+        if name == 'entry_points':
+            old = getattr(self, name)
+            for (group, entries) in value:
+                old_entries = set(self.entry_points.get(group, list()))
+                self.entry_points[group] = list(old_entries - set(entries))
+
+
 setup(
+    distclass=FixedDistribution,
     name='pypentago',
     version='alpha1',
     description='Pentago board game',
-    author='Florian Mayer',
+    author='Florian Mayer et al.',
     author_email='flormayer@aim.com',
     url='http://bitbucket.org/segfaulthunter/pypentago-mainline',
     keywords='pentago game board',
     license='GPL',
     zip_safe=False,
-    packages=['pypentago', 'pypentago.server', 'pypentago.server.db.', 
-              'pypentago.client',  'easy_twisted', 
-              'pypentago.client.interface'],
+    packages=['pypentago', 'easy_twisted'],
     py_modules=['actions', 'depr'],
     features=dict(
+        client=Feature('GUI client',
+            standard=True,
+            entry_points=[
+                ('gui_scripts',
+                 ['pypentago = pypentago.client.main:main']),
+                ('setuptools.installation',
+                 ['eggsecutable = pypentago.client.main:main'])
+            ],
+            packages=['pypentago.client', 'pypentago.client.interface']
+        ),
+        server=Feature('network server',
+            standard=False,
+            entry_points=[
+                ('console_scripts',
+                 ['pypentagod = pypentago.server.main:main']),
+            ],
+            packages=['pypentago.server', 'pypentago.server.db']
+        ),
         speedups=Feature('optional C speed-enhancements',
             standard=enable_speedups,
             ext_modules=[board_speedup],
@@ -106,20 +141,7 @@ setup(
     ),
     package_data={'pypentago': ['data/*.png', 'data/*.svg']},
     scripts=[ ],
-    entry_points = {
-        'console_scripts': [
-            'pypentagod = pypentago.server.main:main',
-            ],
-        'gui_scripts': [
-            'pypentago = pypentago.client.main:main',
-            ],
-        
-        'setuptools.installation': [
-            'eggsecutable = pypentago.client.main:main',
-            ],
-    },
-
-
+    entry_points = dict(),
     install_requires=dep,
 )
 
