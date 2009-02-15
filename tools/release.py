@@ -31,7 +31,7 @@ BUFFER = 4096
 s_path = os.path.abspath(os.path.dirname(__file__))
 release_dir = os.path.join(s_path, os.pardir, 'release/')
 pype_path = os.path.join(s_path, os.pardir, 'src/')
-version_regex = re.compile("\nVERSION = (.+?)\n", re.MULTILINE)
+version_regex = re.compile("^VERSION = (.+?)$", re.MULTILINE)
 
 
 def buffered_write(dest, src, buffer_size):
@@ -59,7 +59,7 @@ def update_setup(version):
     s = os.path.join(pype_path, 'setup.py')
     with open(s) as setup:
         read = setup.read()
-    new = version_regex.sub('\nVERSION = %r\n' % version, read)
+    new = version_regex.sub('VERSION = %r' % version, read)
     with open(s, 'w') as setup:
         setup.write(new)
 
@@ -78,8 +78,8 @@ def hg_tag(name, local=True):
 
 def release(version):
     update_setup(version)
-    hg_tag(version)
     hg_commit('Release version %s' % version)
+    hg_tag(version, False)
     pype_version = 'pypentago-%s' % version
 
     if not os.path.exists(release_dir):
