@@ -85,12 +85,8 @@ def hg_commit(msg):
     dispatch(['commit', '-m', msg])
 
 
-def hg_tag(name, local=True):
-    cmd = ['tag']
-    if local:
-        cmd.append('-l')
-    cmd.append(name)
-    dispatch(cmd)
+def hg_tag(name):
+    dispatch(['tag', name])
 
 
 def release(version, tests=True, force=False, setup=True, commit=True,
@@ -106,7 +102,7 @@ def release(version, tests=True, force=False, setup=True, commit=True,
         if commit:
             hg_commit('Release version %s' % version)
     if tag:
-        hg_tag(version, False)
+        hg_tag(version)
     if packages:        
         if not os.path.exists(RELEASE_DIR):
             os.mkdir(RELEASE_DIR)
@@ -143,7 +139,7 @@ def main():
     options, args = parser.parse_args()
     if len(args) != 1:
         print "Invalid number of arguments"
-        sys.exit(0)
+        sys.exit(2)
     release(args[0], tests=options.tests, force=options.force,
             setup=options.setup, commit=options.commit,
             tag=options.tag, packages=options.packages)
