@@ -64,7 +64,7 @@ def create_files(version, output):
     tar_io = StringIO()
     
     tar = tarfile.TarFile(mode='w', fileobj=tar_io)
-    tar.add(SRC_PATH, pype_version)
+    tar.add(SRC_PATH, '-'.join((NAME, version)))
     tar.close()
     
     for out_file in output:
