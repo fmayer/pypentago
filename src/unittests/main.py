@@ -20,6 +20,7 @@
 import unittest
 import optparse
 import sys
+import imp
 import os
 
 import twisted
@@ -29,6 +30,7 @@ import sqlalchemy
 from itertools import chain
 from pypentago import core
 
+PATH = os.path.abspath(os.path.dirname(__file__))
 MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 
            'elo_test', 'db_test']
 

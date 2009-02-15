@@ -31,12 +31,12 @@ from mercurial.dispatch import dispatch
 BUFFER = 4096
 s_path = os.path.abspath(os.path.dirname(__file__))
 release_dir = os.path.join(s_path, os.pardir, 'release/')
-pype_path = os.path.join(s_path, os.pardir, 'src/')
+pype_path = os.path.abspath(os.path.join(s_path, os.pardir, 'src/'))
 version_regex = re.compile("^VERSION = (.+?)$", re.MULTILINE)
 
 def run_tests():
     f_name = os.path.join(pype_path, 'unittests', 'main.py')
-    mod_name = 'unittests.main'
+    mod_name = 'main'
     mod = imp.load_source(mod_name, f_name)
     return mod.run_all().wasSuccessful()
 
