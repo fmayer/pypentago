@@ -25,6 +25,8 @@ import optparse
 from setuptools import setup, Extension, Distribution, Feature
 from distutils import sysconfig
 
+VERSION = 'alpha1'
+
 known = {
     'gcc': ['--std=c99']
 }
@@ -105,7 +107,7 @@ class FixedDistribution(Distribution):
 setup(
     distclass=FixedDistribution,
     name='pypentago',
-    version='alpha1',
+    version=VERSION,
     description='Pentago board game',
     author='Florian Mayer et al.',
     author_email='flormayer@aim.com',
