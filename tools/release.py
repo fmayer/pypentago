@@ -36,6 +36,7 @@ release_dir = os.path.join(s_path, os.pardir, 'release/')
 pype_path = os.path.abspath(os.path.join(s_path, os.pardir, 'src/'))
 version_regex = re.compile("^VERSION = (.+?)$", re.MULTILINE)
 
+
 def run_tests():
     sys.stdout = sys.stderr = StringIO()
     sys.path.append(os.path.join(pype_path, 'unittests'))
