@@ -30,17 +30,21 @@ from optparse import OptionParser
 
 from mercurial.dispatch import dispatch
 
-BUFFER = 4096
+
 s_path = os.path.abspath(os.path.dirname(__file__))
-release_dir = os.path.join(s_path, os.pardir, 'release/')
-pype_path = os.path.abspath(os.path.join(s_path, os.pardir, 'src/'))
-version_regex = re.compile("^VERSION = (.+?)$", re.MULTILINE)
+
+
+BUFFER = 4096
+NAME = 'pypentago'
+RELEASE_DIR = os.path.join(s_path, os.pardir, 'release/')
+SRC_PATH = os.path.abspath(os.path.join(s_path, os.pardir, 'src/'))
+VERSION_REGEX = re.compile("^VERSION = (.+?)$", re.MULTILINE)
 
 
 def run_tests():
     sys.stdout = sys.stderr = StringIO()
-    sys.path.append(os.path.join(pype_path, 'unittests'))
-    f_name = os.path.join(pype_path, 'unittests', 'main.py')
+    sys.path.append(os.path.join(SRC_PATH, 'unittests'))
+    f_name = os.path.join(SRC_PATH, 'unittests', 'main.py')
     mod_name = 'main'
     mod = imp.load_source(mod_name, f_name)
     ret = mod.run_all().wasSuccessful()
@@ -59,10 +63,8 @@ def buffered_write(dest, src, buffer_size):
 def create_files(version, output):
     tar_io = StringIO()
     
-    pype_version = 'pypentago-%s' % version
-
     tar = tarfile.TarFile(mode='w', fileobj=tar_io)
-    tar.add(pype_path, pype_version)
+    tar.add(SRC_PATH, pype_version)
     tar.close()
     
     for out_file in output:
@@ -71,10 +73,10 @@ def create_files(version, output):
             buffered_write(bz, tar_io, BUFFER)
 
 def update_setup(version):
-    s = os.path.join(pype_path, 'setup.py')
+    s = os.path.join(SRC_PATH, 'setup.py')
     with open(s) as setup:
         read = setup.read()
-    new = version_regex.sub('VERSION = %r' % version, read)
+    new = VERSION_REGEX.sub('VERSION = %r' % version, read)
     with open(s, 'w') as setup:
         setup.write(new)
 
@@ -105,13 +107,11 @@ def release(version, tests=True, force=False, setup=True, commit=True,
             hg_commit('Release version %s' % version)
     if tag:
         hg_tag(version, False)
-    if packages:
-        pype_version = 'pypentago-%s' % version
-        
-        if not os.path.exists(release_dir):
-            os.mkdir(release_dir)
+    if packages:        
+        if not os.path.exists(RELEASE_DIR):
+            os.mkdir(RELEASE_DIR)
     
-        release_file = os.path.join(release_dir, pype_version)
+        release_file = os.path.join(RELEASE_DIR, '-'.join((NAME, version)))
         files = [bz2.BZ2File(release_file + '.tar.bz2', 'w'),
                  gzip.GzipFile(release_file + '.tar.gz', 'w')]
         create_files(version, files)
