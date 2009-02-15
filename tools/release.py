@@ -43,9 +43,7 @@ def buffered_write(dest, src, buffer_size):
 
 def create_files(version, output):
     tar_io = StringIO()
-    if not os.path.exists(release_dir):
-        os.mkdir(release_dir)
-
+    
     pype_version = 'pypentago-%s' % version
 
     tar = tarfile.TarFile(mode='w', fileobj=tar_io)
@@ -83,6 +81,10 @@ def release(version):
     hg_tag(version)
     hg_commit('Release version %s' % version)
     pype_version = 'pypentago-%s' % version
+
+    if not os.path.exists(release_dir):
+        os.mkdir(release_dir)
+
     release_file = os.path.join(release_dir, pype_version)
     files = [bz2.BZ2File(release_file + '.tar.bz2', 'w'),
              gzip.GzipFile(release_file + '.tar.gz', 'w')]
