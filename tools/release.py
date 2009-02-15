@@ -59,7 +59,7 @@ def update_setup(version):
     s = os.path.join(pype_path, 'setup.py')
     with open(s) as setup:
         read = setup.read()
-    version_regex.sub('\nVERSION = %r\n' % version, read)
+    new = version_regex.sub('\nVERSION = %r\n' % version, read)
     with open(s, 'w') as setup:
         setup.write(new)
 
