@@ -56,8 +56,7 @@ def run_all(test_runner=None, but=None):
     mod = map(__import__, MODULES)
     test_cases = chain(*[unittest.findTestCases(mod) for mod in mod])
     suite = unittest.TestSuite(test_cases)
-    display = unittest.TextTestRunner()
-    result = display.run(suite)
+    result = test_runner.run(suite)
     return result
 
 

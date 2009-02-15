@@ -26,6 +26,8 @@ import imp
 
 from contextlib import closing
 from StringIO import StringIO
+from optparse import OptionParser
+
 from mercurial.dispatch import dispatch
 
 BUFFER = 4096
@@ -35,10 +37,15 @@ pype_path = os.path.abspath(os.path.join(s_path, os.pardir, 'src/'))
 version_regex = re.compile("^VERSION = (.+?)$", re.MULTILINE)
 
 def run_tests():
+    sys.stdout = sys.stderr = StringIO()
+    sys.path.append(os.path.join(pype_path, 'unittests'))
     f_name = os.path.join(pype_path, 'unittests', 'main.py')
     mod_name = 'main'
     mod = imp.load_source(mod_name, f_name)
-    return mod.run_all().wasSuccessful()
+    ret = mod.run_all().wasSuccessful()
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+    return ret
 
 
 def buffered_write(dest, src, buffer_size):
@@ -83,25 +90,62 @@ def hg_tag(name, local=True):
     dispatch(cmd)
 
 
-def release(version):
-    if not run_tests():
-        sys.exit(1)
-    update_setup(version)
-    hg_commit('Release version %s' % version)
-    hg_tag(version, False)
-    pype_version = 'pypentago-%s' % version
-
-    if not os.path.exists(release_dir):
-        os.mkdir(release_dir)
-
-    release_file = os.path.join(release_dir, pype_version)
-    files = [bz2.BZ2File(release_file + '.tar.bz2', 'w'),
-             gzip.GzipFile(release_file + '.tar.gz', 'w')]
-    create_files(version, files)
+def release(version, tests=True, force=False, setup=True, commit=True,
+            tag=True, packages=True):
+    if tests:
+        if not run_tests():
+            print "Testsuite failed!"
+            if not force:
+                sys.exit(1)
+    
+    if setup:
+        update_setup(version)
+        if commit:
+            hg_commit('Release version %s' % version)
+    if tag:
+        hg_tag(version, False)
+    if packages:
+        pype_version = 'pypentago-%s' % version
+        
+        if not os.path.exists(release_dir):
+            os.mkdir(release_dir)
+    
+        release_file = os.path.join(release_dir, pype_version)
+        files = [bz2.BZ2File(release_file + '.tar.bz2', 'w'),
+                 gzip.GzipFile(release_file + '.tar.gz', 'w')]
+        create_files(version, files)
 
 
 def main():
-    release(sys.argv[1])
+    parser = OptionParser()
+    
+    parser.add_option("-f", "--force", action="store_true", dest="force",
+                      default=False, help="Ignore non-critical problems.")
+
+    parser.add_option("-u", "--no-unittests", action="store_false",
+                      dest="tests", default=True, help="Don't run unittests.")
+
+    parser.add_option("-t", "--no-tag", action="store_false",
+                      dest="tag", default=True, help="Don't run unittests.")
+    
+    parser.add_option("-c", "--no-commit", action="store_false",
+                      dest="commit", default=True, help="Do not commit.")
+    
+    parser.add_option("-s", "--no-setup", action="store_false",
+                      dest="setup", default=True,
+                      help="Do not update version setup file.")
+    
+    parser.add_option("-p", "--no-packages", action="store_false",
+                      dest="setup", default=True,
+                      help="Do not create archives.")    
+    
+    options, args = parser.parse_args()
+    if len(args) != 1:
+        print "Invalid number of arguments"
+        sys.exit(0)
+    release(args[0], tests=options.tests, force=options.force,
+            setup=options.setup, commit=options.commit,
+            tag=options.tag, packages=options.packages)
     return 0
 
 
