@@ -32,11 +32,34 @@ from pypentago import core
 MODULES = ['core_test', 'pgn_test', 'actions_test', 'crypto_test', 
            'elo_test', 'db_test']
 
-if __name__ == '__main__':
-    for elem in sys.argv[1:]:
+
+class DummyTestRunner:
+    def run(self, test):
+        result = unittest.TestResult()
+        test(result)
+        return result
+
+
+def run_all(test_runner=None, but=None):
+    if but is None:
+        but = []
+    
+    if test_runner is None:
+        test_runner = DummyTestRunner()
+    
+    for elem in but:
         if elem.strip() in MODULES:
             MODULES.remove(elem)
+    
     mod = map(__import__, MODULES)
+    test_cases = chain(*[unittest.findTestCases(mod) for mod in mod])
+    suite = unittest.TestSuite(test_cases)
+    display = unittest.TextTestRunner()
+    result = display.run(suite)
+    return result
+
+
+if __name__ == '__main__':
     print "os.name: %s" % os.name
     print "sys.platform: %s" % sys.platform
     print "Python: %s" % sys.version.replace('\n', '    ')
@@ -45,12 +68,9 @@ if __name__ == '__main__':
     print "speedup: %s" % (core.EXTENSION_MODULE and 'yes' or 'no')
     print "path: %s" % os.path.abspath(os.path.dirname(pypentago.__file__))
     print 
-    test_cases = chain(*[unittest.findTestCases(mod) for mod in mod])
-    suite = unittest.TestSuite(test_cases)
-    display = unittest.TextTestRunner()
-    result = display.run(suite)
-    if result.errors == 0 and result.failures == 0:
-        ret = 0
+    result = run_all(unittest.TextTestRunner(), sys.argv[1:])
+    if result.wasSuccessful():
+        sys.exit(0)
     else:
-        ret = 1
-    sys.exit(ret)
+        sys.exit(1)
+

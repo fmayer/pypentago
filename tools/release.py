@@ -22,6 +22,7 @@ import gzip
 import sys
 import os
 import re
+import imp
 
 from contextlib import closing
 from StringIO import StringIO
@@ -32,6 +33,12 @@ s_path = os.path.abspath(os.path.dirname(__file__))
 release_dir = os.path.join(s_path, os.pardir, 'release/')
 pype_path = os.path.join(s_path, os.pardir, 'src/')
 version_regex = re.compile("^VERSION = (.+?)$", re.MULTILINE)
+
+def run_tests():
+    f_name = os.path.join(pype_path, 'unittests', 'main.py')
+    mod_name = 'unittests.main'
+    mod = imp.load_source(mod_name, f_name)
+    return mod.run_all().wasSuccessful()
 
 
 def buffered_write(dest, src, buffer_size):
@@ -77,6 +84,8 @@ def hg_tag(name, local=True):
 
 
 def release(version):
+    if not run_tests():
+        sys.exit(1)
     update_setup(version)
     hg_commit('Release version %s' % version)
     hg_tag(version, False)
