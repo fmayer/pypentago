@@ -102,6 +102,8 @@ class FixedDistribution(Distribution):
             for (group, entries) in value.iteritems():
                 old_entries = set(self.entry_points.get(group, list()))
                 self.entry_points[group] = list(old_entries - set(entries))
+        else:
+            Distribution._exclude_misc(self, name, value)
 
 
 setup(
