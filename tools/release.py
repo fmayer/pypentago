@@ -103,7 +103,7 @@ def release(version, tests=True, force=False, setup=True, commit=True,
             hg_commit('Release version %s' % version)
     if tag:
         hg_tag(version)
-    if packages:        
+    if packages:
         if not os.path.exists(RELEASE_DIR):
             os.mkdir(RELEASE_DIR)
     
@@ -134,7 +134,7 @@ def main():
     
     parser.add_option("-p", "--no-packages", action="store_false",
                       dest="packages", default=True,
-                      help="Do not create archives.")    
+                      help="Do not create archives.")
     
     options, args = parser.parse_args()
     if len(args) != 1:
