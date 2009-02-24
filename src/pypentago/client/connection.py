@@ -27,7 +27,7 @@ import actions
 
 from twisted.internet import protocol
 
-from pypentago import PROTOCOL_VERSION, could_int, int_all
+from pypentago import PROTOCOL_VERSION
 from pypentago.core import Game
 from pypentago.client import context
 from pypentago.core import RemotePlayer

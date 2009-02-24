@@ -16,6 +16,7 @@
 
 from __future__ import with_statement
 
+import itertools
 import weakref
 import logging
 import re
@@ -29,20 +30,18 @@ from pypentago import EMAIL_REGEX
 from pypentago.server.connection import Conn
 from pypentago.exceptions import NoSuchRoom
 from pypentago.server import db
+from pypentago.util import IDPool
+
 
 class Factory(protocol.ServerFactory):
     def __init__(self, database):
-        self.games = weakref.WeakValueDictionary()
+        self.game_id = IDPool()
+        self.games = {}
         self.clients = []
         self.rooms = []
         self.email_regex = re.compile(EMAIL_REGEX, re.IGNORECASE)
-        self.next_id = -1
         self.database = database
         self.protocol = Conn
-    
-    def next_game_id(self):
-        self.next_id += 1
-        return self.next_id
     
     def get_room(self, name):
         for room in self.rooms:
@@ -53,6 +52,10 @@ class Factory(protocol.ServerFactory):
     def sync_games(self):
         for c in self.clients:
             c.game_list()
+    
+    def remove_game(self, game):
+        del self.games[game.uid]
+        self.game_id.release(game.uid)
 
 
 def run_server(port=26500, connect_string='sqlite:///:memory:'):

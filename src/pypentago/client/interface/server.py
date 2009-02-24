@@ -24,7 +24,8 @@ from PyQt4 import QtGui, QtCore
 from pypentago.client.core import LocalPlayer
 from pypentago.client.connection import ClientConnection
 from pypentago.client.interface.game import GameWindow
-from pypentago import DEFAULT_PORT, data, parse_ip
+from pypentago import DEFAULT_PORT, data
+from pypentago.util import parse_ip
 
 
 OK_ICON = data['success.png']
@@ -247,7 +248,7 @@ class ServerWindow(QtGui.QMainWindow):
     
     @classmethod
     def from_string(cls, string, login_user=None, login_pwd=None):
-        host, port = parse_ip(string)
+        host, port = parse_ip(string, DEFAULT_PORT)
         return cls(host, port, login_user, login_pwd)
     
     def connected(self, conn):

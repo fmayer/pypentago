@@ -28,7 +28,8 @@ from pypentago.client.interface.game import GameWindow
 from pypentago.client.interface.server import (
     ServerWindow, ConnectDialog, RegisterDialog
 )
-from pypentago import core, parse_ip
+from pypentago import core
+from pypentago.util import parse_ip
 from pypentago.client.core import LocalPlayer
 
 servers = []

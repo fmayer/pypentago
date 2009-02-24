@@ -177,8 +177,6 @@ class Quadrant(QtGui.QLabel, BackendQuadrant):
         
         self.setMouseTracking(True)
         
-        # FIXME: Use real background image!
-        # See http://tinyurl.com/pboard
         self.bg_image = QtGui.QImage(
             pypentago.data['quad_bg.png']
         )

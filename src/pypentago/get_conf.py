@@ -29,8 +29,12 @@ from functools import partial
 
 from ConfigParser import ConfigParser
 
-from pypentago import could_int
-
+def could_float(x):
+    try:
+        float(x)
+        return True
+    except ValueError:
+        return False
 
 default_server_conf = \
 """[default]
@@ -89,8 +93,8 @@ class ConfParser(ConfigParser, object):
             ret = ret.replace(key, value)
         if (section, option) in self.expand:
             ret = abspath(expanduser(ret))
-        if could_int(ret):
-            ret = int(ret)
+        if could_float(ret):
+            ret = float(ret)
         try:
             ret = str_to_bool(ret)
         except ValueError:

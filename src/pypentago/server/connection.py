@@ -104,8 +104,8 @@ class Conn(Connection):
     def open_game(self, evt):
         name = evt['data']
         game = s_core.ServerGame(name)
-        uid = self.server.next_game_id()
-        p = core.RemotePlayer(self, self.db_player.player_name)
+        uid = self.server.game_id.get()
+        p = s_core.ServerPlayer(self, self.db_player.player_name)
         game.uid = uid
         self.remote_table[uid] = p
         self.server.games[uid] = game
@@ -117,7 +117,7 @@ class Conn(Connection):
     @require_auth
     def join_game(self, evt):
         gid = evt['data']
-        player = core.RemotePlayer(self, self.db_player.player_name)
+        player = s_core.ServerPlayer(self, self.db_player.player_name)
         game = self.server.games[gid]
         try:
             game.add_player(player)
