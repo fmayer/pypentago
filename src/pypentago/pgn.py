@@ -50,11 +50,11 @@ def from_pgn(pgn_string):
     try:
         rot_dir = get_rotation(rot_dir)
     except ValueError:
-        raise InvalidPGN
+        raise InvalidPGN(pgn_string)
     rot_field = ord(rot_field) - ord("A")
     if (field < 0 or field > 3 or row < 0 or row > 2 or col < 0 or  col > 2 or 
         rot_dir not in ("R", "L") or rot_field < 0 or rot_field > 3):
-        raise InvalidPGN
+        raise InvalidPGN(pgn_string)
     return (field, row, col, rot_dir, rot_field)
 
 
