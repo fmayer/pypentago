@@ -16,6 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+""" Serialize data so it can be sent through sockets. Currently this only
+serializes players by sending the id, which is resolved to the object on
+the other side. """
+
 def player_by_id(p):
     return ['player_by_id', p]
 

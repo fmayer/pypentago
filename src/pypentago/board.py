@@ -16,6 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+""" Pure Python implementation of the pypentago board.
+Only basic checks, like preventing setting a stone on a square that is not
+empty are done. It does make no attempts of managing the players in any way.
+This is the responsibility of pypentago.core.Game.
+
+For an optimized C implementation see pypentago._board. """
+
 import ctypes
 import pypentago
 import itertools

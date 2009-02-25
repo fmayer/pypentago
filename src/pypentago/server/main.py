@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Imports that are not dependant on PYTHONPATH being set.
+""" Main entry-point for the server. Parses command line switches in argv
+and starts a server according to them. """
+
 import sys
 import logging
 
@@ -26,7 +28,6 @@ from optparse import OptionParser
 from ConfigParser import ConfigParser, NoOptionError
 
 import pypentago
-# Imports that need PYTHONPATH set.
 from pypentago.get_conf import get_conf_obj
 from pypentago.server.server import run_server
 from pypentago import __version__, verbosity_levels
