@@ -61,7 +61,7 @@ def parse_ip(string, default_port=-1):
     """ Return (host, port) from input string. This tries to automatically
     determine whether the address is IPv4 or IPv6.
     
-    If not port is found default_port, which defaults to -1 is used.
+    If no port is found default_port, which defaults to -1 is used.
     
     >>> parse_ip('127.0.0.1:1234')
     ('127.0.0.1', 1234)
