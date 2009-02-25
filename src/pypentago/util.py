@@ -32,6 +32,12 @@ class IDPool(object):
     def release(self, id_):
         """ Release the id. It can now be returned by get again. """
         self.free_ids.append(id_)
+    
+    def reset(self):
+        """ Reset the state of the IDPool. This should only be called when
+        no game is opened. """
+        self.ids = itertools.count()
+        self.free_ids = []
 
 
 def parse_ipv4(string, default_port=-1):

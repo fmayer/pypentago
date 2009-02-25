@@ -57,7 +57,6 @@ class Player(object):
     def __init__(self, name=None):
         self.game = None
         self.uid = None
-        self.cmd = {}
         self.name = name
     
     def do_turn(self, turn):
@@ -72,33 +71,35 @@ class Player(object):
         """ Override to display turn when it is set to turn """
         pass
     
-    def begin(self):
-        pass
-    
-    def lookup(self, cmd):
-        return self.cmd[cmd]
-    
     def game_over(self, winner, loser):
+        """ Called when the game is over. """
         pass
     
     def quit_game(self):
+        """ Remove the player from their game. """
         self.game.player_quit(self)
         self.game = None
     
     def player_quit(self, opponent):
+        """ Called when the opponent quits the game. """
         pass
     
     def player_joined(self, player):
+        """ Call when another player joins the game. """
         pass
     
     def display_msg(self, author, msg):
+        """ Called when a message is sent in the game. """
         pass
     
     def send_msg(self, msg):
+        """ Send a message to the game. The other player's display_msg
+        is called by the game. """
         if msg.strip():
             self.game.send_msg(self, msg)
     
     def in_game(self):
+        """ Return True if the player is in a game. """
         return self.game and self in self.game.players
     
     def serialize(self):
@@ -109,17 +110,20 @@ class Player(object):
 
 
 class RemotePlayer(Player):
+    """ The RemotePlayer sends everything he observes trough
+    the connection passed to it. """
     def __init__(self, conn=None, name=None):
         Player.__init__(self, name)
-        self.cmd.update(
-            {
+        self.cmd = {
                 'TURN': self.do_turn,
                 'GAMEOVER': self.game_over,
                 'MSG': self.send_msg,
                 'QUIT': self.quit_game,
-            }
-        )
+        }
         self.conn = conn
+    
+    def lookup(self, cmd):
+        return self.cmd[cmd]
     
     def display_turn(self, player, turn):
         self.conn.send(
@@ -254,6 +258,8 @@ class Game(object):
         return self.players[2 - player.uid]
     
     def send_msg(self, author, msg):
+        """ Send message to the game. It is the callers responsibility
+        to display it. The author's display_msg isn't called. """
         for p in self.people(author):
             p.display_msg(author.name, msg)
     
