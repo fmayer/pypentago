@@ -78,3 +78,16 @@ def parse_ip(string, default_port=-1):
         return parse_ipv6(string, default_port)
     else:
         return parse_ipv4(string, default_port)
+
+def offset(quad):
+    """ Offset of quadrant from (0/0) in (rows, cols). """
+    return (3 * (quad >= 2), 3 * (quad == 1 or quad == 3))
+
+def contains(row, col):
+    """ Return which quadrant contains the position at (row, col). """
+    r = 0
+    if row > 2:
+        r += 2
+    if col > 2:
+        r += 1
+    return r

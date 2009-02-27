@@ -20,6 +20,99 @@
 serializes players by sending the id, which is resolved to the object on
 the other side. """
 
+
+class Raw(object):
+    @staticmethod
+    def unrpcialize(obj):
+        return obj
+
+
+class TrivialClass(object):
+    """
+    >>> class Foo(TrivialClass):
+    ...     def __init__(self, foo):
+    ...         self.foo = foo
+    ... 
+    >>> foo = Foo('spam')
+    >>> foo.rpcialize()
+    {'foo': 'spam'}
+    >>> rpc = foo.rpcialize()
+    >>> new_foo = foo.unrpcialize(rpc)
+    >>> new_foo # doctest: +ELLIPSIS
+    <__main__.Foo object at 0x...>
+    >>> new_foo.foo
+    'spam'
+    >>> 
+    """
+    rpcialize_attributes = None
+    
+    def rpcialize(self):
+        attrs = vars(self)
+        if self.rpcialize_attributes is not None:
+            filtered = {}
+            for attr in rpcialize_attributes:
+                filtered[attr] = attrs[attr]
+            return filtered
+        else:
+            return attrs
+    
+    @classmethod
+    def unrpcialize(cls, args):
+        # Avoid the __init__
+        inst = object.__new__(cls)
+        inst.__dict__.update(args)
+        return inst
+
+
+class Resolver(object):
+    """
+    >>> class Foo(TrivialClass):
+    ...     def __init__(self, foo):
+    ...         self.foo = foo
+    ... 
+    >>> resolver = Resolver()
+    >>> resolver.register(Foo)
+    >>> foo = Foo('foobar')
+    >>> resolver.rpcialize(foo)
+    ['Foo', {'foo': 'foobar'}]
+    >>> rpc = resolver.rpcialize(foo)
+    >>> resolver.resolve(rpc) # doctest: +ELLIPSIS
+    <__main__.Foo object at 0x...>
+    >>> new_foo = resolver.resolve(rpc)
+    >>> new_foo.foo
+    'foobar'
+    >>> 
+    """
+    def __init__(self, table=None):
+        if table is None:
+            table = {}
+        self.table = table
+        self.reverse_table = dict(
+            (item, key) for key, item in table.iteritems()
+        )
+    
+    def resolve(self, arg):
+        type_, args = arg
+        return self.table[type_].unrpcialize(args)
+    
+    def register(self, cls, name=None):
+        if name is None:
+            name = getattr(cls, 'rpcialize_name', cls.__name__)
+        if name in self.table:
+            raise ValueError("name not unique in this Resolver")
+        self.table[name] = cls
+        self.reverse_table[cls] = name
+    
+    def rpcialize(self, obj):
+        if hasattr(obj, 'rpcialize'):
+            return [self.reverse_table[obj.__class__], obj.rpcialize()]
+        else:
+            return [self.reverse_table[Raw], obj]
+    
+    def rpcialize_many(self, *args):
+        return map(self.rpcialize, args)
+
+
 def player_by_id(p):
     return ['player_by_id', p]
 

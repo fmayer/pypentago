@@ -22,6 +22,8 @@ import itertools
 
 import depr
 
+import pypentago.util
+
 from pypentago import CW, CCW, rpcializer
 from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn, 
                                   GameFull)
@@ -33,6 +35,23 @@ try:
 except ImportError:
     from pypentago.board import Board
     EXTENSION_MODULE = False
+
+
+class Turn(rpcializer.TrivialClass):
+    def __init__(self, row, col, rot_dir, rot_quad):
+        self.row = row
+        self.col = col
+        self.rot_quad = rot_quad
+        self.rot_dir = rot_dir
+    
+    def __iter__(self):
+        return iter((self.row, self.col, self.rot_quad, self.rot_dir))
+    
+    def relative_position(self):
+        """ (quadrant, relative_row, relative_col) """
+        quad = pypentago.util.contains(self.row, self.col)
+        rows, cols = pypentago.util.offset(quad)
+        return quad, self.row - rows, self.col - cols
 
 
 class Observer(object):
