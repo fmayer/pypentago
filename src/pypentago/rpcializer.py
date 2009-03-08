@@ -72,7 +72,7 @@ class TrivialClass(object):
         attrs = vars(self)
         if self.rpcialize_attributes is not None:
             filtered = {}
-            for attr in rpcialize_attributes:
+            for attr in self.rpcialize_attributes:
                 filtered[attr] = attrs[attr]
             return filtered
         else:
