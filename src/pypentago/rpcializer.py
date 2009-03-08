@@ -21,6 +21,28 @@ serializes players by sending the id, which is resolved to the object on
 the other side. """
 
 
+class ObjectIdentifier(object):
+    def __init__(self, object_):
+        self.object_ = object_
+    
+    def rpcialize(self, obj):
+        return None
+    
+    def unrpcialize(self, id_):
+        return self.object_       
+
+
+class ObjectDispatcher(object):
+    def __init__(self, objects):
+        self.objects = objects
+    
+    def rpcialize(self, obj):
+        return self.objects.index(obj)
+    
+    def unrpcialize(self, id_):
+        return self.objects[id_]   
+
+
 class Raw(object):
     @staticmethod
     def unrpcialize(obj):
@@ -103,14 +125,20 @@ class Resolver(object):
         self.table[name] = cls
         self.reverse_table[cls] = name
     
-    def rpcialize(self, obj):
+    def rpcialize(self, obj, *args, **kwargs):
         if hasattr(obj, 'rpcialize'):
-            return [self.reverse_table[obj.__class__], obj.rpcialize()]
+            return [self.reverse_table[obj.__class__],
+                    obj.rpcialize(*args, **kwargs)]
         else:
             return [self.reverse_table[Raw], obj]
     
     def rpcialize_many(self, *args):
         return map(self.rpcialize, args)
+
+
+class StandardResolver(Resolver):
+    def __init__(self):
+        Resolver.__init__(self, {'': Raw})
 
 
 def player_by_id(p):
