@@ -115,6 +115,12 @@ class ConnectDialog(QtGui.QDialog):
             for j, widg in enumerate(elem):
                 grid.addWidget(widg, i, j)
         
+        for widg in (self.server, self.user, self.passwd):
+            self.connect(widg, 
+                         QtCore.SIGNAL('returnPressed()'),
+                         self,
+                         QtCore.SLOT('accept()'))
+        
         ok, cancel, lay = modal_buttons()
         register = QtGui.QPushButton('Register')
         
