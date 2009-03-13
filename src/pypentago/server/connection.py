@@ -30,7 +30,6 @@ from pypentago import PROTOCOL_VERSION
 from pypentago import core
 from pypentago import crypto
 from pypentago.server import core as s_core
-from pypentago.get_conf import get_conf_obj
 from pypentago.server import db
 from pypentago.server.mailing import Email
 from pypentago.server.db.dbobjs import Player
@@ -39,7 +38,6 @@ from pypentago.exceptions import NoSuchRoom, NotInDB, GameFull
 from easy_twisted.connection import expose, require_auth, Connection
 
 
-conf = get_conf_obj('server')
 exception_log = logging.getLogger("pypentago.exception")
 
 email_text = ("Dear %(real_name)s,\n"

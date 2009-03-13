@@ -23,80 +23,68 @@ and starts a server according to them. """
 import sys
 import logging
 
-from os.path import join, dirname, abspath, expanduser
+import os
+
 from optparse import OptionParser
 from ConfigParser import ConfigParser, NoOptionError
 
 import pypentago
-from pypentago.get_conf import get_conf_obj
+from pypentago import conf
 from pypentago.server.server import run_server
 from pypentago import __version__, verbosity_levels
 from pypentago.server import server
 
-
-config = get_conf_obj("server")
-
-def_port = config.get("default", "port")
-def_logfile = config.get("default", "logfile")
-def_verbosity = config.get("default", "verbosity")
-def_daemon = config.get("default", "daemon")
-
-parser = OptionParser(version = 'pypentago ' + __version__)
-parser.add_option("-l", "--log", action="store", 
-                     type="string", dest="logfile", default = def_logfile,
-                     help="write logs to FILE", metavar="FILE")
-
-parser.add_option("-d", "--daemon", action="store_true", 
-                     dest="daemon", default=def_daemon,
-                     help="start server as daemon. POSIX only!")
-
-parser.add_option("-p", "--port", action="store", default = def_port,
-                     type="int", dest="port", metavar="PORT",
-                     help="start server on port PORT")
-
-parser.add_option('--verbose', '-v', action='count', dest='verbose',
-                  help="Increase verbosity. Use -vv for very verbose")
-parser.add_option('--quiet', '-q', action='store_const', dest='verbose', 
-                  const=-1, default=0, help="Show only error messages")
-
-options, args = parser.parse_args()
-verbosity = verbosity_levels[options.verbose]
+def main(args=None):
+    if not os.path.exists(conf.app_data):
+        conf.init_appdata(conf.app_data)
     
-try:
-    def_pid = config.get("default", "pidfile", {"{port}": str(options.port)})
-except NoOptionError:
-    def_pid = join(abspath(dirname(__file__)), "pid")
-pid_filename = abspath(def_pid)
-
-db_driver = config.get('database','dbdriver')
-db_host   = config.get('database','dbhost')
-db_port   = str(config.get('database','dbport'))
-db_user   = config.get('database','dbuser')
-db_name   = config.get('database','dbname')
-db_pass   = config.get('database','dbpass')
-if db_driver == 'sqlite':
-    # SQLite ignores anything but driver and db_name.
-    # If any other databases do this add to if clause above.
-    connect_string = '%s:///%s' % (db_driver, db_name)
-else:
-    connect_string = db_driver+"://"+db_user+":"+db_pass+"@"+\
-                   db_host+":"+db_port+"/"+db_name
-
-def main():
-    logfile = expanduser(str(options.logfile))
-    logfile = logfile.replace("{port}", str(options.port))
-    if not logfile:
-        logfile = join(abspath(dirname(__file__)), "server.log")
+    if args is None:
+        args = sys.argv[1:]
+    
+    var = {'appdata': conf.app_data}
+    
+    config = ConfigParser()
+    config.read(conf.possible_configs('server.ini'))
+    
+    def_port = config.getint("server", "port")
+    def_logfile = config.get("server", "logfile", vars=var)
+    def_verbosity = config.getint("server", "verbosity")
+    def_daemon = config.getboolean("server", "daemon")
+    
+    parser = OptionParser(version = 'pypentago ' + __version__)
+    parser.add_option("-d", "--daemon", action="store_true", 
+                         dest="daemon", default=def_daemon,
+                         help="start server as daemon. POSIX only!")
+    
+    parser.add_option("-p", "--port", action="store", default = def_port,
+                         type="int", dest="port", metavar="PORT",
+                         help="start server on port PORT")
+    
+    parser.add_option('--verbose', '-v', action='count', dest='verbose',
+                      help="Increase verbosity. Use -vv for very verbose")
+    
+    parser.add_option('--quiet', '-q', action='store_const', dest='verbose', 
+                      const=-1, default=0, help="Show only error messages")
+    
+    options, args = parser.parse_args(args)
+    verbosity = verbosity_levels[options.verbose]
+    
+    var.update({'port': options.port})
+    
+    pid_filename = os.path.abspath(
+        config.get("server", "pidfile", vars=var)
+    )
+    connect_string = config.get("server", 'database', vars=var)
+    logfile = config.get("server", "logfile", vars=var)
+    
     pypentago.init_logging(logfile, verbosity)
     log = logging.getLogger("pypentago.server")
-
+    
     if options.daemon:
-        import daemon
-        from os import getpid
+        from pypentago import daemon
         daemon.daemonize(True, cwd='/')
-        pid_file = open(pid_filename, "w")
-        pid_file.write(str(getpid()))
-        pid_file.close()
+        with open(pid_filename, "w") as pid_file:
+            pid_file.write(str(os.getpid()))
     run_server(options.port, connect_string)
 
 

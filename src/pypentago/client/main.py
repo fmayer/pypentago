@@ -21,50 +21,55 @@ starts up the interface. """
 
 import logging
 import sys
+import os
 import time
 
 from optparse import OptionParser
 from ConfigParser import ConfigParser
-from os.path import join, dirname, expanduser, abspath, exists
-
 
 import pypentago
 
-from pypentago.get_conf import get_conf_obj, str_to_bool
+from pypentago import conf
 from pypentago.client import interface
 from pypentago import __version__, verbosity_levels
 
-config = get_conf_obj("client")
-
-def_logfile = config.get("default", "logfile")
-def_verbosity = config.get("default", "verbosity")
-def_port = config.get("default", "port")
-def_server = config.get("default", "server")
-
-parser = OptionParser(version = 'pypentago ' + __version__)
-
-parser.add_option("-l", "--log", action="store", 
-                     type="string", dest="logfile", default = def_logfile,
-                     help="write logs to FILE", metavar="FILE")
-
-parser.add_option("-s", "--server", action="store", 
-                     type="string", dest="server", metavar="SERVER",
-                     help="connect to SERVER", default=def_server)
-
-parser.add_option("-p", "--port", action="store", 
-                     type="int", dest="port", metavar="PORT",
-                     help="connect at PORT", default=def_port)
-
-parser.add_option('--verbose', '-v', action='count', dest='verbose',
-                  help="Increase verbosity. Use -vv for very verbose")
-parser.add_option('--quiet', '-q', action='store_const', dest='verbose', 
-                  const=-1, default=0, help="Show only error messages")
-
-options, args = parser.parse_args()
-verbosity = verbosity_levels[options.verbose]
+def main(args=None):
+    if not os.path.exists(conf.app_data):
+        conf.init_appdata(conf.app_data)
     
-def main():
-    pypentago.init_logging(options.logfile, verbosity)
+    if args is None:
+        args = sys.argv[1:]
+    
+    var = {'appdata': conf.app_data}
+    
+    config = ConfigParser()
+    config.read(conf.possible_configs('client.ini'))
+
+    def_logfile = config.get("client", "logfile", vars=var)
+    def_verbosity = config.get("client", "verbosity")
+    
+    parser = OptionParser(version = 'pypentago ' + __version__)
+    
+    # FIXME: This doesn't work.
+    parser.add_option("-s", "--server", action="store", 
+                         type="string", dest="server", metavar="SERVER",
+                         help="connect to SERVER", default='')
+    
+    # FIXME: Neither does this.
+    parser.add_option("-p", "--port", action="store", 
+                         type="int", dest="port", metavar="PORT",
+                         help="connect at PORT", default=-1)
+    
+    parser.add_option('--verbose', '-v', action='count', dest='verbose',
+                      help="Increase verbosity. Use -vv for very verbose")
+    
+    parser.add_option('--quiet', '-q', action='store_const', dest='verbose', 
+                      const=-1, default=0, help="Show only error messages")
+    
+    options, args = parser.parse_args()
+    verbosity = verbosity_levels[options.verbose]
+    
+    pypentago.init_logging(def_logfile, verbosity)
     log = logging.getLogger("pypentago.client")
     interface.main()
 
