@@ -165,7 +165,3 @@ class ClientConnection(Connection):
             "No handler found for request %r" % request,
             exc_info=True
         )
-
-
-if __name__ == '__main__':
-    test = ClientConnection()
