@@ -66,7 +66,7 @@ def main(args=None):
     parser.add_option('--quiet', '-q', action='store_const', dest='verbose', 
                       const=-1, default=0, help="Show only error messages")
     
-    options, args = parser.parse_args()
+    options, args = parser.parse_args(args)
     verbosity = verbosity_levels[options.verbose]
     
     pypentago.init_logging(def_logfile, verbosity)
