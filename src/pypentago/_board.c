@@ -84,7 +84,6 @@ board_subscript(BoardObject *self, PyObject *key)
     return PyInt_FromLong(self->board->board[row][col]);
 }
 
-#include <stdio.h>
 static int
 board_ass_subscript(BoardObject *self, PyObject *key, PyObject *value)
 {
