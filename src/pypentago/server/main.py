@@ -20,6 +20,8 @@
 """ Main entry-point for the server. Parses command line switches in argv
 and starts a server according to them. """
 
+from __future__ import with_statement
+
 import sys
 import logging
 
