@@ -274,7 +274,7 @@ class ServerWindow(QtGui.QMainWindow):
             QtGui.QInputDialog.getText(self, "Enter game name", "Game name:")
         )
         if ok:
-            self.connection.new_game(str(name))
+            self.connection.new_game(unicode(name))
     
     def settings(self):
         pass

@@ -54,7 +54,8 @@ class ClientConnection(Connection):
         self.remote_table = {}
         log.info("Connection established")
         context.emmit_action('conn_established', self)
-        self.name = None
+        # FIXME: Debug
+        self.name = 'Local Player'
         self.login_as = None
         self.server_window = self.factory.parent
     

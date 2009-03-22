@@ -489,8 +489,10 @@ class Game(QtGui.QWidget):
     
     @QtCore.pyqtSignature('')
     def send_msg(self):
-        self.local_player.send_msg(unicode(self.chat_entry.text()))
+        msg = unicode(self.chat_entry.text())
+        self.local_player.send_msg(msg)
         self.chat_entry.clear()
+        self.add_msg(self.local_player.name, msg)
     
     def add_msg(self, author, msg, utc_time=None):
         format = "[%(time)s] <%(author)s> %(msg)s"
