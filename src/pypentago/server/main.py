@@ -83,7 +83,7 @@ def main(args=None):
     log = logging.getLogger("pypentago.server")
     
     if options.daemon:
-        from pypentago import daemon
+        from pypentago.server import daemon
         daemon.daemonize(True, cwd='/')
         with open(pid_filename, "w") as pid_file:
             pid_file.write(str(os.getpid()))
