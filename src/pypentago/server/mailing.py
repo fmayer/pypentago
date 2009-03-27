@@ -51,7 +51,7 @@ def format_recipients(recipients):
 
     ret = []
     for recipient in recipients:    
-        if not hasattr(recipient, "__iter__"):
+        if isinstance(recipient, basestring):
             ret.append((False, recipient))
         else:
             ret.append(recipient)

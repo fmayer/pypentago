@@ -1,3 +1,5 @@
+# -*- coding: us-ascii -*-
+
 # pypentago - a board game
 # Copyright (C) 2008 Florian Mayer
 
