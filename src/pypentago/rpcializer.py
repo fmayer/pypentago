@@ -137,6 +137,7 @@ class Resolver(object):
 
 
 class StandardResolver(Resolver):
+    """ Resolver that automatically has '' mapped to Raw. """
     def __init__(self):
         Resolver.__init__(self, {'': Raw})
 

@@ -58,7 +58,7 @@ class Observer(object):
     def display_turn(self, turn):
         pass
     
-    def game_over(winner, loser):
+    def game_over(self, winner, loser):
         pass
     
     def display_msg(self, author, msg):
