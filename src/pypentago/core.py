@@ -171,8 +171,6 @@ class RemotePlayer(Player):
 
 class Game(object):
     def __init__(self, board=None):
-        """ If players are passed it automatically sets their game attribute 
-        to this instance. """
         self.board = board or Board()
         self.players = []
         self.observers = []
@@ -182,7 +180,6 @@ class Game(object):
             '': lambda x: x,
             'player_by_id': self.player_by_id,
         }
-            
         
         self.last_set = None
     
@@ -220,10 +217,11 @@ class Game(object):
             raise NotYourTurn
         
         self.board.apply_turn(player, turn)
-        self.other_player(player).display_turn(player, turn)
-        for obs in self.observers:
-            obs.display_turn(player, turn)
         self.last_set = player
+        
+        for person in self.people(player):
+            person.display_turn(player, turn)
+        
         winner, loser = self.get_winner()
         if winner is not None:
             self.game_over(winner, loser)
@@ -287,11 +285,14 @@ class Game(object):
             raise ValueError
         
         self.over = True
+        winner = self.other_player(player)
         
         self.players.remove(player)
         for p in self.people():
+            # FIXME: Also call p.game_over?
             p.player_quit(player)
     
+    # FIXME: Rename to attendees?
     def people(self, but=None):
         for item in itertools.chain(self.players, self.observers):
             if item != but:
