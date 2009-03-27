@@ -70,8 +70,6 @@ class Conn(Connection):
         self.game_list()
     
     def destruct(self, reason):
-        for player in self.remote_table.values():
-            player.quit_game()
         self.logout(answer=False)
         self.server.sync_games()
         
@@ -115,6 +113,9 @@ class Conn(Connection):
     @require_auth
     def join_game(self, evt):
         gid = evt['data']
+        if gid in self.remote_table:
+            self.send("ALREADYJOINED", gid)
+            return
         player = s_core.ServerPlayer(self, self.db_player.player_name)
         game = self.server.games[gid]
         try:
