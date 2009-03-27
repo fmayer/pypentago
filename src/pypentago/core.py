@@ -1,3 +1,5 @@
+# -*- coding: us-ascii -*-
+
 # pypentago - a board game
 # Copyright (C) 2008 Florian Mayer
 
@@ -19,8 +21,6 @@ import sys
 import os
 import random
 import itertools
-
-import depr
 
 import pypentago.util
 
@@ -97,6 +97,7 @@ class Player(object):
     def quit_game(self):
         """ Remove the player from their game. """
         self.game.player_quit(self)
+        # FIXME: Should we do this?
         self.game = None
     
     def player_quit(self, opponent):
@@ -162,6 +163,7 @@ class RemotePlayer(Player):
     def quit_game(self):
         del self.conn.remote_table[self.game.uid]
         
+        # Prevent the games from being synced twice.
         a = len(self.game.players) == 2
 
         Player.quit_game(self)
@@ -257,6 +259,7 @@ class Game(object):
     def add_player_with_uid(self, p):
         if len(self.players) == 2:
             raise GameFull
+        
         p.game = self
         for person in self.people():
             person.player_joined(p)
@@ -285,7 +288,6 @@ class Game(object):
             raise ValueError
         
         self.over = True
-        winner = self.other_player(player)
         
         self.players.remove(player)
         for p in self.people():

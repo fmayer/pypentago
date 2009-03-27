@@ -143,6 +143,11 @@ class ClientConnection(Connection):
         f.clients = []
         reactor.connectTCP(host, port, f)
     
+    @expose("ALREADYJOINED")
+    def already_joined(self, evt):
+        # TODO: Write me.
+        pass
+    
     def internal_error(self, request):
         exception_log.critical(
             "Internal server error handling request %r" % request,
