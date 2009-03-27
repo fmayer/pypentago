@@ -16,6 +16,24 @@
 
 
 class IDPool(object):
+    """
+    Pool that returns unique identifiers.
+    
+    Identifierers obtained using the get method are guaranteed to not be
+    returned by it again until they are released using the release method.
+    
+        >>> pool = IDPool()
+        >>> pool.get()
+        0
+        >>> pool.get()
+        1
+        >>> pool.get()
+        2
+        >>> pool.release(1)
+        >>> pool.get()
+        1
+        >>> 
+    """
     def __init__(self):
         self.max_id = -1
         self.free_ids = []
@@ -39,7 +57,7 @@ class IDPool(object):
     
     def reset(self):
         """ Reset the state of the IDPool. This should only be called when
-        no game is opened. """
+        no identifier is in use. """
         self.max_id = -1
         self.free_ids = []
 
