@@ -14,11 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import itertools
 
 class IDPool(object):
     def __init__(self):
-        self.ids = itertools.count()
+        self.max_id = -1
         self.free_ids = []
     
     def get(self):
@@ -27,16 +26,21 @@ class IDPool(object):
         if self.free_ids:
             return self.free_ids.pop()
         else:
-            return self.ids.next()
+            self.max_id += 1
+            return self.max_id
     
     def release(self, id_):
-        """ Release the id. It can now be returned by get again. """
+        """ Release the id. It can now be returned by get again.
+        
+        Will reset the IDPool if the last id in use is released. """
         self.free_ids.append(id_)
+        if len(self.free_ids) == self.max_id + 1:
+            self.reset()
     
     def reset(self):
         """ Reset the state of the IDPool. This should only be called when
         no game is opened. """
-        self.ids = itertools.count()
+        self.max_id = -1
         self.free_ids = []
 
 
