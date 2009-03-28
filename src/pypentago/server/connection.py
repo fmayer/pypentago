@@ -99,8 +99,8 @@ class Conn(Connection):
     @require_auth
     def open_game(self, evt):
         name = evt['data']
-        game = s_core.ServerGame(name)
         uid = self.server.game_id.get()
+        game = s_core.ServerGame(name, uid)
         p = s_core.ServerPlayer(self, self.db_player.player_name)
         game.uid = uid
         self.remote_table[uid] = p

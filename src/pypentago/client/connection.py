@@ -75,9 +75,9 @@ class ClientConnection(Connection):
     
     @expose("OPENGAME")
     def open_game(self, evt):
-        # TODO: Debug code follows.
+        # TODO: Debug code follows. Highlight the game in the game-list
+        # to indicate the user has created it.
         gid = evt['data']
-        print "Opened game with id %d" % gid
     
     @expose("INITGAME")
     def init_game(self, evt):

@@ -18,9 +18,10 @@
 from pypentago import core
 
 class ServerGame(core.Game):
-    def __init__(self, name):
+    def __init__(self, name, uid):
         core.Game.__init__(self)
         self.name = name
+        self.uid = uid
     
     def serialize(self):
         return {
