@@ -123,6 +123,7 @@ class Player(object):
         return self.game and self in self.game.players
     
     def serialize(self):
+        """ Return dictionary with the information about the player. """
         return {'name': self.name}
     
     def __repr__(self):
@@ -186,6 +187,7 @@ class Game(object):
         self.last_set = None
     
     def player_by_id(self, uid):
+        """ Get played with the uid in the game. """
         return self.players[uid - 1]
     
     def unrpcialize(self, args):
@@ -234,6 +236,7 @@ class Game(object):
         """ Return (winner, loser).
         
         If no winner has been found (None, None) is returned. """
+        # TODO: Draw!
         winner = self.board.win()
         if winner:
             return self.players[winner - 1], self.players[2 - winner]
@@ -241,12 +244,19 @@ class Game(object):
             return None, None
     
     def new_id(self):
+        """ Get the next free uid for a player. """
         players = len(self.players)
         if players == 2:
             raise GameFull
         return players + 1
     
     def add_player(self, p):
+        """ Add player. The next free uid is used. The player's uid
+        member is set to the uid. If the game is already full, raise
+        pypentago.exceptions.GameFull.
+        
+        This will call the player_joined method of all people in the game,
+        except the one that just joined. """
         # FIXME: Should we really get the ID here?
         if len(self.players) == 2:
             raise GameFull
@@ -257,8 +267,19 @@ class Game(object):
         self.players.append(p)
     
     def add_player_with_uid(self, p):
+        """ Add player that has a uid member. It will be added to the
+        game with this id. If a player with the same uid already is in
+        the game, raise ValueError. If the game is already full, raise
+        pypentago.exceptions.GameFull.
+        
+        This will call the player_joined method of all people in the game,
+        except the one that just joined. """
         if len(self.players) == 2:
             raise GameFull
+        
+        for player in self.players:
+            if player == p.uid:
+                raise ValueError("Duplicate uid in game!")
         
         p.game = self
         for person in self.people():
@@ -266,6 +287,8 @@ class Game(object):
         self.players.insert(p.uid - 1, p)
     
     def add_observer(self, o):
+        """ Add observer to the game. """
+        # TODO: Make observers work.
         self.observers.append(o)
     
     def random_beginner(self):
@@ -284,6 +307,7 @@ class Game(object):
             p.display_msg(author.name, msg)
     
     def player_quit(self, player):
+        """ Remove player from the game. The game is over afterwards. """
         if player not in self.players:
             raise ValueError
         
@@ -296,6 +320,13 @@ class Game(object):
     
     # FIXME: Rename to attendees?
     def people(self, but=None):
+        """ Yield all people in the game. If optional but is used, exclude
+        everything that equals it. This is useful if we do not want to call
+        a method of the caller.
+        
+        All objects yielded by this should at least have the Observer interface
+        implemented (display_turn, game_over, display_msg, player_quit,
+        player_joined). """
         for item in itertools.chain(self.players, self.observers):
             if item != but:
                 yield item
