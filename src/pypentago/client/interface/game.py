@@ -129,10 +129,9 @@ class Overlay(QtCore.QObject):
         self.add_ccw = 0
         
         self.timer = QtCore.QTimer()
-        self.timer.connect(self.timer, 
-                           QtCore.SIGNAL('timeout()'),
-                           self, QtCore.SLOT('tick()')
-                           )
+        self.connect(self.timer,
+                     QtCore.SIGNAL('timeout()'),
+                     self.tick)
     
     def show(self):
         self.shown = True
@@ -143,7 +142,6 @@ class Overlay(QtCore.QObject):
         self.shown = False
         self.timer.stop()
     
-    @QtCore.pyqtSignature('')
     def tick(self):
         if self.value >= self.MAX_OPACITY:
             self.timer.stop()
