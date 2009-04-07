@@ -115,13 +115,12 @@ class StoneBlink(Blinker):
         return self.coord is not None and self.timer.isActive()
 
 
-class Overlay(QtCore.QObject):
+class Overlay(object):
     INIT_OPACITY = 0.1
     OPACITY_CHANGE = 0.05
     MAX_OPACITY = 0.6
     HOVER = 0.25
     def __init__(self, repaint):
-        QtCore.QObject.__init__(self)
         self.value = self.INIT_OPACITY
         self.repaint = repaint
         self.shown = False
@@ -129,9 +128,11 @@ class Overlay(QtCore.QObject):
         self.add_ccw = 0
         
         self.timer = QtCore.QTimer()
-        self.connect(self.timer,
-                     QtCore.SIGNAL('timeout()'),
-                     self.tick)
+        QtCore.QObject.connect(
+            self.timer,
+            QtCore.SIGNAL('timeout()'),
+            self.tick
+        )
     
     def show(self):
         self.shown = True
