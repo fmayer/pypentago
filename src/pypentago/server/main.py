@@ -53,7 +53,7 @@ def main(args=None):
     def_verbosity = config.getint("server", "verbosity")
     def_daemon = config.getboolean("server", "daemon")
     
-    parser = OptionParser(version = 'pypentago ' + __version__)
+    parser = OptionParser(version='pypentago ' + __version__)
     parser.add_option("-d", "--daemon", action="store_true", 
                          dest="daemon", default=def_daemon,
                          help="start server as daemon. POSIX only!")
@@ -68,8 +68,19 @@ def main(args=None):
     parser.add_option('--quiet', '-q', action='store_const', dest='verbose', 
                       const=-1, default=0, help="Show only error messages")
     
+    parser.add_option('--reset-config', action='store_true', dest='reset_conf',
+                      default=False, help="Reset the config files.")
+    
     options, args = parser.parse_args(args)
     verbosity = verbosity_levels[options.verbose]
+    
+    if options.reset_conf:
+        conf.init_server_conf(conf.app_data)
+        if verbosity >= 20:
+            # -v or -vv
+            print "Reset server configuration file."
+        # We're done.
+        return 0
     
     var.update({'port': options.port})
     
@@ -91,4 +102,4 @@ def main(args=None):
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

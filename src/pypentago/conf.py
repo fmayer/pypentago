@@ -67,9 +67,8 @@ if os.name == 'posix':
     default_locations.append('/etc/pypentago/')
 
 
-def init_conf(location):
+def init_server_conf(location):
     server_file = os.path.join(location, 'server.ini')
-    client_file = os.path.join(location, 'client.ini')
     
     server = RawConfigParser()
     server.add_section('server')
@@ -82,6 +81,10 @@ def init_conf(location):
     
     with open(server_file, 'w') as server_file:
         server.write(server_file)
+
+
+def init_client_conf(location):
+    client_file = os.path.join(location, 'client.ini')
     
     client = RawConfigParser()
     client.add_section('client')
@@ -90,6 +93,11 @@ def init_conf(location):
     
     with open(client_file, 'w') as client_file:
         client.write(client_file)
+
+
+def init_conf(location):
+    init_server_conf(location)
+    init_client_conf(location)
 
 
 def init_appdata(appdata):
