@@ -139,7 +139,7 @@ def main():
     options, args = parser.parse_args()
     if len(args) != 1:
         print "Invalid number of arguments"
-        sys.exit(2)
+        return 2
     release(args[0], tests=options.tests, force=options.force,
             setup=options.setup, commit=options.commit,
             tag=options.tag, packages=options.packages)
