@@ -32,9 +32,8 @@ from ConfigParser import ConfigParser, NoOptionError
 
 import pypentago
 from pypentago import conf
-from pypentago.server.server import run_server
 from pypentago import __version__, verbosity_levels
-from pypentago.server import server
+from pypentago import server
 
 def main(args=None):
     if not os.path.exists(conf.app_data):
@@ -98,7 +97,7 @@ def main(args=None):
         daemon.daemonize(True, cwd='/')
         with open(pid_filename, "w") as pid_file:
             pid_file.write(str(os.getpid()))
-    run_server(options.port, connect_string)
+    server.run_server(options.port, connect_string)
 
 
 if __name__ == "__main__":
