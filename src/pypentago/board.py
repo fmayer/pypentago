@@ -144,17 +144,21 @@ class Board:
         raise NotImplementedError('Compile the goddamn C module.')
     
     def win(self):
+        """ If a winner has been found, return their id. If the game is
+        a draw, return 3. If no winner has been found return 0. """
         if self.filled == 36:
-            return [1, 2]
-        winners = []
+            return 3
+        winner = 0
         for player in (1, 2):           
             check = [player]*5
             for line in itertools.chain(self.cols, self.rows,
                                         self.diagonals):
                 if has_won(list(line), check):
-                    if player not in winners:
-                        winners.append(player)
-        return winners
+                    if not winner:
+                        winner = player
+                    elif winner != player:
+                        return 3
+        return winner
     
     def __str__(self):
         ret = []

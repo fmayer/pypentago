@@ -243,15 +243,17 @@ class Game(object):
     def get_winner(self):
         """ Return (winner, loser).
         
-        If no winner has been found (None, None) is returned. """
-        winners = self.board.win()
-        if len(winners) == 1:
-            winner = self.player_by_id(winners[0])
-            return winner, self.other_player(winner)
-        elif len(winners) == 2:
+        If no winner has been found (None, None) is returned. If the game
+        is a draw (pypentago.core.draw, pypentago.core.draw) is returned.
+        """
+        win = self.board.win()
+        if win == 0:
+            return None, None
+        elif win == 3:
             return draw, draw
         else:
-            return None, None
+            winner = self.player_by_id(win)
+            return winner, self.other_player(winner)
     
     def new_id(self):
         """ Get the next free uid for a player. """
