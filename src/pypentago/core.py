@@ -313,6 +313,8 @@ class Game(object):
     def send_msg(self, author, msg):
         """ Send message to the game. It is the callers responsibility
         to display it. The author's display_msg isn't called. """
+        if not msg.strip():
+            return
         for p in self.people(author):
             p.display_msg(author.name, msg)
     
