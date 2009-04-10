@@ -88,7 +88,7 @@ class ServerConnection(Connection):
     @expose("LOGOUT")
     @require_auth
     def logout(self, evt=None, answer=True):
-        for p in self.remote_table.itervalues():
+        for p in self.remote_table.values():
             p.quit_game()
         self.auth = False
         self.db_player = None
