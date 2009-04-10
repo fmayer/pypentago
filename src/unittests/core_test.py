@@ -23,12 +23,58 @@ from pypentago import core
 from pypentago import board
 from pypentago.exceptions import (SquareNotEmpty, NotYourTurn, GameFull,
                                   InvalidTurn)
+
+def diagonal_up(x, y, p):
+    def test(self):
+        board = self.game.board
+        board[0 + x, 0 + y] = p
+        board[1 + x, 1 + y] = p
+        board[2 + x, 2 + y] = p
+        board[3 + x, 3 + y] = p
+        board[4 + x, 4 + y] = p
+        winner, loser = self.game.get_winner()
+        self.assertNotEqual(winner, None)
+        self.assertEqual(winner.uid, p)
+    return test
+
+
+def diagonal_down(x, y, p):
+    def test(self):
+        board = self.game.board
+        board[0 + x, 5 - y] = p
+        board[1 + x, 4 - y] = p
+        board[2 + x, 3 - y] = p
+        board[3 + x, 2 - y] = p
+        board[4 + x, 1 - y] = p
+        winner, loser = self.game.get_winner()
+        self.assertNotEqual(winner, None)
+        self.assertEqual(winner.uid, p)
+    return test
+
 class Called(Exception):
     pass
 def fail(*args, **kw):
     raise Called
 
 class TestGame(unittest.TestCase):
+    test_upper_downwards_dia_p1 = diagonal_down(0, 1, 1)
+    test_upper_downwards_dia_p2 = diagonal_down(0, 1, 2)
+    test_uppermiddle_downwards_dia_p1 = diagonal_down(0, 0, 1)
+    test_uppermiddle_downwards_dia_p2 = diagonal_down(0, 0, 2)
+    test_lowermiddle_downwards_dia_p1 = diagonal_down(1, 1, 1)
+    test_lowermiddle_downwards_dia_p2 = diagonal_down(1, 1, 2)
+    test_lower_downwards_dia_p1 = diagonal_down(1, 0, 1)
+    test_lower_downwards_dia_p2 = diagonal_down(1, 0, 2)
+
+    test_upper_upwards_dia_p1 = diagonal_up(0, 1, 1)
+    test_upper_upwards_dia_p2 = diagonal_up(0, 1, 2)
+    test_uppermiddle_upwards_dia_p1 = diagonal_up(0, 0, 1)
+    test_uppermiddle_upwards_dia_p2 = diagonal_up(0, 0, 2)
+    test_lowermiddle_upwards_dia_p1 = diagonal_up(1, 1, 1)
+    test_lowermiddle_upwards_dia_p2 = diagonal_up(1, 1, 2)
+    test_lower_upwards_dia_p1 = diagonal_up(1, 0, 1)
+    test_lower_upwards_dia_p2 = diagonal_up(1, 0, 2)
+    
     def setUp(self):
         self.game = core.Game()
         self.players = [core.Player() for _ in xrange(2)]
@@ -62,75 +108,6 @@ class TestGame(unittest.TestCase):
         board[0, 5] = 2
         board.rotate_ccw(1)
         self.assertEquals(board[0, 3], 2)
-    
-    def test_win_dia(self, p=1, x=0):
-        board = self.game.board
-        # Construct winning situation.
-        board[0 + x, 0 + x] = p
-        board[1 + x, 1 + x] = p
-        board[2 + x, 2 + x] = p
-        board[3 + x, 3 + x] = p
-        board[4 + x, 4 + x] = p
-
-        # See whether the winner has been found.
-        winner, loser = self.game.get_winner()
-        self.assertNotEqual(winner, None)
-        self.assertEqual(winner.uid, p)
-    
-    def test_win_dia_p2(self):
-        self.test_win_dia(2)
-    
-    def test_win_dia_four(self, p=1):
-        self.test_win_dia(p, 1)
-    
-    def test_win_dia_four_p2(self):
-        self.test_win_dia_four(2)
-
-    def test_win_dia_sec(self, p=1):
-        board = self.game.board
-        # Construct winning situation.
-        board[0, 1] = p
-        board[1, 2] = p
-        board[2, 3] = p
-        board[3, 4] = p
-        board[4, 5] = p
-
-        # See whether the winner has been found.
-        winner, loser = self.game.get_winner()
-        self.assertNotEqual(winner, None)
-        self.assertEqual(winner.uid, p)
-   
-    def test_win_dia_sec_p2(self):
-        self.test_win_dia_sec(2)
-
-    def test_win_dia_tert(self, p=1):
-        board = self.game.board
-        # Construct winning situation.
-        board[1, 0] = p
-        board[2, 1] = p
-        board[3, 2] = p
-        board[4, 3] = p
-        board[5, 4] = p
-
-        # See whether the winner has been found.
-        winner, loser = self.game.get_winner()
-        self.assertNotEqual(winner, None)
-        self.assertEqual(winner.uid, p)
-    
-    def test_win_dia_tert_p2(self):
-        self.test_win_dia_tert(2)
-    
-    def test_win_dia_quad(self, p=1):
-        board = self.game.board
-        board[0, 5] = p
-        board[1, 4] = p
-        board[2, 3] = p
-        board[3, 2] = p
-        board[4, 1] = p
-        
-        winner, loser = self.game.get_winner()
-        self.assertNotEqual(winner, None)
-        self.assertEqual(winner.uid, p)
     
     def test_win_row(self, p=1):
         for row in xrange(6):
