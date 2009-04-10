@@ -29,9 +29,6 @@ from pypentago.pgn import *
 from pypentago.exceptions import InvalidPGN
 from pypentago import CW, CCW
 
-def random_turn():
-    r = lambda: randint(0, 2)
-    return r(), r(), r(), choice(("L", "R")), r()
 
 class CheckPGN(unittest.TestCase):
     """ Check the PGN functions """

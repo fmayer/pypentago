@@ -234,8 +234,12 @@ class ServerWindow(QtGui.QMainWindow):
         edit_menu.addAction(settings)
         
         self.need_connected = [disconnect, new_game, self.gamelist]
+        self.need_disconnected = []
+        
         for widg in self.need_connected:
             widg.setEnabled(False)
+        for widg in self.need_disconnected:
+            widg.setEnabled(True)
         
         if conn is not None:
             self.connection = conn
@@ -254,9 +258,11 @@ class ServerWindow(QtGui.QMainWindow):
         if self.login_user and self.login_pwd:
             conn.authenticate(self.login_user, self.login_pwd)
         self.connection = conn
-        self.statusBar().showMessage("Connection to server established", 10000)
+        self.statusBar().showMessage("Connection to server established")
         for widg in self.need_connected:
             widg.setEnabled(True)
+        for widg in self.need_disconnected:
+            widg.setEnabled(False)
         self.gamelist.join = conn.join_game
     
     def connection_lost(self, reason):
@@ -264,7 +270,9 @@ class ServerWindow(QtGui.QMainWindow):
             "Connection to server lost - %s" % reason.getErrorMessage()
         )
         for widg in self.need_connected:
-            widg.setEnabled(False)        
+            widg.setEnabled(False)
+        for widg in self.need_disconnected:
+            widg.setEnabled(True)
     
     def disconnect(self):
         self.close()
