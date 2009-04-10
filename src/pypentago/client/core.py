@@ -29,7 +29,9 @@ class LocalPlayer(core.Player):
                                       rot_dir == CW)
     
     def game_over(self, winner, loser):
-        if self is winner:
+        if winner is core.draw:
+            self.gui_game.add_msg('System', 'Draw!')
+        elif winner is self:
             self.gui_game.add_msg('System', 'You won the game!')
         else:
             self.gui_game.add_msg('System', 'You lost the game!')

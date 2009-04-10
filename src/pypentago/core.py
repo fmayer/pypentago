@@ -39,6 +39,9 @@ except ImportError:
     EXTENSION_MODULE = False
 
 
+draw = object()
+
+
 class Turn(rpcializer.TrivialClass):
     def __init__(self, row, col, rot_dir, rot_quad):
         self.row = row
@@ -241,10 +244,12 @@ class Game(object):
         """ Return (winner, loser).
         
         If no winner has been found (None, None) is returned. """
-        # TODO: Draw!
-        winner = self.board.win()
-        if winner:
-            return self.players[winner - 1], self.players[2 - winner]
+        winners = self.board.win()
+        if len(winners) == 1:
+            winner = self.player_by_id(winners[0])
+            return winner, self.other_player(winner)
+        elif len(winners) == 2:
+            return draw, draw
         else:
             return None, None
     

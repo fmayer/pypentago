@@ -77,10 +77,11 @@ class Board:
         if self.get_pos(quad, row, col):
             raise SquareNotEmpty
         self.set_pos(quad, row, col, player.uid)
+        self.filled += 1
     
     def set_pos(self, quad, row, col, value):
         self.board[3*_p_row(quad) + row][3*_p_col(quad) + col] = value
-
+    
     def get_pos(self, quad, row, col):
         return self.board[3*_p_row(quad) + row][3*_p_col(quad) + col]
     
@@ -143,13 +144,17 @@ class Board:
         raise NotImplementedError('Compile the goddamn C module.')
     
     def win(self):
+        if self.filled == 36:
+            return [1, 2]
+        winners = []
         for player in (1, 2):           
             check = [player]*5
             for line in itertools.chain(self.cols, self.rows,
                                         self.diagonals):
                 if has_won(list(line), check):
-                    return player
-        return 0
+                    if player not in winners:
+                        winners.append(player)
+        return winners
     
     def __str__(self):
         ret = []
