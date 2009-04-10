@@ -124,17 +124,21 @@ class QTReactor(PosixReactorBase):
 
     _timer = None
 
-    def __init__(self):
+    def __init__(self, app=None):
         self._reads = {}
         self._writes = {}
         self._timer=QTimer()
         self._timer.setSingleShot(True)
-        if QCoreApplication.startingUp():
-            self.qApp=QCoreApplication([])
-            self._ownApp=True
+        if app is None:
+            if QCoreApplication.startingUp():
+                self.qApp=QCoreApplication([])
+                self._ownApp=True
+            else:
+                self.qApp = QCoreApplication.instance()
+                self._ownApp=False
         else:
-            self.qApp = QCoreApplication.instance()
-            self._ownApp=False
+            self.qApp = app
+            self._ownApp = True
         self._blockApp = None
         self._readWriteQ=[]
         
@@ -244,10 +248,10 @@ class QTReactor(PosixReactorBase):
     def doIteration(self):
         assert False, "doiteration is invalid call"
             
-def install():
+def install(app=None):
     """
     Configure the twisted mainloop to be run inside the qt mainloop.
     """
     from twisted.internet import main
-    reactor = QTReactor()
+    reactor = QTReactor(app)
     main.installReactor(reactor)
