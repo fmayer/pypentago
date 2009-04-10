@@ -29,7 +29,6 @@ from twisted.internet import protocol
 
 from pypentago import PROTOCOL_VERSION
 from pypentago.core import Game
-from pypentago.client import context
 from pypentago.core import RemotePlayer
 
 from easy_twisted.connection import expose, Connection
