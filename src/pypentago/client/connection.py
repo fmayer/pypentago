@@ -52,7 +52,6 @@ class ClientConnection(Connection):
         #: This maps the game-id to the remote player.
         self.remote_table = {}
         log.info("Connection established")
-        context.emmit_action('conn_established', self)
         # FIXME: Debug
         self.name = 'Local Player'
         self.login_as = None
