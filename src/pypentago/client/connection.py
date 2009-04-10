@@ -57,6 +57,9 @@ class ClientConnection(Connection):
         self.login_as = None
         self.server_window = self.factory.parent
     
+    def destruct(self, reason):
+        self.server_window.connection_lost(reason)
+    
     def register(self, login, passwd, real_name, email):
         self.send("REGISTER", {'login': login, 'passwd': passwd,
                                'real_name': real_name, 'email': email})

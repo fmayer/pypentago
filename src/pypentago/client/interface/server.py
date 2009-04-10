@@ -259,6 +259,11 @@ class ServerWindow(QtGui.QMainWindow):
             widg.setEnabled(True)
         self.gamelist.join = conn.join_game
     
+    def connection_lost(self, reason):
+        self.statusBar().showMessage(
+            "Connection to server lost - %s" % reason.getErrorMessage()
+        )
+    
     def disconnect(self):
         self.close()
     
