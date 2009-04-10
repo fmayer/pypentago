@@ -218,12 +218,6 @@ class ServerWindow(QtGui.QMainWindow):
         self.connect(new_game, QtCore.SIGNAL('triggered()'),
                      self.new_game)
         
-        join_game = QtGui.QAction('&Join Game', self)
-        join_game.setShortcut('Ctrl+J')
-        join_game.setStatusTip('Join a game.')
-        self.connect(join_game, QtCore.SIGNAL('triggered()'),
-                     self.join_game)
-        
         settings = QtGui.QAction('&Settings', self)
         settings.setStatusTip('Adjust settings')
         self.connect(new_game, QtCore.SIGNAL('triggered()'),
@@ -233,14 +227,13 @@ class ServerWindow(QtGui.QMainWindow):
         
         file_menu = menubar.addMenu('&File')
         file_menu.addAction(new_game)
-        file_menu.addAction(join_game)
         file_menu.addSeparator()
         file_menu.addAction(disconnect)
         
         edit_menu = menubar.addMenu('&Edit')
         edit_menu.addAction(settings)
         
-        self.need_connected = [disconnect, new_game, join_game, self.gamelist]
+        self.need_connected = [disconnect, new_game, self.gamelist]
         for widg in self.need_connected:
             widg.setEnabled(False)
         
@@ -278,13 +271,6 @@ class ServerWindow(QtGui.QMainWindow):
     
     def settings(self):
         pass
-    
-    def join_game(self):
-        name, ok = (
-            QtGui.QInputDialog.getInteger(self, "Enter game id", "Game id:")
-        )
-        if ok:
-            self.connection.join_game(int(name))
     
     def show_game(self, game):
         g = GameWindow(game)
