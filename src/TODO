@@ -1,13 +1,6 @@
-* Main Window:
-   Main GUI entry point. It should offer the options of:
-    * Connect to a server -> ServerWindow
-    * Play a local "hotseat" game -> two GameWindow
-
 * Server Window:
    Main GUI window for server operations.
     * Create an account.
-    * Open up a game.
-    * Join a game.
     * Search users.
     * Add/Remove users from friend list.
     * Join chat channels.
