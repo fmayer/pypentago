@@ -1,5 +1,5 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# -*- coding: us-ascii -*-
 
 # pypentago - a board game
 # Copyright (C) 2008 Florian Mayer
@@ -42,46 +42,50 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
     
-    var = {'appdata': conf.app_data}
-    
-    config = ConfigParser()
-    config.read(conf.possible_configs('server.ini'))
-    
-    def_port = config.getint("server", "port")
-    def_logfile = config.get("server", "logfile", vars=var)
-    def_verbosity = config.getint("server", "verbosity")
-    def_daemon = config.getboolean("server", "daemon")
-    
     parser = OptionParser(version='pypentago ' + __version__)
     parser.add_option("-d", "--daemon", action="store_true", 
-                         dest="daemon", default=def_daemon,
-                         help="start server as daemon. POSIX only!")
+                      dest="daemon", default=None,
+                      help="start server as daemon. POSIX only!")
     
-    parser.add_option("-p", "--port", action="store", default = def_port,
-                         type="int", dest="port", metavar="PORT",
-                         help="start server on port PORT")
+    parser.add_option("-p", "--port", action="store", default=None,
+                      type="int", dest="port", metavar="PORT",
+                      help="start server on port PORT")
     
     parser.add_option('--verbose', '-v', action='count', dest='verbose',
-                      help="Increase verbosity. Use -vv for very verbose")
+                      help="Increase verbosity. Use -vv for very verbose",
+                      default=0)
     
-    parser.add_option('--quiet', '-q', action='store_const', dest='verbose', 
-                      const=-1, default=0, help="Show only error messages")
+    parser.add_option('--quiet', '-q', action='count', dest='quiet', 
+                      help="Show only error messages", default=0)
     
     parser.add_option('--reset-config', action='store_true', dest='reset_conf',
                       default=False, help="Reset the config files.")
     
     options, args = parser.parse_args(args)
-    verbosity = verbosity_levels[options.verbose]
+    verbosity = verbosity_levels[options.verbose - options.quiet]
     
     if options.reset_conf:
         conf.init_server_conf(conf.app_data)
-        if verbosity >= 20:
+        if verbosity <= 20:
             # -v or -vv
             print "Reset server configuration file."
         # We're done.
         return 0
     
-    var.update({'port': options.port})
+    config = ConfigParser()
+    config.read(conf.possible_configs('server.ini'))
+    
+    if options.port is None:
+        port = config.getint("server", "port")
+    else:
+        port = options.port
+    
+    var = {'appdata': conf.app_data, 'port': port}
+    
+    if options.daemon is None:
+        daemonize = config.getboolean("server", "daemon")
+    else:
+        daemonize = options.daemon
     
     pid_filename = os.path.abspath(
         config.get("server", "pidfile", vars=var)
@@ -92,12 +96,16 @@ def main(args=None):
     pypentago.init_logging(logfile, verbosity)
     log = logging.getLogger("pypentago.server")
     
-    if options.daemon:
+    if daemonize:
         from pypentago.server import daemon
         daemon.daemonize(True, cwd='/')
         with open(pid_filename, "w") as pid_file:
             pid_file.write(str(os.getpid()))
-    server.run_server(options.port, connect_string)
+    try:
+        server.run_server(port, connect_string)
+    finally:
+        if daemonize:
+            os.remove(pid_filename)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: us-ascii -*-
 
 # pypentago - a board game
 # Copyright (C) 2008 Florian Mayer
@@ -25,7 +26,7 @@ import os
 import time
 
 from optparse import OptionParser
-from ConfigParser import ConfigParser
+from ConfigParser import ConfigParser, NoSectionError
 
 import pypentago
 
@@ -40,49 +41,42 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
     
-    var = {'appdata': conf.app_data}
-    
-    config = ConfigParser()
-    config.read(conf.possible_configs('client.ini'))
-
-    def_logfile = config.get("client", "logfile", vars=var)
-    def_verbosity = config.get("client", "verbosity")
-    
-    parser = OptionParser(version='pypentago ' + __version__)
-    
-    # FIXME: This doesn't work.
-    parser.add_option("-s", "--server", action="store", 
-                         type="string", dest="server", metavar="SERVER",
-                         help="connect to SERVER", default='')
-    
-    # FIXME: Neither does this.
-    parser.add_option("-p", "--port", action="store", 
-                         type="int", dest="port", metavar="PORT",
-                         help="connect at PORT", default=-1)
+    parser = OptionParser(
+        usage='pypentago [options] [servers]',
+        version='pypentago ' + __version__
+    )
     
     parser.add_option('--verbose', '-v', action='count', dest='verbose',
-                      help="Increase verbosity. Use -vv for very verbose")
+                      help="Increase verbosity. Use -vv for very verbose",
+                      default=0)
     
-    parser.add_option('--quiet', '-q', action='store_const', dest='verbose', 
-                      const=-1, default=0, help="Show only error messages")
+    parser.add_option('--quiet', '-q', action='count', dest='quiet', 
+                      help="Show only error messages", default=0)
     
     parser.add_option('--reset-config', action='store_true', dest='reset_conf',
                       default=False, help="Reset the config files.")
     
     options, args = parser.parse_args(args)
-    verbosity = verbosity_levels[options.verbose]
+    verbosity = verbosity_levels[options.verbose - options.quiet]
     
     if options.reset_conf:
         conf.init_client_conf(conf.app_data)
-        if verbosity >= 20:
+        if verbosity <= 20:
             # -v or -vv
             print "Reset client configuration file."
         # We're done.
         return 0
     
-    pypentago.init_logging(def_logfile, verbosity)
+    var = {'appdata': conf.app_data}
+    
+    config = ConfigParser()
+    config.read(conf.possible_configs('client.ini'))
+    
+    logfile = config.get("client", "logfile", vars=var)
+    
+    pypentago.init_logging(logfile, verbosity)
     log = logging.getLogger("pypentago.client")
-    interface.main()
+    interface.main(args)
 
 
 if __name__ == "__main__":

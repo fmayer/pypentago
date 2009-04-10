@@ -57,6 +57,8 @@ class MainWindow(QtGui.QMainWindow):
         file_menu = menubar.addMenu('&File')
         file_menu.addAction(connect)
         file_menu.addAction(hotseat)
+        
+        self.windows = []
     
     def connect_to(self):
         dia = ConnectDialog()
@@ -66,6 +68,7 @@ class MainWindow(QtGui.QMainWindow):
         pwd = dia.passwd.text() or None
         g = ServerWindow.from_string(server, user, pwd)
         g.show()
+        self.windows.append(g)
     
     def local_game(self):
         game = core.Game()
@@ -79,20 +82,22 @@ class MainWindow(QtGui.QMainWindow):
         
         w1.show()
         w2.show()
+        
+        self.windows.append(w1)
+        self.windows.append(w2)
 
 
 def main(default_servers=[]):
-    """ Main GUI entry-point. Currently this is for testing purposes only.
-    default_servers currently has no effect at all.
-    
-    What it is supposed to do:
-    If default_servers is set the GUI automatically connects to any servers
-    that it contains, opening ServerWindows for each of them. """
-    # TODO: Implement what the docstring says
+    """ If default_servers is set the GUI automatically connects to any
+    servers that it contains, opening ServerWindows for each of them. """
     app = QtGui.QApplication(sys.argv)
     from easy_twisted import qt4reactor
     qt4reactor.install(app)
     from twisted.internet import reactor
     main = MainWindow()
     main.show()
+    for server in default_servers:
+        g = ServerWindow.from_string(server)
+        g.show()
+        main.windows.append(g)
     reactor.run()

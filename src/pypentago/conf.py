@@ -75,7 +75,6 @@ def init_server_conf(location):
     server.set('server', 'logfile', '%(appdata)s/server.log')
     server.set('server', 'pidfile', '%(appdata)s/pid.%(port)s')
     server.set('server', 'port', str(pypentago.DEFAULT_PORT))
-    server.set('server', 'verbosity', '30')
     server.set('server', 'daemon', 'False')
     server.set('server', 'database', 'sqlite:///:memory:')
     
@@ -89,7 +88,6 @@ def init_client_conf(location):
     client = RawConfigParser()
     client.add_section('client')
     client.set('client', 'logfile', '%(appdata)s/client.log')
-    client.set('client', 'verbosity', '30')
     
     with open(client_file, 'w') as client_file:
         client.write(client_file)
