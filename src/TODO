@@ -7,3 +7,6 @@
 
 * Write client_test
    This should test all the methods of ClientConnection.
+
+* Double clicking game you are already in should bring the window 
+  in foreground.
