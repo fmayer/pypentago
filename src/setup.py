@@ -20,6 +20,7 @@
 and the main scripts into /usr/bin. """
 
 import sys
+import imp
 import optparse
 
 from setuptools import setup, Extension, Distribution, Feature
@@ -30,6 +31,16 @@ VERSION = 'alpha1'
 known = {
     'gcc': ['--std=c99']
 }
+
+def depends(deps):
+    dependencies = []
+    for dep in deps:
+        try:
+            imp.find_module(dep)
+        except ImportError:
+            dependencies.append(dep)
+    return dependencies
+
 
 def parse_compiler(argv):
     for i, opt in enumerate(argv):
@@ -57,7 +68,9 @@ def get_default_opts(c_string):
 
 
 cc = get_compiler()
-enable_speedups = cc is not None
+# enable_speedups = cc is not None
+#: Until the AI is done, disable speedups by default.
+enable_speedups = False
 opts = get_default_opts(cc)
 
 dep = []
@@ -71,15 +84,7 @@ try:
 except ImportError:
     dep.append('simplejson')
 
-try:
-    import twisted
-except ImportError:
-    dep.append('twisted')
-
-try:
-    import sqlalchemy
-except ImportError:
-    dep.append('sqlalchemy')
+dep.extend(depends(['twisted']))
 
 
 board_speedup = Extension('pypentago._board',
@@ -130,16 +135,18 @@ setup(
                     'eggsecutable = pypentago.client.main:main'
                 ]
             },
-            packages=['pypentago.client', 'pypentago.client.interface']
+            packages=['pypentago.client', 'pypentago.client.interface'],
+            install_requires=depends(['PyQt4'])
         ),
         server=Feature('network server',
-            standard=False,
+            standard=True,
             entry_points={
                 'console_scripts': [
                     'pypentagod = pypentago.server.main:main'
                 ],
             },
-            packages=['pypentago.server', 'pypentago.server.db']
+            packages=['pypentago.server', 'pypentago.server.db'],
+            install_requires=depends(['sqlalchemy'])
         ),
         speedups=Feature('optional C speed-enhancements',
             standard=enable_speedups,
@@ -148,7 +155,7 @@ setup(
     ),
     package_data={'pypentago': ['data/*.png', 'data/*.svg']},
     scripts=[ ],
-    entry_points = dict(),
+    entry_points=dict(),
     install_requires=dep,
 )
 
