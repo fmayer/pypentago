@@ -263,6 +263,8 @@ class ServerWindow(QtGui.QMainWindow):
         self.statusBar().showMessage(
             "Connection to server lost - %s" % reason.getErrorMessage()
         )
+        for widg in self.need_connected:
+            widg.setEnabled(False)        
     
     def disconnect(self):
         self.close()
