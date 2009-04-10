@@ -28,7 +28,7 @@ import logging
 import os
 
 from optparse import OptionParser
-from ConfigParser import ConfigParser, NoOptionError
+from ConfigParser import ConfigParser
 
 import pypentago
 from pypentago import conf

@@ -26,7 +26,7 @@ import os
 import time
 
 from optparse import OptionParser
-from ConfigParser import ConfigParser, NoSectionError
+from ConfigParser import ConfigParser
 
 import pypentago
 
