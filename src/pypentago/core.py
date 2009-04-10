@@ -26,7 +26,7 @@ import pypentago.util
 
 from pypentago import CW, CCW, rpcializer
 from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn, 
-                                  GameFull)
+                                  GameFull, GameOver)
 
 
 try:
@@ -218,6 +218,9 @@ class Game(object):
         The other player's and all other observer's display_turn methods are
         called, it is the calling players responsibility to display it if
         needed! """
+        if self.over:
+            raise GameOver
+        
         self.rules(turn)
         if player is self.last_set:
             raise NotYourTurn

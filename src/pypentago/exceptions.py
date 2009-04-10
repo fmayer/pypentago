@@ -42,6 +42,10 @@ class GameFull(Exception):
     pass
 
 
+class GameOver(Exception):
+    pass
+
+
 class NoSuchRoom(Exception):
     """ Raised when a room doesn't exist. """
     pass
