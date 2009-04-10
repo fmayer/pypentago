@@ -19,6 +19,7 @@
 
 
 import unittest
+import itertools
 from pypentago import core
 from pypentago import board
 from pypentago.exceptions import (SquareNotEmpty, NotYourTurn, GameFull,
@@ -57,6 +58,12 @@ def fail(*args, **kw):
     raise Called
 
 class TestGame(unittest.TestCase):
+    def setUp(self):
+        self.game = core.Game()
+        self.players = [core.Player() for _ in xrange(2)]
+        for p in self.players:
+            self.game.add_player(p)
+    
     test_upper_downwards_dia_p1 = diagonal_down(0, 1, 1)
     test_upper_downwards_dia_p2 = diagonal_down(0, 1, 2)
     test_uppermiddle_downwards_dia_p1 = diagonal_down(0, 0, 1)
@@ -75,11 +82,25 @@ class TestGame(unittest.TestCase):
     test_lower_upwards_dia_p1 = diagonal_up(1, 0, 1)
     test_lower_upwards_dia_p2 = diagonal_up(1, 0, 2)
     
-    def setUp(self):
-        self.game = core.Game()
-        self.players = [core.Player() for _ in xrange(2)]
-        for p in self.players:
-            self.game.add_player(p)
+    def test_boardfull(self):
+        board = self.game.board
+        player = itertools.cycle([1, 2])
+        for i in xrange(6):
+            for j in xrange(6):
+                board[i, j] = player.next()
+        
+        winner, loser = self.game.get_winner()
+        self.assertEqual(winner, core.draw)
+    
+    def test_draw(self):
+        board = self.game.board
+        for i in xrange(5):
+            board[0, i] = 1
+        for i in xrange(5):
+            board[1, i] = 2
+        
+        winner, loser = self.game.get_winner()
+        self.assertEqual(winner, core.draw)
     
     def test_api(self):
         self.assert_(hasattr(self.game.board, 'set_pos'))
@@ -197,13 +218,10 @@ class TestGame(unittest.TestCase):
     def test_win_dia_with_other(self, p=1):
         board = self.game.board
         # Construct winning situation.
-        board[0, 0] = 1 if p == 2 else 2
-        board[1, 1] = p
-        board[2, 2] = p
-        board[3, 3] = p
-        board[4, 4] = p
-        board[5, 5] = p
-
+        board[0, 0] = 3 - p
+        for i in xrange(1, 6):
+            board[i, i] = p
+        
         # See whether the winner has been found.
         winner, loser = self.game.get_winner()
         self.assertNotEqual(winner, None)
