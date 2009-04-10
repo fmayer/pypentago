@@ -23,7 +23,7 @@ This is the responsibility of pypentago.core.Game.
 
 For an optimized C implementation see pypentago._board. """
 
-import ctypes
+
 import pypentago
 import itertools
 from pypentago.exceptions import SquareNotEmpty
@@ -96,11 +96,18 @@ class Board:
         for x in xrange(6 - (r or c)):
             yield self.board[r+x][c+x]
     
+    def get_sec_dia(self, r, c):
+        for x in xrange(6 - (r or c)):
+            yield self.board[r+x][5-(c+x)]
+    
     @property
     def diagonals(self):
         yield self.get_dia(0, 0)
         yield self.get_dia(0, 1)
         yield self.get_dia(1, 0)
+        yield self.get_sec_dia(0, 0)
+        yield self.get_sec_dia(0, 1)
+        yield self.get_sec_dia(1, 0)
     
     @property
     def rows(self):

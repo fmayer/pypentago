@@ -120,6 +120,18 @@ class TestGame(unittest.TestCase):
     def test_win_dia_tert_p2(self):
         self.test_win_dia_tert(2)
     
+    def test_win_dia_quad(self, p=1):
+        board = self.game.board
+        board[0, 5] = p
+        board[1, 4] = p
+        board[2, 3] = p
+        board[3, 2] = p
+        board[4, 1] = p
+        
+        winner, loser = self.game.get_winner()
+        self.assertNotEqual(winner, None)
+        self.assertEqual(winner.uid, p)
+    
     def test_win_row(self, p=1):
         for row in xrange(6):
             for x in xrange(2):

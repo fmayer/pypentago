@@ -30,6 +30,8 @@ from pypentago.exceptions import (InvalidTurn, SquareNotEmpty, NotYourTurn,
 
 
 try:
+    # The extension module is critically bugged.
+    raise ImportError
     from pypentago._board import Board
     EXTENSION_MODULE = True
 except ImportError:
