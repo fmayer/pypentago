@@ -50,7 +50,7 @@ email_text = ("Dear %(real_name)s,\n"
               "accounts for one person.")
 
 
-class Conn(Connection):
+class ServerConnection(Connection):
     def init(self):
         self.log = logging.getLogger("pypentago.connection")
         self.log.info("Got connection from %s" % self.transport.getPeer().host)

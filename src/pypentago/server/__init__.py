@@ -29,7 +29,7 @@ from os.path import join, split
 from easy_twisted.async import Server
 
 from pypentago import EMAIL_REGEX
-from pypentago.server.connection import Conn
+from pypentago.server.connection import ServerConnection
 from pypentago.exceptions import NoSuchRoom
 from pypentago.server import db
 from pypentago.util import IDPool
@@ -43,7 +43,7 @@ class Factory(protocol.ServerFactory):
         self.rooms = []
         self.email_regex = re.compile(EMAIL_REGEX, re.IGNORECASE)
         self.database = database
-        self.protocol = Conn
+        self.protocol = ServerConnection
     
     def get_room(self, name):
         for room in self.rooms:
