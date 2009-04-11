@@ -23,8 +23,6 @@ from functools import partial
 import sys
 import logging
 
-import actions
-
 from twisted.internet import protocol
 
 from pypentago import PROTOCOL_VERSION
