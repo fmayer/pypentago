@@ -16,24 +16,13 @@
 
 from __future__ import with_statement
 
-import sys
 import time
 import logging
-
-import actions
-
-from hashlib import sha1 as sha
-from string import ascii_letters
-from random import randint, choice
     
-from pypentago import PROTOCOL_VERSION
-from pypentago import core
 from pypentago import crypto
 from pypentago.server import core as s_core
-from pypentago.server import db
-from pypentago.server.mailing import Email
 from pypentago.server.db.dbobjs import Player
-from pypentago.exceptions import NoSuchRoom, NotInDB, GameFull
+from pypentago.exceptions import NotInDB, GameFull
 
 from easy_twisted.connection import expose, require_auth, Connection
 
