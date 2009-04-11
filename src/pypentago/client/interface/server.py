@@ -21,6 +21,8 @@ import os
 
 from PyQt4 import QtGui, QtCore
 
+import pypentago
+
 from pypentago.client.core import LocalPlayer
 from pypentago.client.connection import ClientConnection
 from pypentago.client.interface.game import GameWindow
@@ -194,6 +196,9 @@ class ServerWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         
         self.setWindowTitle("Python Pentago - %s:%s" % (str(host), str(port)))
+        self.setWindowIcon(
+            QtGui.QIcon(pypentago.data['icon.png'])
+        )
         
         self.gamelist = GameList(None)
         self.setCentralWidget(self.gamelist)

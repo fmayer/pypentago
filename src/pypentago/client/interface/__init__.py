@@ -40,6 +40,9 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         
         self.setWindowTitle("Python Pentago")
+        self.setWindowIcon(
+            QtGui.QIcon(pypentago.data['icon.png'])
+        )
         
         connect = QtGui.QAction('&Connect', self)
         connect.setShortcut('Ctrl+O')
