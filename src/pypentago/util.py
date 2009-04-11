@@ -107,6 +107,13 @@ def offset(quad):
     """ Offset of quadrant from (0/0) in (rows, cols). """
     return (3 * (quad >= 2), 3 * (quad == 1 or quad == 3))
 
+def absolute(quad, row, col):
+    """ Return absolute coordinates of row, col relative to quad. """
+    roff, coff = offset(quad)
+    arow = roff + row
+    acol = coff + col
+    return arow, acol
+
 def contains(row, col):
     """ Return which quadrant contains the position at (row, col). """
     r = 0

@@ -228,7 +228,7 @@ class Game(object):
         if player is self.last_set:
             raise NotYourTurn
         
-        self.board.apply_turn(player, turn)
+        self.board.apply_turn(player.uid, turn)
         self.last_set = player
         
         for person in self.people(player):
