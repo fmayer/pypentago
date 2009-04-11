@@ -100,20 +100,24 @@ end:
 SectionEnd
 
 Section "pypentago" SEC05
-  SetOutPath "$INSTDIR"
+  ReadRegStr $0 HKLM "SOFTWARE\Python\PythonCore\${PYTHON_VERSION}\InstallPath" ''
+  
+  SetOutPath "$0\Lib\site-packages\"
   SetOverwrite try
 
-  File /r "${SRC_PATH}"
+  File /r "${SRC_PATH}\"
 SectionEnd
 
 Section -AdditionalIcons
+  ReadRegStr $0 HKLM "SOFTWARE\Python\PythonCore\${PYTHON_VERSION}\InstallPath" ''
+  
   SetOutPath $INSTDIR
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateDirectory "$SMPROGRAMS\pypentago"
   CreateShortCut "$SMPROGRAMS\pypentago\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
   CreateShortCut "$SMPROGRAMS\pypentago\Uninstall.lnk" "$INSTDIR\uninst.exe"
-  CreateShortCut "$DESKTOP\pypentago.lnk" "$INSTDIR\pypentago\client\main.py"
-  CreateShortCut "$SMPROGRAMS\pypentago\pypentago.lnk" "$INSTDIR\pypentago\client\main.py"
+  CreateShortCut "$DESKTOP\pypentago.lnk" "$0\Lib\site-packages\pypentago\client\main.py"
+  CreateShortCut "$SMPROGRAMS\pypentago\pypentago.lnk" "$0\Lib\site-packages\pypentago\client\main.py"
 SectionEnd
 
 Section -Post
@@ -126,8 +130,13 @@ Section -Post
 SectionEnd
 
 Section Uninstall
+  ReadRegStr $0 HKLM "SOFTWARE\Python\PythonCore\${PYTHON_VERSION}\InstallPath" ''
+  
   RMDir /r "$SMPROGRAMS\pypentago"
   RMDir /r "$INSTDIR"
+  RmDir /r "$0\Lib\site-packages\pypentago"
+  RmDir /r "$0\Lib\site-packages\easy_twisted"
+  Delete "$0\Lib\site-packages\actions.py"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   SetAutoClose true
