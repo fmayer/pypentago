@@ -4,24 +4,16 @@ It is written by Florian Mayer(flormayer [AT-SIGN] aim {DOT} com).
 Please run the testsuite to test pypentago on your platform.
 Run unittests/main.py to do so.
 
-To run the game, execute pypentago/client/main.py.
-
 INSTALLATION
 The installation file depends on setuptools, so you should install that
 first.
 pypentago depends on twisted and PyQt4, so you will need to install those
-before installing pypentago. Please note that on Windows operating systems
-twisted depends on pywin32, so you will need that as well.
+before installing pypentago.
 
 On Unix systems, run 'python setup.py install' with root rights (either as
 root or with sudo). This will place pypentago and pypentagod in your
 /usr/bin. Run pypentagod to start the server and pypentago to run the
 client.
-
-With Windows, the best way is to use the installer. This should place
-pypentago.exe and pypentagod.exe in [your python directory]\Scripts (e.g.
-C:\Python26\Scripts). Use those to run the client or the server,
-respectively.
 
 FEATURE REQUESTS
 You are very encouraged to submit feature requests to the bug-tracker
