@@ -29,7 +29,7 @@ from string import ascii_letters
 from random import randint, choice
 from traceback import format_exception
 
-__version__ = "devel"
+__version__ = '0.1.0'
 __authors__ = [ "Florian Mayer <flormayer@aim.com>", 
                 u'Mathias "DarkKiller" K\xe6rlev']
 __artists__ = ["Kenichi \"XenoSilence\" Lei", ]

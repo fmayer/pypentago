@@ -26,7 +26,7 @@ import optparse
 from setuptools import setup, Extension, Distribution, Feature
 from distutils import sysconfig
 
-VERSION = 'alpha1'
+VERSION = '0.1.0'
 
 known = {
     'gcc': ['--std=c99']
