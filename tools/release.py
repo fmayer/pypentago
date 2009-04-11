@@ -39,6 +39,7 @@ NAME = 'pypentago'
 RELEASE_DIR = os.path.join(s_path, os.pardir, 'release/')
 SRC_PATH = os.path.abspath(os.path.join(s_path, os.pardir, 'src/'))
 VERSION_REGEX = re.compile("^VERSION = (.+?)$", re.MULTILINE)
+INIT_VERSION_REGEX = re.compile("^__version__ = (.+?)$", re.MULTILINE)
 
 
 def run_tests():
@@ -79,6 +80,13 @@ def update_setup(version):
     new = VERSION_REGEX.sub('VERSION = %r' % version, read)
     with open(s, 'w') as setup:
         setup.write(new)
+
+    m = os.path.join(SRC_PATH, 'pypentago', '__init__.py')
+    with open(m) as init:
+        read = init.read()
+    new = INIT_VERSION_REGEX.sub('__version__ = %r' % version, read)
+    with open(m, 'w') as init:
+        init.write(new)
 
 
 def hg_commit(msg):
