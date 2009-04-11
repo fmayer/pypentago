@@ -37,17 +37,17 @@ BLACK = 2
 
 def has_won(line, check):
     """ Check whether line contains 5 stones of the same player. """
-    i = 0
-    j = 0
+    connected = 0
+    others = 0
     for elem in line:
         if elem == check:
-            i += 1
-            if i >= 5:
+            connected += 1
+            if connected >= 5:
                 return True
         else:
-            i = 0
-            j += 1
-            if j >= 2:
+            connected = 0
+            others += 1
+            if others >= 2:
                 return False
     return False
 
