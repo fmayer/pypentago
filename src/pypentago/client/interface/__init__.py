@@ -65,13 +65,13 @@ class MainWindow(QtGui.QMainWindow):
     
     def connect_to(self):
         dia = ConnectDialog()
-        dia.exec_()
-        server = dia.server.text()
-        user = dia.user.text() or None
-        pwd = dia.passwd.text() or None
-        g = ServerWindow.from_string(server, user, pwd)
-        g.show()
-        self.windows.append(g)
+        if dia.exec_():
+            server = dia.server.text()
+            user = dia.user.text() or None
+            pwd = dia.passwd.text() or None
+            g = ServerWindow.from_string(server, user, pwd)
+            g.show()
+            self.windows.append(g)
     
     def local_game(self):
         game = core.Game()
