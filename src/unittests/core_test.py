@@ -20,6 +20,9 @@
 
 import unittest
 import itertools
+
+import pypentago.util
+
 from pypentago import core
 from pypentago import board
 from pypentago.exceptions import (SquareNotEmpty, NotYourTurn, GameFull,
@@ -83,11 +86,7 @@ class TestGame(unittest.TestCase):
     test_lower_upwards_dia_p2 = diagonal_up(1, 0, 2)
     
     def test_boardfull(self):
-        board = self.game.board
-        player = itertools.cycle([1, 2])
-        for i in xrange(6):
-            for j in xrange(6):
-                board[i, j] = player.next()
+        self.game.board.filled = 36
         
         winner, loser = self.game.get_winner()
         self.assertEqual(winner, core.draw)
@@ -101,14 +100,6 @@ class TestGame(unittest.TestCase):
         
         winner, loser = self.game.get_winner()
         self.assertEqual(winner, core.draw)
-    
-    def test_api(self):
-        self.assert_(hasattr(self.game.board, 'set_pos'))
-        self.assert_(hasattr(self.game.board, 'get_pos'))
-        self.assert_(hasattr(self.game.board, 'rotate_cw'))
-        self.assert_(hasattr(self.game.board, 'rotate_ccw'))
-        self.assert_(hasattr(self.game.board, '__getitem__'))
-        self.assert_(hasattr(self.game.board, '__setitem__'))
     
     def test_rotate_cw(self):
         board = self.game.board
