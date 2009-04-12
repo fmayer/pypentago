@@ -2,7 +2,6 @@
 - New quadrant background graphics
 - Use new rpcializer
 - Create a proper main window
-- Move easy_twisted to pypentago.network
 - Rework connect dialog
 - Rework server lobby
 - Implement lobby chat

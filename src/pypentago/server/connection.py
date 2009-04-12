@@ -24,7 +24,7 @@ from pypentago.server import core as s_core
 from pypentago.server.db.dbobjs import Player
 from pypentago.exceptions import NotInDB, GameFull
 
-from easy_twisted.connection import expose, require_auth, Connection
+from pypentago.network import expose, require_auth, Connection
 
 
 exception_log = logging.getLogger("pypentago.exception")

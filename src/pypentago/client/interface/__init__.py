@@ -94,7 +94,7 @@ def main(default_servers=[]):
     """ If default_servers is set the GUI automatically connects to any
     servers that it contains, opening ServerWindows for each of them. """
     app = QtGui.QApplication(sys.argv)
-    from easy_twisted import qt4reactor
+    from pypentago.network import qt4reactor
     qt4reactor.install(app)
     from twisted.internet import reactor
     main = MainWindow()

@@ -122,7 +122,7 @@ setup(
     keywords='pentago game board',
     license='GPL',
     zip_safe=False,
-    packages=['pypentago', 'easy_twisted'],
+    packages=['pypentago', 'pypentago.network'],
     py_modules=['actions', 'depr'],
     features=dict(
         client=Feature('GUI client',

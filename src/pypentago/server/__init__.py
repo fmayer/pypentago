@@ -26,8 +26,6 @@ import re
 from twisted.internet import protocol, reactor
 from os.path import join, split
 
-from easy_twisted.async import Server
-
 from pypentago import EMAIL_REGEX
 from pypentago.server.connection import ServerConnection
 from pypentago.exceptions import NoSuchRoom

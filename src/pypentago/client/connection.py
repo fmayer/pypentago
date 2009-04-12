@@ -29,7 +29,7 @@ from pypentago import PROTOCOL_VERSION
 from pypentago.core import Game
 from pypentago.core import RemotePlayer
 
-from easy_twisted.connection import expose, Connection
+from pypentago.network import expose, Connection
 
 log = logging.getLogger("pypentago.connection")
 exception_log = logging.getLogger("pypentago.exception")
