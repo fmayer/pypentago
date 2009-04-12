@@ -28,7 +28,7 @@ class ObjectIdentifier(object):
     def rpcialize(self, obj):
         return None
     
-    def unrpcialize(self, id_):
+    def unrpcialize(self, resolver, id_):
         return self.object_       
 
 
@@ -39,13 +39,13 @@ class ObjectDispatcher(object):
     def rpcialize(self, obj):
         return self.objects.index(obj)
     
-    def unrpcialize(self, id_):
+    def unrpcialize(self, resolver, id_):
         return self.objects[id_]   
 
 
 class Raw(object):
     @staticmethod
-    def unrpcialize(obj):
+    def unrpcialize(resolver, obj):
         return obj
 
 
@@ -59,7 +59,7 @@ class TrivialClass(object):
     >>> foo.rpcialize()
     {'foo': 'spam'}
     >>> rpc = foo.rpcialize()
-    >>> new_foo = foo.unrpcialize(rpc)
+    >>> new_foo = foo.unrpcialize(None, rpc)
     >>> new_foo # doctest: +ELLIPSIS
     <__main__.Foo object at 0x...>
     >>> new_foo.foo
@@ -79,7 +79,7 @@ class TrivialClass(object):
             return attrs
     
     @classmethod
-    def unrpcialize(cls, args):
+    def unrpcialize(cls, resolver, args):
         # Avoid the __init__
         inst = object.__new__(cls)
         inst.__dict__.update(args)
@@ -115,7 +115,7 @@ class Resolver(object):
     
     def resolve(self, arg):
         type_, args = arg
-        return self.table[type_].unrpcialize(args)
+        return self.table[type_].unrpcialize(self, args)
     
     def register(self, cls, name=None):
         if name is None:
@@ -138,8 +138,11 @@ class Resolver(object):
 
 class StandardResolver(Resolver):
     """ Resolver that automatically has '' mapped to Raw. """
-    def __init__(self):
-        Resolver.__init__(self, {'': Raw})
+    def __init__(self, table=None):
+        if table is None:
+            table = {}
+        table.update({'': Raw})
+        Resolver.__init__(self, table)
 
 
 def player_by_id(p):
