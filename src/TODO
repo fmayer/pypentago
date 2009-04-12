@@ -1,12 +1,9 @@
-* Server Window:
-   Main GUI window for server operations.
-    * Create an account.
-    * Search users.
-    * Add/Remove users from friend list.
-    * Join chat channels.
-
-* Write client_test
-   This should test all the methods of ClientConnection.
-
-* Double clicking game you are already in should bring the window 
-  in foreground.
+- Fix database code
+- New quadrant background graphics
+- Use new rpcializer
+- Create a proper main window
+- Move easy_twisted to pypentago.network
+- Rework connect dialog
+- Rework server lobby
+- Implement lobby chat
+- Implement account creation
