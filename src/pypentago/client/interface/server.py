@@ -22,6 +22,7 @@ import os
 from PyQt4 import QtGui, QtCore
 
 import pypentago
+from pypentago import util
 
 from pypentago.client.core import LocalPlayer
 from pypentago.client.connection import ClientConnection
@@ -313,6 +314,8 @@ class ServerBrowser(QtGui.QWidget):
     def __init__(self, servers=None, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
         
+        self.serverinfos = []
+        
         layout = QtGui.QVBoxLayout()
         inputlayout = QtGui.QGridLayout()
         buttonlayout = QtGui.QHBoxLayout()
@@ -365,14 +368,29 @@ class ServerBrowser(QtGui.QWidget):
         QtCore.QObject.connect(
             self.connect_, QtCore.SIGNAL('clicked()'), self.connect_clicked
         )
+        
+        QtCore.QObject.connect(
+            self.serverlist,
+            QtCore.SIGNAL("itemDoubleClicked ( QTreeWidgetItem * , int  )"),
+            self.itemdouble
+        )
+        QtCore.QObject.connect(
+            self.serverlist,
+            QtCore.SIGNAL("itemActivated ( QTreeWidgetItem * , int  )"),
+            self.itemsingle
+        )
     
     def set_servers(self, servers):
+        self.serverlist.clear()
         for server in servers:
             item = QtGui.QTreeWidgetItem(
                 [server.name or server.address, server.address,
                  server.user or '', server.description or '']
             )
+            item.setData
             self.serverlist.addTopLevelItem(item)
+        
+        self.serverinfos = servers
     
     def reset_clicked(self):
         for widget in [self.name, self.address, self.user, self.password,
@@ -380,13 +398,44 @@ class ServerBrowser(QtGui.QWidget):
             widget.setText('')
     
     def add_clicked(self):
-        pass
-    
+        self.serverinfos.append(self.server_info())
+        self.set_servers(self.serverinfos)
+        
     def remove_clicked(self):
-        pass
+        self.serverlist.removeItemWidget
+        items = self.serverlist.selectedItems()
+        for item in items:
+            indx = self.serverlist.indexFromItem(item).row()
+            self.serverinfos.pop(indx)
+            self.serverlist.takeTopLevelItem(indx)
     
     def connect_clicked(self):
-        pass
+        server = self.server_info()
+        # Connect
+        print 'Connect'
+    
+    def itemdouble(self, item, col):
+        indx = self.serverlist.indexFromItem(item).row()
+        server = self.serverinfos[indx]
+        # Connect to server
+        print 'Connect'
+    
+    def itemsingle(self, item, col):
+        indx = self.serverlist.indexFromItem(item).row()
+        server = self.serverinfos[indx]
+        
+        self.name.setText(server.name or '')
+        self.address.setText(server.address or '')
+        self.user.setText(server.user or '')
+        self.password.setText(server.password or '')
+        self.description.setText(server.description or '')
+    
+    def server_info(self):
+        return util.ServerInfo(
+            self.address.text(), self.name.text(), self.description.text(),
+            self.user.text(), self.password.text()
+        )
+            
         
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
