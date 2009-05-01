@@ -402,7 +402,10 @@ class ServerBrowser(QtGui.QWidget):
             widget.setText('')
     
     def add_clicked(self):
-        self.serverinfos.append(self.server_info())
+        info = self.server_info()
+        if not info.address and not info.identifier:
+            return
+        self.serverinfos.append(info)
         self.set_servers(self.serverinfos)
         
         self.dump_config()
@@ -451,21 +454,13 @@ class ServerBrowser(QtGui.QWidget):
         config = conf.possible_configs('client.ini').next()
         parser = ConfigParser()
         parser.read(config)
-        
-        if parser.has_option('servers', 'autoconnect'):
-            auto = parser.get('servers', 'autoconnect')
-        else:
-            auto = ''
 
         for section in parser.sections():
-            if section != 'client':
+            if section not in ['client', 'servers']:
                 parser.remove_section(section)
         
         for server in self.serverinfos:
             ids.append(server.dump(parser))
-        
-        parser.add_section('servers')
-        parser.set('servers', 'autoconnect', auto)
         
         with open(config, 'w') as fp:
             parser.write(fp)
