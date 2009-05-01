@@ -100,8 +100,7 @@ def main(default_servers=[]):
     main = MainWindow()
     main.show()
     for server in default_servers:
-        g = ServerWindow.from_string(server.address, server.user,
-                                     server.password)
+        g = ServerWindow.from_serverinfo(server)
         g.show()
         main.windows.append(g)
     reactor.run()

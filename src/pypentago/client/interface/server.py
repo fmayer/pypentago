@@ -192,10 +192,13 @@ class RegisterDialog(QtGui.QDialog):
 
 class ServerWindow(QtGui.QMainWindow):
     def __init__(self, host=None, port=None, login_user=None, login_pwd=None,
-                 conn=None):
+                 conn=None, title=None):
         QtGui.QMainWindow.__init__(self)
         
-        self.setWindowTitle("Python Pentago - %s:%s" % (str(host), str(port)))
+        if title is None:
+            title = "%s:%s" % (str(host), str(port))
+        
+        self.setWindowTitle("Python Pentago - %s" % title)
         self.setWindowIcon(
             QtGui.QIcon(pypentago.data['icon.png'])
         )
@@ -258,6 +261,12 @@ class ServerWindow(QtGui.QMainWindow):
     def from_string(cls, string, login_user=None, login_pwd=None):
         host, port = parse_ip(string, DEFAULT_PORT)
         return cls(host, port, login_user, login_pwd)
+    
+    @classmethod
+    def from_serverinfo(cls, serverinfo):
+        host, port = parse_ip(serverinfo.address, DEFAULT_PORT)
+        return cls(host, port, serverinfo.user, serverinfo.password,
+                   title=serverinfo.name)
     
     def connected(self, conn):
         if self.login_user and self.login_pwd:
