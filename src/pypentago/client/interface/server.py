@@ -411,14 +411,14 @@ class ServerBrowser(QtGui.QWidget):
     
     def connect_clicked(self):
         server = self.server_info()
-        # Connect
-        print 'Connect'
+        window = ServerWindow.from_serverinfo(server)
+        window.show()
     
     def itemdouble(self, item, col):
         indx = self.serverlist.indexFromItem(item).row()
         server = self.serverinfos[indx]
-        # Connect to server
-        print 'Connect'
+        window = ServerWindow.from_serverinfo(server)
+        window.show()
     
     def itemsingle(self, item, col):
         indx = self.serverlist.indexFromItem(item).row()
