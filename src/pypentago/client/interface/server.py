@@ -200,7 +200,7 @@ class ServerWindow(QtGui.QMainWindow):
                  conn=None, title=None):
         QtGui.QMainWindow.__init__(self)
         
-        if title is None:
+        if not title:
             title = "%s:%s" % (str(host), str(port))
         
         self.setWindowTitle("Python Pentago - %s" % title)
