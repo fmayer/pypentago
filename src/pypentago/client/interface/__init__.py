@@ -26,7 +26,7 @@ from PyQt4 import QtGui, QtCore
 from pypentago.client.connection import ClientConnection
 from pypentago.client.interface.game import GameWindow
 from pypentago.client.interface.server import (
-    ServerWindow, ConnectDialog, RegisterDialog
+    ServerWindow, ConnectDialog, RegisterDialog, ServerBrowser
 )
 from pypentago import core
 from pypentago.util import parse_ip
@@ -36,7 +36,7 @@ servers = []
 
 
 class MainWindow(QtGui.QMainWindow):
-    def __init__(self):
+    def __init__(self, servers):
         QtGui.QMainWindow.__init__(self)
         
         self.setWindowTitle("Python Pentago")
@@ -58,10 +58,13 @@ class MainWindow(QtGui.QMainWindow):
         
         menubar = self.menuBar()
         file_menu = menubar.addMenu('&File')
-        file_menu.addAction(connect)
         file_menu.addAction(hotseat)
         
         self.windows = []
+        
+        browser = ServerBrowser(self)
+        browser.set_servers(servers)
+        self.setCentralWidget(browser)
     
     def connect_to(self):
         dia = ConnectDialog()
@@ -90,14 +93,14 @@ class MainWindow(QtGui.QMainWindow):
         self.windows.append(w2)
 
 
-def main(default_servers=[]):
+def main(default_servers=[], servers=[]):
     """ If default_servers is set the GUI automatically connects to any
     servers that it contains, opening ServerWindows for each of them. """
     app = QtGui.QApplication(sys.argv)
     from pypentago.network import qt4reactor
     qt4reactor.install(app)
     from twisted.internet import reactor
-    main = MainWindow()
+    main = MainWindow(servers)
     main.show()
     for server in default_servers:
         g = ServerWindow.from_serverinfo(server)

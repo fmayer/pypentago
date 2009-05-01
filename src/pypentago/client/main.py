@@ -87,7 +87,7 @@ def main(args=None):
     
     pypentago.init_logging(logfile, verbosity)
     log = logging.getLogger("pypentago.client")
-    interface.main(connect)
+    interface.main(connect, servers.values())
 
 
 if __name__ == "__main__":

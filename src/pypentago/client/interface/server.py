@@ -315,7 +315,7 @@ class ServerWindow(QtGui.QMainWindow):
 
 
 class ServerBrowser(QtGui.QWidget):
-    def __init__(self, servers=None, parent=None):
+    def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
         
         self.serverinfos = []
