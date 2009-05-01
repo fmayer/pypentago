@@ -329,7 +329,7 @@ class ServerBrowser(QtGui.QWidget):
         self.reset = QtGui.QPushButton('Reset')
         self.add = QtGui.QPushButton('Add')
         self.remove = QtGui.QPushButton('Remove')
-        self.connect = QtGui.QPushButton('Connect')
+        self.connect_ = QtGui.QPushButton('Connect')
         
         inputlayout.addWidget(QtGui.QLabel('Name: '), 0, 0)
         inputlayout.addWidget(self.name, 0, 1)
@@ -345,13 +345,26 @@ class ServerBrowser(QtGui.QWidget):
         buttonlayout.addWidget(self.reset)
         buttonlayout.addWidget(self.add)
         buttonlayout.addWidget(self.remove)
-        buttonlayout.addWidget(self.connect)
+        buttonlayout.addWidget(self.connect_)
         
         layout.addLayout(inputlayout, 0)
         layout.addWidget(self.serverlist, 1)
         layout.addLayout(buttonlayout, 0)
         
         self.setLayout(layout)
+        
+        QtCore.QObject.connect(
+            self.reset, QtCore.SIGNAL('clicked()'), self.reset_clicked
+        )
+        QtCore.QObject.connect(
+            self.add, QtCore.SIGNAL('clicked()'), self.add_clicked
+        )
+        QtCore.QObject.connect(
+            self.remove, QtCore.SIGNAL('clicked()'), self.remove_clicked
+        )
+        QtCore.QObject.connect(
+            self.connect_, QtCore.SIGNAL('clicked()'), self.connect_clicked
+        )
     
     def set_servers(self, servers):
         for server in servers:
@@ -360,6 +373,20 @@ class ServerBrowser(QtGui.QWidget):
                  server.user or '', server.description or '']
             )
             self.serverlist.addTopLevelItem(item)
+    
+    def reset_clicked(self):
+        for widget in [self.name, self.address, self.user, self.password,
+                       self.description]:
+            widget.setText('')
+    
+    def add_clicked(self):
+        pass
+    
+    def remove_clicked(self):
+        pass
+    
+    def connect_clicked(self):
+        pass
         
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
