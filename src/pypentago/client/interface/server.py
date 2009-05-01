@@ -309,8 +309,60 @@ class ServerWindow(QtGui.QMainWindow):
         self.gamelist.set_games(games)
 
 
+class ServerBrowser(QtGui.QWidget):
+    def __init__(self, servers=None, parent=None):
+        QtGui.QMainWindow.__init__(self, parent)
+        
+        layout = QtGui.QVBoxLayout()
+        inputlayout = QtGui.QGridLayout()
+        buttonlayout = QtGui.QHBoxLayout()
+        
+        self.name = QtGui.QLineEdit(self)
+        self.address = QtGui.QLineEdit(self)
+        self.user = QtGui.QLineEdit(self)
+        self.password = QtGui.QLineEdit(self)
+        self.description = QtGui.QLineEdit(self)
+        
+        self.serverlist = QtGui.QTreeWidget()
+        self.serverlist.setHeaderLabels(['Name', 'Address', 'Login', 'Description'])
+        
+        self.reset = QtGui.QPushButton('Reset')
+        self.add = QtGui.QPushButton('Add')
+        self.remove = QtGui.QPushButton('Remove')
+        self.connect = QtGui.QPushButton('Connect')
+        
+        inputlayout.addWidget(QtGui.QLabel('Name: '), 0, 0)
+        inputlayout.addWidget(self.name, 0, 1)
+        inputlayout.addWidget(QtGui.QLabel('Address: '), 0, 2)
+        inputlayout.addWidget(self.address, 0, 3)
+        inputlayout.addWidget(QtGui.QLabel('User: '), 1, 0)
+        inputlayout.addWidget(self.user, 1, 1)
+        inputlayout.addWidget(QtGui.QLabel('Password: '), 1, 2)
+        inputlayout.addWidget(self.password, 1, 3)
+        inputlayout.addWidget(QtGui.QLabel('Description: '), 2, 0)
+        inputlayout.addWidget(self.description, 2, 1, 1, 3)
+        
+        buttonlayout.addWidget(self.reset)
+        buttonlayout.addWidget(self.add)
+        buttonlayout.addWidget(self.remove)
+        buttonlayout.addWidget(self.connect)
+        
+        layout.addLayout(inputlayout, 0)
+        layout.addWidget(self.serverlist, 1)
+        layout.addLayout(buttonlayout, 0)
+        
+        self.setLayout(layout)
+    
+    def set_servers(self, servers):
+        for server in servers:
+            item = QtGui.QTreeWidgetItem(
+                [server.name or server.address, server.address,
+                 server.user or '', server.description or '']
+            )
+            self.serverlist.addTopLevelItem(item)
+        
 if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
-    s = ServerWindow(0, 0)
+    s = ServerBrowser()
     s.show()
     app.exec_()
