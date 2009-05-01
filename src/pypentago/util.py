@@ -66,14 +66,31 @@ class IDPool(object):
 
 class ServerInfo(object):
     def __init__(self, address, name=None, description=None,
-                 user=None, password=None, autoconnect=False):
+                 user=None, password=None, autoconnect=False,
+                 identifier=None):
         self.address = address
         self.name = name
         self.description = description
         self.user = user
         self.password = password
         self.autoconnect = autoconnect
-
+        self.identifier = identifier or str(name)
+    
+    def dump(self, parser):
+        identifier = self.identifier
+        if not parser.has_section(identifier):
+            parser.add_section(identifier)
+        else:
+            while parser.has_section(identifier):
+                identifier += '1'
+            parser.add_section(identifier)
+        parser.set(identifier, 'address', self.address)
+        parser.set(identifier, 'name', self.name)
+        parser.set(identifier, 'description', self.description)
+        parser.set(identifier, 'user', self.user)
+        parser.set(identifier, 'password', self.password)
+        
+        return identifier
 
 def parse_ipv4(string, default_port=-1):
     h = string.split(':')

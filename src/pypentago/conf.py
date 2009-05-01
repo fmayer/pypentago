@@ -91,9 +91,8 @@ def init_client_conf(location):
     client.set('client', 'logfile', '%(appdata)s/client.log')
     
     client.add_section('servers')
-    client.set('servers', 'all', '')
     client.set('servers', 'autoconnect', '')
-    
+        
     with open(client_file, 'w') as client_file:
         client.write(client_file)
 
@@ -119,12 +118,12 @@ def possible_configs(file_name, locations=None):
 
 def parse_servers(parser):
     ret = {}
-    if (not parser.has_section('servers') or
-        not parser.has_option('servers', 'all')):
+    if not parser.has_section('servers'):
         return {}
     
-    servers = parser.get('servers', 'all')
-    server_list = [s.strip() for s in servers.split(',')]
+    server_list = [section for section in parser.sections()
+                   if section not in ['client', 'servers']]
+    
     if parser.has_option('servers', 'autoconnect'):
         auto = parser.get('servers', 'autoconnect')
         auto_list = [s.strip() for s in auto.split(',')]
@@ -161,6 +160,7 @@ def parse_servers(parser):
         autoconnect = server in auto_list
         ret[server] = util.ServerInfo(
             address=address, name=name, description=description,
-            user=user, password=password, autoconnect=autoconnect
+            user=user, password=password, autoconnect=autoconnect,
+            identifier=server
         )
     return ret

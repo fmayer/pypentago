@@ -16,13 +16,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import with_statement
+
 import sys
 import os
+
+from ConfigParser import ConfigParser
 
 from PyQt4 import QtGui, QtCore
 
 import pypentago
-from pypentago import util
+from pypentago import util, conf
 
 from pypentago.client.core import LocalPlayer
 from pypentago.client.connection import ClientConnection
@@ -401,13 +405,16 @@ class ServerBrowser(QtGui.QWidget):
         self.serverinfos.append(self.server_info())
         self.set_servers(self.serverinfos)
         
+        self.dump_config()
+        
     def remove_clicked(self):
-        self.serverlist.removeItemWidget
         items = self.serverlist.selectedItems()
         for item in items:
             indx = self.serverlist.indexFromItem(item).row()
             self.serverinfos.pop(indx)
             self.serverlist.takeTopLevelItem(indx)
+        
+        self.dump_config()
     
     def connect_clicked(self):
         server = self.server_info()
@@ -432,13 +439,46 @@ class ServerBrowser(QtGui.QWidget):
     
     def server_info(self):
         return util.ServerInfo(
-            self.address.text(), self.name.text(), self.description.text(),
-            self.user.text(), self.password.text()
+            *map(str, [self.address.text(), self.name.text(),
+                       self.description.text(),
+                       self.user.text(), self.password.text()]
+                 )
         )
+    
+    def dump_config(self):
+        ids = []
+        
+        config = conf.possible_configs('client.ini').next()
+        parser = ConfigParser()
+        parser.read(config)
+        
+        if parser.has_option('servers', 'autoconnect'):
+            auto = parser.get('servers', 'autoconnect')
+        else:
+            auto = ''
+
+        for section in parser.sections():
+            if section != 'client':
+                parser.remove_section(section)
+        
+        for server in self.serverinfos:
+            ids.append(server.dump(parser))
+        
+        parser.add_section('servers')
+        parser.set('servers', 'autoconnect', auto)
+        
+        with open(config, 'w') as fp:
+            parser.write(fp)
             
         
 if __name__ == '__main__':
+    config = ConfigParser()
+    config.read(conf.possible_configs('client.ini'))
+        
+    servers = conf.parse_servers(config)
+    
     app = QtGui.QApplication(sys.argv)
     s = ServerBrowser()
+    s.set_servers(servers.values())
     s.show()
     app.exec_()
