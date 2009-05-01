@@ -23,6 +23,7 @@ from __future__ import with_statement
 
 import os
 import pypentago
+from pypentago import util
 
 from ConfigParser import RawConfigParser
 
@@ -89,6 +90,10 @@ def init_client_conf(location):
     client.add_section('client')
     client.set('client', 'logfile', '%(appdata)s/client.log')
     
+    client.add_section('servers')
+    client.set('servers', 'all', '')
+    client.set('servers', 'autoconnect', '')
+    
     with open(client_file, 'w') as client_file:
         client.write(client_file)
 
@@ -111,3 +116,51 @@ def possible_configs(file_name, locations=None):
         if os.path.exists(name):
             yield os.path.abspath(name)
 
+
+def parse_servers(parser):
+    ret = {}
+    if (not parser.has_section('servers') or
+        not parser.has_option('servers', 'all')):
+        return {}
+    
+    servers = parser.get('servers', 'all')
+    server_list = [s.strip() for s in servers.split(',')]
+    if parser.has_option('servers', 'autoconnect'):
+        auto = parser.get('servers', 'autoconnect')
+        auto_list = [s.strip() for s in auto.split(',')]
+    else:
+        auto_list = []
+    
+    for server in server_list:
+        if parser.has_option(server, 'address'):
+            address = parser.get(server, 'address')
+        else:
+            continue
+        
+        if parser.has_option(server, 'name'):
+            name = parser.get(server, 'name')
+        else:
+            # Better than nothing.
+            name = server
+        
+        if parser.has_option(server, 'description'):
+            description = parser.get(server, 'description')
+        else:
+            description = None
+        
+        if parser.has_option(server, 'user'):
+            user = parser.get(server, 'user')
+        else:
+            user = None
+        
+        if parser.has_option(server, 'password'):
+            password = parser.get(server, 'password')
+        else:
+            password = None
+        
+        autoconnect = server in auto_list
+        ret[server] = util.ServerInfo(
+            address=address, name=name, description=description,
+            user=user, password=password, autoconnect=autoconnect
+        )
+    return ret

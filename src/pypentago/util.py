@@ -64,6 +64,17 @@ class IDPool(object):
         self.free_ids = []
 
 
+class ServerInfo(object):
+    def __init__(self, address, name=None, description=None,
+                 user=None, password=None, autoconnect=False):
+        self.address = address
+        self.name = name
+        self.description = description
+        self.user = user
+        self.password = password
+        self.autoconnect = autoconnect
+
+
 def parse_ipv4(string, default_port=-1):
     h = string.split(':')
     if len(h) == 1:
@@ -122,3 +133,17 @@ def contains(row, col):
     if col > 2:
         r += 1
     return r
+
+def parse_connect(string):
+    if '@' in string:
+        auth, address = string.split('@', 1)
+        if ':' in auth:
+            user, passwd = auth.split(':', 1)
+        else:
+            user = auth
+            password = None
+    else:
+        user = None
+        password = None
+        address = string
+    return ServerInfo(address=address, user=user, password=password)

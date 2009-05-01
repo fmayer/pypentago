@@ -31,6 +31,7 @@ from ConfigParser import ConfigParser
 import pypentago
 
 from pypentago import conf
+from pypentago import util
 from pypentago.client import interface
 from pypentago import __version__, verbosity_levels
 
@@ -74,9 +75,19 @@ def main(args=None):
     
     logfile = config.get("client", "logfile", vars=var)
     
+    servers = conf.parse_servers(config)
+    connect = []
+    for arg in args:
+        if arg in servers:
+            connect.append(servers[arg])
+        else:
+            connect.append(util.parse_connect(arg))
+    connect.extend(server for server in servers.itervalues()
+                   if server.autoconnect)
+    
     pypentago.init_logging(logfile, verbosity)
     log = logging.getLogger("pypentago.client")
-    interface.main(args)
+    interface.main(connect)
 
 
 if __name__ == "__main__":
