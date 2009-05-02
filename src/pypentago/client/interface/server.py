@@ -197,8 +197,8 @@ class RegisterDialog(QtGui.QDialog):
 
 class ServerWindow(QtGui.QMainWindow):
     def __init__(self, host=None, port=None, login_user=None, login_pwd=None,
-                 conn=None, title=None):
-        QtGui.QMainWindow.__init__(self)
+                 conn=None, title=None, parent=None):
+        QtGui.QMainWindow.__init__(self, parent)
         
         if not title:
             title = "%s:%s" % (str(host), str(port))
@@ -263,15 +263,15 @@ class ServerWindow(QtGui.QMainWindow):
         ClientConnection.start_new(host, port, self, self.connected)
     
     @classmethod
-    def from_string(cls, string, login_user=None, login_pwd=None):
+    def from_string(cls, string, login_user=None, login_pwd=None, parent=None):
         host, port = parse_ip(string, DEFAULT_PORT)
-        return cls(host, port, login_user, login_pwd)
+        return cls(host, port, login_user, login_pwd, parent=parent)
     
     @classmethod
-    def from_serverinfo(cls, serverinfo):
+    def from_serverinfo(cls, serverinfo, parent=None):
         host, port = parse_ip(serverinfo.address, DEFAULT_PORT)
         return cls(host, port, serverinfo.user, serverinfo.password,
-                   title=serverinfo.name)
+                   title=serverinfo.name, parent=parent)
     
     def connected(self, conn):
         if self.login_user and self.login_pwd:
@@ -408,7 +408,7 @@ class ServerBrowser(QtGui.QWidget):
         self.set_servers(self.serverinfos)
         
         self.dump_config()
-        
+    
     def remove_clicked(self):
         items = self.serverlist.selectedItems()
         for item in items:
@@ -420,13 +420,13 @@ class ServerBrowser(QtGui.QWidget):
     
     def connect_clicked(self):
         server = self.server_info()
-        window = ServerWindow.from_serverinfo(server)
+        window = ServerWindow.from_serverinfo(server, parent=self)
         window.show()
     
     def itemdouble(self, item, col):
         indx = self.serverlist.indexFromItem(item).row()
         server = self.serverinfos[indx]
-        window = ServerWindow.from_serverinfo(server)
+        window = ServerWindow.from_serverinfo(server, parent=self)
         window.show()
     
     def itemsingle(self, item, col):
@@ -448,8 +448,6 @@ class ServerBrowser(QtGui.QWidget):
         )
     
     def dump_config(self):
-        ids = []
-        
         config = conf.possible_configs('client.ini').next()
         parser = ConfigParser()
         parser.read(config)
@@ -459,7 +457,7 @@ class ServerBrowser(QtGui.QWidget):
                 parser.remove_section(section)
         
         for server in self.serverinfos:
-            ids.append(server.dump(parser))
+            server.dump(parser)
         
         with open(config, 'w') as fp:
             parser.write(fp)
