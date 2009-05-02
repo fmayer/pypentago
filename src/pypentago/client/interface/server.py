@@ -453,7 +453,7 @@ class ServerBrowser(QtGui.QWidget):
         config = conf.possible_configs('client.ini').next()
         parser = ConfigParser()
         parser.read(config)
-
+        
         for section in parser.sections():
             if section not in ['client', 'servers']:
                 parser.remove_section(section)
@@ -463,8 +463,8 @@ class ServerBrowser(QtGui.QWidget):
         
         with open(config, 'w') as fp:
             parser.write(fp)
-            
-        
+
+
 if __name__ == '__main__':
     config = ConfigParser()
     config.read(conf.possible_configs('client.ini'))
