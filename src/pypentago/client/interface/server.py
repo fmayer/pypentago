@@ -391,7 +391,6 @@ class ServerBrowser(QtGui.QWidget):
                 [server.name or server.address, server.address,
                  server.user or '', server.description or '']
             )
-            item.setData
             self.serverlist.addTopLevelItem(item)
         
         self.serverinfos = servers
