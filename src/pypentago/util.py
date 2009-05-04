@@ -92,6 +92,7 @@ class ServerInfo(object):
         
         return identifier
 
+
 def parse_ipv4(string, default_port=-1):
     h = string.split(':')
     if len(h) == 1:
@@ -131,9 +132,11 @@ def parse_ip(string, default_port=-1):
     else:
         return parse_ipv4(string, default_port)
 
+
 def offset(quad):
     """ Offset of quadrant from (0/0) in (rows, cols). """
     return (3 * (quad >= 2), 3 * (quad == 1 or quad == 3))
+
 
 def absolute(quad, row, col):
     """ Return absolute coordinates of row, col relative to quad. """
@@ -150,6 +153,7 @@ def contains(row, col):
     if col > 2:
         r += 1
     return r
+
 
 def parse_connect(string):
     if '@' in string:
