@@ -314,7 +314,8 @@ class ServerWindow(QtGui.QMainWindow):
         self.gamelist.set_games(games)
     
     def closeEvent(self, event):
-        self.connection.close()
+        if self.connection is not None:
+            self.connection.close()
 
 
 class ServerBrowser(QtGui.QWidget):
