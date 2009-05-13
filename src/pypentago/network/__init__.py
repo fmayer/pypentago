@@ -185,3 +185,6 @@ class Connection(LineOnlyReceiver):
                 self.send(ret)
             else:
                 self.send(*ret)
+    
+    def close(self):
+        self.transport.loseConnection()

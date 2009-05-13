@@ -312,6 +312,9 @@ class ServerWindow(QtGui.QMainWindow):
     
     def show_games(self, games):
         self.gamelist.set_games(games)
+    
+    def closeEvent(self, event):
+        self.connection.close()
 
 
 class ServerBrowser(QtGui.QWidget):
