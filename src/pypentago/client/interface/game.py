@@ -408,9 +408,6 @@ class Board(QtGui.QWidget):
         self.prnt = parent
         self.may_rot = False
         self.quadrants = [Quadrant(self, i) for i in xrange(4)]
-        # Demonstration:
-        ## self[1].set_stone(1, 1, 1, False)
-        ## self.show_turn(1, 0, 1, 1, 1, True)
     
     def do_turn(self, rot_dir, rot_quad):
         if self.temp_turn is None:
