@@ -200,7 +200,7 @@ class Quadrant(QtGui.QLabel, BackendQuadrant):
 
         self.img = [
             QtGui.QImage(
-                pypentago.data['empty.png']
+                pypentago.data['ball-empty.png']
                 ),
             QtGui.QImage(
                 pypentago.data['ball-white.png']
