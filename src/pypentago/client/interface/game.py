@@ -210,6 +210,10 @@ class Quadrant(QtGui.QLabel, BackendQuadrant):
                 ),
         ]
         
+        self.stone_background = QtGui.QImage(
+                pypentago.data['stonebg.png']
+        )
+        
         self.overlay = Overlay(self.repaint)
 
         self.blink_timer = QtCore.QTimer(self)
@@ -264,6 +268,7 @@ class Quadrant(QtGui.QLabel, BackendQuadrant):
                 if x_c == b_col and y_c == b_row:
                     paint.setOpacity(self.blink_stone.value)
                 stone_value = self.field[y_c][x_c]
+                paint.drawImage(x_p, y_p, self.stone_background)
                 paint.drawImage(x_p+d_size, y_p+d_size, imgs[stone_value])
                 if x_c == b_col and y_c == b_row:
                     paint.setOpacity(1)
