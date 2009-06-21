@@ -211,7 +211,7 @@ class Quadrant(QtGui.QLabel, BackendQuadrant):
         ]
         
         self.stone_background = QtGui.QImage(
-                pypentago.data['stonebg.png']
+                pypentago.data['ball-bg.png']
         )
         
         self.overlay = Overlay(self.repaint)
